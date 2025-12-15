@@ -1,0 +1,192 @@
+<resources>
+    <!-- App Name -->
+    <string name="app_name">Ngân Hàng Di Động</string>
+
+    <!-- Common -->
+    <string name="login">Đăng Nhập</string>
+    <string name="register">Đăng Ký</string>
+    <string name="cancel">Hủy</string>
+    <string name="confirm">Xác Nhận</string>
+    <string name="submit">Gửi</string>
+    <string name="save">Lưu</string>
+    <string name="edit">Chỉnh Sửa</string>
+    <string name="delete">Xóa</string>
+    <string name="back">Quay Lại</string>
+    <string name="next">Tiếp Theo</string>
+    <string name="done">Hoàn Thành</string>
+    <string name="ok">Đồng Ý</string>
+    <string name="yes">Có</string>
+    <string name="no">Không</string>
+
+    <!-- Authentication -->
+    <string name="app_logo">Logo Ứng Dụng</string>
+    <string name="welcome_message">Ngân hàng an toàn trong tầm tay bạn</string>
+    <string name="username">Tên Đăng Nhập</string>
+    <string name="password">Mật Khẩu</string>
+    <string name="remember_me">Ghi nhớ đăng nhập</string>
+    <string name="forgot_password">Quên Mật Khẩu?</string>
+    <string name="login_with_biometric">Đăng Nhập Bằng Khuôn Mặt</string>
+    <string name="dont_have_account">Chưa có tài khoản?</string>
+    <string name="already_have_account">Đã có tài khoản?</string>
+
+    <!-- Registration -->
+    <string name="create_account">Tạo Tài Khoản</string>
+    <string name="full_name">Họ và Tên</string>
+    <string name="email">Email</string>
+    <string name="phone_number">Số Điện Thoại</string>
+    <string name="id_number">Số CMND/CCCD</string>
+    <string name="confirm_password">Xác Nhận Mật Khẩu</string>
+
+    <!-- OTP Verification -->
+    <string name="otp_verification">Xác Thực OTP</string>
+    <string name="otp_description">Nhập mã 6 số đã gửi đến điện thoại của bạn</string>
+    <string name="sent_to_phone">Đã gửi đến số điện thoại</string>
+    <string name="verify">Xác Thực</string>
+    <string name="resend_otp">Gửi Lại OTP</string>
+    <string name="resend_timer">Gửi lại sau %1$ds</string>
+    
+    <!-- Forgot Password -->
+    <string name="forgot_password_title">Quên Mật Khẩu</string>
+    <string name="forgot_password_description">Nhập số điện thoại đã đăng ký để nhận mã OTP</string>
+    <string name="enter_phone_number">Nhập Số Điện Thoại</string>
+    <string name="send_otp">Gửi Mã OTP</string>
+    <string name="sending_otp">Đang gửi mã OTP…</string>
+    <string name="otp_sent_success">Mã OTP đã được gửi đến số điện thoại của bạn</string>
+    <string name="invalid_phone_format">Số điện thoại không đúng định dạng. Vui lòng nhập lại (ví dụ: 0901234567 hoặc 84901234567)</string>
+    <string name="phone_not_registered">Số điện thoại này chưa được đăng ký trong hệ thống</string>
+    <string name="otp_expired">Mã OTP đã hết hạn. Vui lòng gửi lại</string>
+    <string name="invalid_otp">Mã OTP không đúng. Vui lòng thử lại</string>
+    <string name="reset_password_title">Đặt Lại Mật Khẩu</string>
+    <string name="new_password">Mật Khẩu Mới</string>
+    <string name="confirm_new_password">Xác Nhận Mật Khẩu Mới</string>
+    <string name="reset_password">Đặt Lại Mật Khẩu</string>
+    <string name="password_reset_success">Đặt lại mật khẩu thành công. Vui lòng đăng nhập lại</string>
+    <string name="password_mismatch">Mật khẩu xác nhận không khớp</string>
+    <string name="password_too_short">Mật khẩu phải có ít nhất 6 ký tự</string>
+    <string name="rate_limit_exceeded">Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau 1 giờ</string>
+    <string name="network_error">Lỗi kết nối mạng. Vui lòng kiểm tra kết nối và thử lại</string>
+    <string name="sms_delivery_failed">Không thể gửi SMS. Vui lòng thử lại sau</string>
+
+    <!-- Biometric Authentication -->
+    <string name="face_authentication">Xác Thực Khuôn Mặt</string>
+    <string name="face_scan">Quét Khuôn Mặt</string>
+    <string name="position_face">Đặt khuôn mặt vào khung hình</string>
+    <string name="face_scan_instructions">Giữ khuôn mặt ở giữa và đủ ánh sáng</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard">Trang Chủ</string>
+    <string name="welcome_user">Xin Chào</string>
+    <string name="total_balance">Tổng Số Dư</string>
+    <string name="my_accounts">Tài Khoản Của Tôi</string>
+    <string name="services">Dịch Vụ</string>
+    <string name="transfer">Chuyển Tiền</string>
+    <string name="bill_payment">Thanh Toán Hóa Đơn</string>
+    <string name="more_services">Thêm</string>
+    <string name="action_icon">Biểu Tượng</string>
+
+    <!-- Account Types -->
+    <string name="checking_account">Tài Khoản Thanh Toán</string>
+    <string name="savings_account">Tài Khoản Tiết Kiệm</string>
+    <string name="mortgage_account">Tài Khoản Vay</string>
+
+    <!-- Menu -->
+    <string name="action_profile">Hồ Sơ</string>
+    <string name="action_logout">Đăng Xuất</string>
+    <string name="action_settings">Cài Đặt</string>
+
+    <!-- QR Scanner -->
+    <string name="scan_cccd_qr">Quét mã QR CCCD</string>
+    <string name="scan_qr_instructions">Đặt mã QR CCCD vào khung hình. Giữ điện thoại cách 20-30cm và đảm bảo ánh sáng đủ sáng.</string>
+    <string name="qr_scan_success">Đã lấy thông tin từ CCCD thành công</string>
+    <string name="qr_scan_error">Lỗi quét mã QR. Vui lòng thử lại.</string>
+    <string name="qr_invalid_format">Định dạng mã QR không hợp lệ</string>
+    <string name="camera_permission_required">Cần quyền camera để quét mã QR</string>
+    <string name="manual_input">Nhập thủ công</string>
+    <string name="flash_on">Đã bật đèn flash</string>
+    <string name="flash_off">Đã tắt đèn flash</string>
+    <string name="scan_timeout_message">Không thể quét được mã QR sau 30 giây. Vui lòng kiểm tra:\n• Ánh sáng đủ sáng\n• Mã QR rõ ràng, không bị mờ\n• Khoảng cách phù hợp (20-30cm)</string>
+
+    <!-- Transfer -->
+    <string name="money_transfer">Chuyển Tiền</string>
+    <string name="from_account">Từ Tài Khoản</string>
+    <string name="to_account">Đến Tài Khoản</string>
+    <string name="recipient_account">Số Tài Khoản Người Nhận</string>
+    <string name="amount">Số Tiền</string>
+    <string name="transfer_note">Nội Dung Chuyển Tiền</string>
+    <string name="transfer_fee">Phí Chuyển Tiền</string>
+    <string name="total_amount">Tổng Tiền</string>
+
+    <!-- Bill Payment -->
+    <string name="electricity_bill">Hóa Đơn Điện</string>
+    <string name="water_bill">Hóa Đơn Nước</string>
+    <string name="internet_bill">Hóa Đơn Internet</string>
+    <string name="customer_code">Mã Khách Hàng</string>
+    <string name="bill_amount">Số Tiền Hóa Đơn</string>
+
+    <!-- Mobile Top-up -->
+    <string name="mobile_topup">Nạp Tiền Điện Thoại</string>
+    <string name="select_provider">Chọn Nhà Mạng</string>
+    <string name="topup_amount">Số Tiền Nạp</string>
+
+    <!-- Booking -->
+    <string name="ticket_booking">Đặt Vé</string>
+    <string name="flight_tickets">Vé Máy Bay</string>
+    <string name="movie_tickets">Vé Xem Phim</string>
+    <string name="hotel_booking">Đặt Phòng Khách Sạn</string>
+    <string name="check_in_date">Ngày Nhận Phòng</string>
+    <string name="check_out_date">Ngày Trả Phòng</string>
+    <string name="guests">Số Khách</string>
+
+    <!-- Map -->
+    <string name="branch_locator">Tìm Chi Nhánh</string>
+    <string name="find_branches">Tìm Chi Nhánh</string>
+    <string name="atm_locations">Vị Trí ATM</string>
+    <string name="get_directions">Chỉ Đường</string>
+
+    <!-- Transaction History -->
+    <string name="transaction_history">Lịch Sử Giao Dịch</string>
+    <string name="recent_transactions">Giao Dịch Gần Đây</string>
+    <string name="view_all">Xem Tất Cả</string>
+
+    <!-- Profile -->
+    <string name="profile">Hồ Sơ</string>
+    <string name="personal_info">Thông Tin Cá Nhân</string>
+    <string name="security_settings">Cài Đặt Bảo Mật</string>
+    <string name="notification_settings">Cài Đặt Thông Báo</string>
+
+    <!-- Officer Dashboard -->
+    <string name="officer_dashboard">Bảng Điều Khiển Nhân Viên</string>
+    <string name="customer_management">Quản Lý Khách Hàng</string>
+    <string name="account_management">Quản Lý Tài Khoản</string>
+    <string name="transaction_monitoring">Giám Sát Giao Dịch</string>
+    <string name="reports">Báo Cáo</string>
+
+    <!-- Error Messages -->
+    <string name="error_network">Lỗi kết nối mạng. Vui lòng thử lại.</string>
+    <string name="error_invalid_credentials">Tên đăng nhập hoặc mật khẩu không đúng</string>
+    <string name="error_required_fields">Vui lòng điền đầy đủ thông tin</string>
+    <string name="error_invalid_amount">Vui lòng nhập số tiền hợp lệ</string>
+    <string name="error_insufficient_balance">Số dư không đủ</string>
+
+    <!-- Success Messages -->
+    <string name="success_login">Đăng nhập thành công</string>
+    <string name="success_registration">Đăng ký thành công</string>
+    <string name="success_transfer">Chuyển tiền thành công</string>
+    <string name="success_payment">Thanh toán thành công</string>
+
+    <!-- Account Details -->
+    <string name="account_details">Chi Tiết Tài Khoản</string>
+    <string name="account_number">Số Tài Khoản</string>
+    <string name="available_balance">Số Dư Khả Dụng</string>
+    <string name="interest_rate">Lãi Suất</string>
+    <string name="monthly_profit">Lợi Nhuận Hàng Tháng</string>
+    <string name="loan_amount">Số Tiền Vay</string>
+    <string name="monthly_payment">Trả Hàng Tháng</string>
+    <string name="remaining_months">Số Tháng Còn Lại</string>
+
+    <!-- Missing strings for default fragments -->
+    <string name="first_fragment_label">Fragment Đầu Tiên</string>
+    <string name="second_fragment_label">Fragment Thứ Hai</string>
+    <string name="previous">Trước</string>
+    <string name="lorem_ipsum">Đây là văn bản mẫu để kiểm tra giao diện ứng dụng. Nội dung này sẽ được thay thế bằng dữ liệu thực tế khi ứng dụng hoạt động.</string>
+</resources>
