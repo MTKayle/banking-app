@@ -82,3 +82,4 @@ Nếu IP thay đổi thường xuyên, nên dùng:
 - **USB Tethering + ADB Reverse** (ổn định hơn)
 - **ngrok** (không cần cùng mạng)
 
+

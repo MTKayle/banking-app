@@ -5,6 +5,7 @@ package com.example.mobilebanking.api.dto;
  */
 public class AuthResponse {
     private String token;
+    private String refreshToken; // NEW: refresh token from backend
     private String type;
     private Long userId;
     private String email;
@@ -21,6 +22,14 @@ public class AuthResponse {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
     public String getType() {

@@ -16,6 +16,8 @@ import com.example.mobilebanking.api.ApiClient;
 import com.example.mobilebanking.api.AuthApiService;
 import com.example.mobilebanking.api.dto.AuthResponse;
 import com.example.mobilebanking.api.dto.LoginRequest;
+import com.example.mobilebanking.api.dto.RefreshTokenRequest;
+import com.example.mobilebanking.api.dto.FeatureStatusResponse;
 import com.example.mobilebanking.models.User;
 import com.example.mobilebanking.utils.BiometricAuthManager;
 import com.example.mobilebanking.utils.DataManager;
@@ -165,17 +167,18 @@ public class LoginActivity extends AppCompatActivity {
                     // Lưu username (phone) cuối cùng để tự động điền lần sau
                     dataManager.saveLastUsername(finalPhone);
                     
-                    // Lưu token từ API response
-                    if (authResponse.getToken() != null) {
-                        // Backend chỉ trả về access token, không có refresh token
-                        // Nếu cần refresh token, cần thêm vào AuthResponse
+                    // Lưu token từ API response (access token + refresh token)
+                    if (authResponse.getToken() != null && authResponse.getRefreshToken() != null) {
+                        dataManager.saveTokens(authResponse.getToken(), authResponse.getRefreshToken());
+                    } else if (authResponse.getToken() != null) {
+                        // Fallback: trong trường hợp backend chưa trả refresh token
                         dataManager.saveTokens(authResponse.getToken(), authResponse.getToken());
                     }
                     
                     // Nếu đã bật chức năng vân tay, lưu refresh token tạm thời
-            if (biometricManager.isBiometricEnabled()) {
-                String refreshToken = dataManager.getRefreshToken();
-                if (refreshToken != null) {
+                    if (biometricManager.isBiometricEnabled()) {
+                        String refreshToken = dataManager.getRefreshToken();
+                        if (refreshToken != null) {
                             saveRefreshTokenWithoutAuth(refreshToken, finalPhone);
                         }
                     }
@@ -233,6 +236,17 @@ public class LoginActivity extends AppCompatActivity {
      * 3. Nếu đã bật → Yêu cầu quét vân tay ngay → Giải mã refresh token → Gửi về backend để lấy access token mới
      */
     private void handleBiometricLogin() {
+        // Lấy số điện thoại hiện tại hoặc last username (để gửi lên backend kiểm tra)
+        String phone = etUsername.getText().toString().trim();
+        if (phone.isEmpty()) {
+            phone = dataManager.getLastUsername();
+        }
+
+        if (phone == null || phone.isEmpty()) {
+            Toast.makeText(this, "Vui lòng nhập số điện thoại trước khi dùng vân tay", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         // Bước 1: Kiểm tra đã bật chức năng vân tay chưa
         if (!biometricManager.isBiometricEnabled()) {
             new AlertDialog.Builder(this)
@@ -246,7 +260,41 @@ public class LoginActivity extends AppCompatActivity {
                 .show();
             return;
         }
-        
+
+        // Bước 1.5: Hỏi backend xem tài khoản này đã bật fingerprint login chưa
+        AuthApiService authApiService = ApiClient.getAuthApiService();
+        Call<FeatureStatusResponse> checkCall = authApiService.checkFingerprintEnabled(phone);
+        checkCall.enqueue(new Callback<FeatureStatusResponse>() {
+            @Override
+            public void onResponse(Call<FeatureStatusResponse> call, Response<FeatureStatusResponse> response) {
+                if (!response.isSuccessful() || response.body() == null || !response.body().isEnabled()) {
+                    runOnUiThread(() -> {
+                        Toast.makeText(LoginActivity.this,
+                                "Tài khoản này chưa bật đăng nhập bằng vân tay trên hệ thống. Vui lòng đăng nhập bằng mật khẩu.",
+                                Toast.LENGTH_LONG).show();
+                    });
+                    return;
+                }
+
+                // Backend xác nhận đã bật fingerprint login → tiến hành quét vân tay
+                startBiometricFlow();
+            }
+
+            @Override
+            public void onFailure(Call<FeatureStatusResponse> call, Throwable t) {
+                runOnUiThread(() -> {
+                    Toast.makeText(LoginActivity.this,
+                            "Không thể kiểm tra trạng thái vân tay. Vui lòng thử lại hoặc đăng nhập bằng mật khẩu.",
+                            Toast.LENGTH_LONG).show();
+                });
+            }
+        });
+    }
+
+    /**
+     * Bắt đầu luồng quét vân tay và gọi API refresh-token sau khi giải mã refresh token
+     */
+    private void startBiometricFlow() {
         // Bước 2: Yêu cầu quét vân tay ngay (không check hasRefreshToken nữa)
         // Nếu chưa có refresh token, sẽ báo lỗi trong getRefreshToken
         biometricManager.getRefreshToken(this, new BiometricAuthManager.BiometricAuthCallback() {
@@ -274,27 +322,47 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 dataManager.saveLoggedInUser(username, role);
                 
-                // Bước 4: Gửi refresh token về backend để lấy access token mới
-                // Mock: Trong production sẽ gọi API
-                boolean success = dataManager.refreshAccessToken(refreshToken);
-                
-                if (success) {
-                    // Lưu lại refresh token mới vào temp storage (không yêu cầu quét vân tay)
-                    // Vì mỗi lần đăng nhập đều cấp token mới
-                    String newRefreshToken = dataManager.getRefreshToken();
-                    if (newRefreshToken != null) {
-                        saveRefreshTokenWithoutAuth(newRefreshToken, username);
+                // Bước 4: Gửi refresh token về backend để lấy access token + refresh token mới
+                AuthApiService authApiService = ApiClient.getAuthApiService();
+                RefreshTokenRequest request = new RefreshTokenRequest(refreshToken);
+                Call<AuthResponse> call = authApiService.refreshToken(request);
+
+                call.enqueue(new Callback<AuthResponse>() {
+                    @Override
+                    public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+                        if (response.isSuccessful() && response.body() != null &&
+                                response.body().getToken() != null && response.body().getRefreshToken() != null) {
+
+                            AuthResponse authResponse = response.body();
+
+                            // Lưu token mới
+                            dataManager.saveTokens(authResponse.getToken(), authResponse.getRefreshToken());
+
+                            // Lưu lại refresh token mới vào temp storage (không yêu cầu quét vân tay)
+                            saveRefreshTokenWithoutAuth(authResponse.getRefreshToken(), username);
+
+                            runOnUiThread(() -> {
+                                Toast.makeText(LoginActivity.this, "Đăng nhập bằng vân tay thành công!", Toast.LENGTH_SHORT).show();
+                                navigateToDashboard();
+                            });
+                        } else {
+                            runOnUiThread(() -> {
+                                Toast.makeText(LoginActivity.this,
+                                        "Không thể làm mới token. Vui lòng đăng nhập bằng mật khẩu.",
+                                        Toast.LENGTH_LONG).show();
+                            });
+                        }
                     }
-                    
-                    runOnUiThread(() -> {
-                        Toast.makeText(LoginActivity.this, "Đăng nhập bằng vân tay thành công!", Toast.LENGTH_SHORT).show();
-                        navigateToDashboard();
-                    });
-                } else {
-                    runOnUiThread(() -> {
-                        Toast.makeText(LoginActivity.this, "Không thể làm mới token. Vui lòng đăng nhập bằng mật khẩu.", Toast.LENGTH_LONG).show();
-                    });
-                }
+
+                    @Override
+                    public void onFailure(Call<AuthResponse> call, Throwable t) {
+                        runOnUiThread(() -> {
+                            Toast.makeText(LoginActivity.this,
+                                    "Lỗi kết nối khi làm mới token. Vui lòng đăng nhập bằng mật khẩu.",
+                                    Toast.LENGTH_LONG).show();
+                        });
+                    }
+                });
             }
             
             @Override

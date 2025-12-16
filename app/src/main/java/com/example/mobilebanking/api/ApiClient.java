@@ -44,14 +44,17 @@ public class ApiClient {
     private static final String BASE_URL_EMULATOR = "http://10.0.2.2:8089/api/";
     private static final String BASE_URL_DEVICE = "http://" + IP_MÁY_TÍNH_CỦA_BẠN + ":8089/api/";
     private static final String BASE_URL_USB = "http://localhost:8089/api/"; // Dùng khi kết nối USB + adb reverse
+    // Ngrok tunnel (HTTPS) do user cung cấp
+    private static final String BASE_URL_NGROK = "https://unconsonant-alycia-pawkily.ngrok-free.dev/api/";
     
     // Chọn phương thức kết nối:
     // - "USB": Dùng USB + adb reverse (ổn định nhất, không cần IP) - KHUYẾN NGHỊ!
     // - "WIFI": Dùng Wi-Fi với IP máy tính (cần cùng subnet)
     // - "EMULATOR": Dùng Android Emulator
+    // - "NGROK": Dùng tunnel ngrok (HTTPS)
     // LƯU Ý: Nếu IP điện thoại và máy tính khác subnet (ví dụ: 10.0.220.x vs 10.0.221.x)
     //        → Dùng USB tethering hoặc kiểm tra router settings (AP Isolation)
-    private static final String CONNECTION_MODE = "USB"; // "USB", "WIFI", hoặc "EMULATOR"
+    private static final String CONNECTION_MODE = "NGROK"; // "USB", "WIFI", "EMULATOR", hoặc "NGROK"
     
     private static final String BASE_URL;
     static {
@@ -61,6 +64,9 @@ public class ApiClient {
                 break;
             case "EMULATOR":
                 BASE_URL = BASE_URL_EMULATOR;
+                break;
+            case "NGROK":
+                BASE_URL = BASE_URL_NGROK;
                 break;
             case "WIFI":
             default:

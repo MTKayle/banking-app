@@ -24,3 +24,4 @@ echo Then rebuild app: .\gradlew.bat installDebug
 echo.
 pause
 
+

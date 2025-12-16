@@ -26,3 +26,4 @@ private static final String BASE_URL = "http://localhost:8089/api/";
 - Cần chạy lại lệnh `adb reverse` mỗi khi ngắt kết nối USB
 - Có thể tạo file batch để tự động chạy
 
+
