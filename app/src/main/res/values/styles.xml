@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <!-- OTP EditText Style -->
     <style name="OtpEditText">
         <item name="android:inputType">number</item>
@@ -8,7 +9,13 @@
         <item name="android:textSize">24sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:background">@drawable/otp_edittext_background</item>
-        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textColor">@android:color/white</item>
     </style>
-</resources>
 
+    <!-- TextInputLayout hint luôn màu trắng -->
+    <style name="WhiteHintTextInputLayout">
+        <item name="hintTextColor">@android:color/white</item>
+    </style>
+
+
+</resources>

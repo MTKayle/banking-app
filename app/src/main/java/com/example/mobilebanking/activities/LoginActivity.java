@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,16 +35,30 @@ import retrofit2.Response;
  */
 public class LoginActivity extends AppCompatActivity {
     private EditText etUsername, etPassword;
-    private Button btnLogin, btnBiometric;
-    private TextView tvRegister, tvForgotPassword;
+    private Button btnLogin;
+    private TextView tvRegister, tvForgotPassword, tvUserName, tvOtherAccount;
     private CheckBox cbRememberMe;
+    private ImageView ivFingerprint;
     private DataManager dataManager;
     private BiometricAuthManager biometricManager;
+    private boolean isQuickLoginMode = true; // Flag to determine which layout is used
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        // TEMPORARY: Always use quick login layout for testing
+        setContentView(R.layout.activity_login_quick);
+        isQuickLoginMode = true;
+        
+        // Original logic (commented for testing):
+        // String lastFullName = DataManager.getInstance(this).getLastFullName();
+        // if (lastFullName != null && !lastFullName.isEmpty()) {
+        //     setContentView(R.layout.activity_login_quick);
+        //     isQuickLoginMode = true;
+        // } else {
+        //     setContentView(R.layout.activity_login);
+        //     isQuickLoginMode = false;
+        // }
 
         // Khởi tạo ApiClient
         ApiClient.init(this);
@@ -60,68 +75,129 @@ public class LoginActivity extends AppCompatActivity {
         initializeViews();
         setupListeners();
         loadLastUsername();
+        loadLastUserInfo();
         
-        // Kiểm tra và hiển thị nút vân tay nếu thiết bị hỗ trợ
-        if (!biometricManager.isBiometricAvailable()) {
-            btnBiometric.setVisibility(android.view.View.GONE);
+        // Hide fingerprint icon if biometric is not available
+        if (ivFingerprint != null && !biometricManager.isBiometricAvailable()) {
+            ivFingerprint.setVisibility(android.view.View.GONE);
         }
     }
 
     private void initializeViews() {
-        etUsername = findViewById(R.id.et_username);
+        // Views that exist in both layouts
         etPassword = findViewById(R.id.et_password);
         btnLogin = findViewById(R.id.btn_login);
-        btnBiometric = findViewById(R.id.btn_biometric);
-        tvRegister = findViewById(R.id.tv_register);
         tvForgotPassword = findViewById(R.id.tv_forgot_password);
-        cbRememberMe = findViewById(R.id.cb_remember_me);
+        
+        // Views that only exist in full login layout (activity_login.xml)
+        // These may be null in quick login mode
+        etUsername = findViewById(R.id.et_username);
+        tvRegister = findViewById(R.id.tv_register);
+//        cbRememberMe = findViewById(R.id.cb_remember_me);
+        
+        // Views that only exist in quick login layout (activity_login_quick.xml)
+        // These may be null in full login mode
+        tvUserName = findViewById(R.id.tv_user_name);
+        tvOtherAccount = findViewById(R.id.tv_other_account);
+        ivFingerprint = findViewById(R.id.iv_fingerprint);
     }
 
     private void setupListeners() {
         btnLogin.setOnClickListener(v -> handleLogin());
+
+        if (tvRegister != null) {
+            tvRegister.setOnClickListener(v -> {
+                Intent intent = new Intent(LoginActivity.this, MainRegistrationActivity.class);
+                startActivity(intent);
+            });
+        }
+
+        if (tvForgotPassword != null) {
+            tvForgotPassword.setOnClickListener(v -> {
+                Intent intent = new Intent(LoginActivity.this, ForgotPasswordActivity.class);
+                startActivity(intent);
+            });
+        }
         
-        btnBiometric.setOnClickListener(v -> handleBiometricLogin());
-
-        tvRegister.setOnClickListener(v -> {
-            Intent intent = new Intent(LoginActivity.this, MainRegistrationActivity.class);
-            startActivity(intent);
-        });
-
-        tvForgotPassword.setOnClickListener(v -> {
-            Intent intent = new Intent(LoginActivity.this, ForgotPasswordActivity.class);
-            startActivity(intent);
-        });
+        // Quick login mode: Other account button
+        if (tvOtherAccount != null) {
+            tvOtherAccount.setOnClickListener(v -> {
+                // Switch to full login screen
+                setContentView(R.layout.activity_login);
+                isQuickLoginMode = false;
+                
+                // Re-initialize all components for the new layout
+                initializeViews();
+                setupListeners();
+                loadLastUsername();
+                
+                // Clear password field when switching
+                if (etPassword != null) {
+                    etPassword.setText("");
+                }
+            });
+        }
+        
+        // Quick login mode: Fingerprint icon
+        if (ivFingerprint != null) {
+            ivFingerprint.setOnClickListener(v -> handleBiometricLogin());
+        }
         
         // Khi người dùng nhập password và nhấn Enter, tự động đăng nhập nếu username đã có
-        etPassword.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE) {
-                handleLogin();
-                return true;
-            }
-            return false;
-        });
+        if (etPassword != null) {
+            etPassword.setOnEditorActionListener((v, actionId, event) -> {
+                if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE) {
+                    handleLogin();
+                    return true;
+                }
+                return false;
+            });
+        }
     }
     
     /**
      * Tải username cuối cùng đã đăng nhập và điền vào ô username
      */
     private void loadLastUsername() {
-        String lastUsername = dataManager.getLastUsername();
-        if (lastUsername != null && !lastUsername.isEmpty()) {
-            etUsername.setText(lastUsername);
-            // Focus vào ô password để người dùng chỉ cần nhập password
-            etPassword.requestFocus();
+        if (etUsername != null) {
+            String lastUsername = dataManager.getLastUsername();
+            if (lastUsername != null && !lastUsername.isEmpty()) {
+                etUsername.setText(lastUsername);
+                // Focus vào ô password để người dùng chỉ cần nhập password
+                if (etPassword != null) {
+                    etPassword.requestFocus();
+                }
+            }
+        }
+    }
+    
+    /**
+     * Tải thông tin người dùng lần đăng nhập cuối (tên đầy đủ) để hiển thị
+     * Chỉ hiển thị họ và tên, không hiển thị số điện thoại
+     */
+    private void loadLastUserInfo() {
+        if (tvUserName != null) {
+            String lastFullName = dataManager.getLastFullName();
+            if (lastFullName != null && !lastFullName.isEmpty()) {
+                tvUserName.setText(lastFullName);
+            } else {
+                // Nếu không có fullName, để trống hoặc hiển thị "Người dùng"
+                tvUserName.setText("Người dùng");
+            }
         }
     }
 
     private void handleLogin() {
-        String phone = etUsername.getText().toString().trim();
+        String phone = null;
+        if (etUsername != null) {
+            phone = etUsername.getText().toString().trim();
+        }
         String password = etPassword.getText().toString().trim();
         
         // Nếu phone trống, thử lấy từ last username
-        if (phone.isEmpty()) {
+        if (phone == null || phone.isEmpty()) {
             phone = dataManager.getLastUsername();
-            if (phone != null && !phone.isEmpty()) {
+            if (phone != null && !phone.isEmpty() && etUsername != null) {
                 etUsername.setText(phone);
             }
         }
@@ -166,6 +242,11 @@ public class LoginActivity extends AppCompatActivity {
                     
                     // Lưu username (phone) cuối cùng để tự động điền lần sau
                     dataManager.saveLastUsername(finalPhone);
+                    
+                    // Lưu tên đầy đủ (fullName) của người dùng để hiển thị lần sau
+                    if (authResponse.getFullName() != null && !authResponse.getFullName().isEmpty()) {
+                        dataManager.saveLastFullName(authResponse.getFullName());
+                    }
                     
                     // Lưu token từ API response (access token + refresh token)
                     if (authResponse.getToken() != null && authResponse.getRefreshToken() != null) {
@@ -237,8 +318,12 @@ public class LoginActivity extends AppCompatActivity {
      */
     private void handleBiometricLogin() {
         // Lấy số điện thoại hiện tại hoặc last username (để gửi lên backend kiểm tra)
-        String phone = etUsername.getText().toString().trim();
-        if (phone.isEmpty()) {
+        String phone = null;
+        if (etUsername != null) {
+            phone = etUsername.getText().toString().trim();
+        }
+        
+        if (phone == null || phone.isEmpty()) {
             phone = dataManager.getLastUsername();
         }
 
@@ -253,8 +338,12 @@ public class LoginActivity extends AppCompatActivity {
                 .setTitle("Chưa bật đăng nhập bằng vân tay")
                 .setMessage("Bạn chưa bật chức năng đăng nhập bằng vân tay. Vui lòng vào Cài đặt để bật tính năng này, hoặc đăng nhập bằng mật khẩu.")
                 .setPositiveButton("Đăng nhập bằng mật khẩu", (dialog, which) -> {
-                    // Focus vào ô username
-                    etUsername.requestFocus();
+                    // Focus vào ô username nếu có
+                    if (etUsername != null) {
+                        etUsername.requestFocus();
+                    } else if (etPassword != null) {
+                        etPassword.requestFocus();
+                    }
                 })
                 .setNegativeButton("Hủy", null)
                 .show();

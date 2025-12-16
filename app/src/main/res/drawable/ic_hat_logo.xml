@@ -1,0 +1,51 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+    
+    <!-- Background Circle with gradient effect -->
+    <path
+        android:fillColor="#2E7D32"
+        android:pathData="M50,8 C28,8 10,26 10,48 C10,70 28,88 50,88 C72,88 90,70 90,48 C90,26 72,8 50,8 Z"/>
+    
+    <!-- Inner circle for depth -->
+    <path
+        android:fillColor="#57B85F"
+        android:pathData="M50,12 C30,12 14,28 14,48 C14,68 30,84 50,84 C70,84 86,68 86,48 C86,28 70,12 50,12 Z"/>
+    
+    <!-- Letter H - Left vertical -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M22,25 L22,40 L28,40 L28,25 L22,25 Z"/>
+    <!-- Letter H - Right vertical -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M22,55 L22,70 L28,70 L28,55 L22,55 Z"/>
+    <!-- Letter H - Horizontal bar -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M22,40 L28,40 L28,55 L22,55 Z"/>
+    
+    <!-- Letter A - Left side -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M35,70 L40,55 L45,55 L50,70 L45,70 L43.5,64 L41.5,64 L40,70 Z"/>
+    <!-- Letter A - Right side -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M40,50 L45,50 L42.5,35 L40,50 Z"/>
+    <!-- Letter A - Horizontal bar -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M40,50 L45,50 L45,52 L40,52 Z"/>
+    
+    <!-- Letter T - Vertical -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M55,25 L55,35 L60,35 L60,70 L70,70 L70,35 L65,35 L65,25 Z"/>
+    <!-- Letter T - Horizontal -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M55,25 L70,25 L70,30 L55,30 Z"/>
+</vector>

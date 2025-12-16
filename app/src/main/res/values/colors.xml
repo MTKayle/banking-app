@@ -5,6 +5,14 @@
     <color name="primary_dark">#0D47A1</color>
     <color name="primary_light">#BBDEFB</color>
     <color name="accent_color">#FF5722</color>
+    
+    <!-- Green Theme Colors -->
+    <color name="green_primary">#2E7D32</color>
+    <color name="green_primary_dark">#1B5E20</color>
+    <color name="green_primary_light">#A5D6A7</color>
+    <color name="green_background_light">#E8F5E9</color>
+    <color name="green_background_lighter">#F1F8E9</color>
+    <color name="green_card_transparent">#B0E8B0</color>
 
     <!-- Background Colors -->
     <color name="background_color">#F5F5F5</color>
