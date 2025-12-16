@@ -73,7 +73,7 @@ public class MainRegistrationActivity extends AppCompatActivity {
     }
     
     private void updateProgress(int currentStep) {
-        int totalSteps = 4;
+        int totalSteps = 5; // Updated to 5 steps
         int progress = (currentStep * 100) / totalSteps;
         progressBar.setProgress(progress);
         tvProgress.setText(String.format("%d/%d", currentStep, totalSteps));
@@ -107,15 +107,11 @@ public class MainRegistrationActivity extends AppCompatActivity {
     }
     
     /**
-     * Complete registration
+     * Complete registration - This will be called after face verification succeeds
      */
     public void completeRegistration() {
-        // Navigate to OTP verification
-        android.content.Intent intent = new android.content.Intent(this, OtpVerificationActivity.class);
-        intent.putExtra("phone", registrationData.getPhoneNumber());
-        intent.putExtra("from", "register");
-        startActivity(intent);
-        finish();
+        // Registration is completed in Step5FaceVerificationFragment after API call succeeds
+        // This method is kept for backward compatibility but may not be used
     }
 }
 

@@ -12,9 +12,20 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mobilebanking.R;
+import com.example.mobilebanking.api.ApiClient;
+import com.example.mobilebanking.api.AuthApiService;
+import com.example.mobilebanking.api.dto.AuthResponse;
+import com.example.mobilebanking.api.dto.LoginRequest;
 import com.example.mobilebanking.models.User;
 import com.example.mobilebanking.utils.BiometricAuthManager;
 import com.example.mobilebanking.utils.DataManager;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Login Activity for user authentication
@@ -31,6 +42,9 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        // Khởi tạo ApiClient
+        ApiClient.init(this);
 
         dataManager = DataManager.getInstance(this);
         biometricManager = new BiometricAuthManager(this);
@@ -99,51 +113,116 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void handleLogin() {
-        String username = etUsername.getText().toString().trim();
+        String phone = etUsername.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
         
-        // Nếu username trống, thử lấy từ last username
-        if (username.isEmpty()) {
-            username = dataManager.getLastUsername();
-            if (username != null && !username.isEmpty()) {
-                etUsername.setText(username);
+        // Nếu phone trống, thử lấy từ last username
+        if (phone.isEmpty()) {
+            phone = dataManager.getLastUsername();
+            if (phone != null && !phone.isEmpty()) {
+                etUsername.setText(phone);
             }
         }
 
-        if (username.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Vui lòng nhập tên đăng nhập và mật khẩu", Toast.LENGTH_SHORT).show();
+        if (phone.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Vui lòng nhập số điện thoại và mật khẩu", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Validate credentials with mock data
-        User authenticatedUser = validateCredentials(username, password);
+        // Validate phone format (10-11 digits)
+        if (!phone.matches("^[0-9]{10,11}$")) {
+            Toast.makeText(this, "Số điện thoại không hợp lệ (10-11 chữ số)", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        if (authenticatedUser != null) {
+        // Disable login button to prevent multiple clicks
+        btnLogin.setEnabled(false);
+        btnLogin.setText("Đang đăng nhập...");
+
+        // Make phone final for use in inner class
+        final String finalPhone = phone;
+
+        // Call API
+        LoginRequest loginRequest = new LoginRequest(finalPhone, password);
+        AuthApiService authApiService = ApiClient.getAuthApiService();
+        
+        Call<AuthResponse> call = authApiService.login(loginRequest);
+        call.enqueue(new Callback<AuthResponse>() {
+            @Override
+            public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+                btnLogin.setEnabled(true);
+                btnLogin.setText("Đăng nhập");
+                
+                if (response.isSuccessful() && response.body() != null) {
+                    AuthResponse authResponse = response.body();
+                    
             // Save session
-            dataManager.saveLoggedInUser(username, authenticatedUser.getRole());
-            
-            // Lưu username cuối cùng để tự động điền lần sau
-            dataManager.saveLastUsername(username);
-            
-            // Tạo và lưu token mới (mock - trong production sẽ lấy từ API)
-            dataManager.generateNewTokens(username);
-            
-            // Nếu đã bật chức năng vân tay, lưu refresh token tạm thời (không yêu cầu quét vân tay)
-            // Token sẽ được lưu vào Keystore khi đăng nhập bằng vân tay lần sau
+                    User.UserRole role = "CUSTOMER".equalsIgnoreCase(authResponse.getRole()) 
+                            ? User.UserRole.CUSTOMER 
+                            : User.UserRole.OFFICER;
+                    dataManager.saveLoggedInUser(finalPhone, role);
+                    
+                    // Lưu username (phone) cuối cùng để tự động điền lần sau
+                    dataManager.saveLastUsername(finalPhone);
+                    
+                    // Lưu token từ API response
+                    if (authResponse.getToken() != null) {
+                        // Backend chỉ trả về access token, không có refresh token
+                        // Nếu cần refresh token, cần thêm vào AuthResponse
+                        dataManager.saveTokens(authResponse.getToken(), authResponse.getToken());
+                    }
+                    
+                    // Nếu đã bật chức năng vân tay, lưu refresh token tạm thời
             if (biometricManager.isBiometricEnabled()) {
                 String refreshToken = dataManager.getRefreshToken();
                 if (refreshToken != null) {
-                    // Lưu refresh token tạm thời vào SharedPreferences (không mã hóa)
-                    // Khi đăng nhập bằng vân tay lần sau, sẽ lưu vào Keystore với mã hóa
-                    saveRefreshTokenWithoutAuth(refreshToken, username);
+                            saveRefreshTokenWithoutAuth(refreshToken, finalPhone);
+                        }
+                    }
+
+                    Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
+                    navigateToDashboard();
+                } else {
+                    // Parse error message
+                    String errorMessage = "Đăng nhập thất bại";
+                    try {
+                        if (response.errorBody() != null) {
+                            String errorBody = response.errorBody().string();
+                            JsonObject jsonObject = JsonParser.parseString(errorBody).getAsJsonObject();
+                            if (jsonObject.has("message")) {
+                                errorMessage = jsonObject.get("message").getAsString();
+                            } else if (jsonObject.has("error")) {
+                                errorMessage = jsonObject.get("error").getAsString();
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    
+                    Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_LONG).show();
                 }
             }
 
-            Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
-            navigateToDashboard();
+            @Override
+            public void onFailure(Call<AuthResponse> call, Throwable t) {
+                btnLogin.setEnabled(true);
+                btnLogin.setText("Đăng nhập");
+                
+                String errorMessage = "Không thể kết nối đến server";
+                if (t.getMessage() != null) {
+                    if (t.getMessage().contains("Failed to connect")) {
+                        errorMessage = "Không thể kết nối đến server. Vui lòng kiểm tra:\n" +
+                                "1. Backend đã chạy chưa?\n" +
+                                "2. Địa chỉ IP trong ApiClient đúng chưa?";
         } else {
-            Toast.makeText(this, "Tên đăng nhập hoặc mật khẩu không đúng", Toast.LENGTH_SHORT).show();
-        }
+                        errorMessage = "Lỗi: " + t.getMessage();
+                    }
+                }
+                
+                Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                t.printStackTrace();
+            }
+        });
     }
     
     /**
@@ -188,16 +267,12 @@ public class LoginActivity extends AppCompatActivity {
                     return;
                 }
                 
-                // Lưu username vào session TRƯỚC khi refresh token (vì refreshAccessToken cần username)
-                User authenticatedUser = getUserByUsername(username);
-                if (authenticatedUser != null) {
-                    dataManager.saveLoggedInUser(username, authenticatedUser.getRole());
-                } else {
-                    runOnUiThread(() -> {
-                        Toast.makeText(LoginActivity.this, "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại bằng mật khẩu.", Toast.LENGTH_LONG).show();
-                    });
-                    return;
+                // Lấy role từ session (nếu có) hoặc mặc định là CUSTOMER
+                User.UserRole role = getUserRoleByPhone(username);
+                if (role == null) {
+                    role = User.UserRole.CUSTOMER; // Mặc định
                 }
+                dataManager.saveLoggedInUser(username, role);
                 
                 // Bước 4: Gửi refresh token về backend để lấy access token mới
                 // Mock: Trong production sẽ gọi API
@@ -231,25 +306,13 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private User validateCredentials(String username, String password) {
-        for (User user : dataManager.getMockUsers()) {
-            if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
-                return user;
-            }
-        }
-        return null;
-    }
-    
     /**
-     * Lấy user từ username (dùng khi đăng nhập bằng vân tay)
+     * Lấy user role từ phone (dùng khi đăng nhập bằng vân tay)
+     * Trong trường hợp này, role được lưu trong session sau khi đăng nhập thành công
      */
-    private User getUserByUsername(String username) {
-        for (User user : dataManager.getMockUsers()) {
-            if (user.getUsername().equals(username)) {
-                return user;
-            }
-        }
-        return null;
+    private User.UserRole getUserRoleByPhone(String phone) {
+        // Role đã được lưu trong session, chỉ cần lấy từ DataManager
+        return dataManager.getUserRole();
     }
 
     private void navigateToDashboard() {

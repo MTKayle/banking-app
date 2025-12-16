@@ -13,8 +13,20 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mobilebanking.R;
+import com.example.mobilebanking.api.ApiClient;
+import com.example.mobilebanking.api.AuthApiService;
+import com.example.mobilebanking.api.dto.AuthResponse;
+import com.example.mobilebanking.api.dto.RegisterRequest;
+import com.example.mobilebanking.models.User;
 import com.example.mobilebanking.utils.CccdQrParser;
+import com.example.mobilebanking.utils.DataManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Registration Activity with phone-first flow and QR code scanning
@@ -320,14 +332,15 @@ public class RegisterActivity extends AppCompatActivity {
         String email = etEmail.getText().toString().trim();
         String phone = etPhone.getText().toString().trim();
         String idNumber = etIdNumber.getText().toString().trim();
-        String username = etUsername.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
+        String dateOfBirth = etDateOfBirth.getText().toString().trim();
+        String address = etAddress.getText().toString().trim();
 
         // Validation
         if (fullName.isEmpty() || email.isEmpty() || phone.isEmpty() ||
-            idNumber.isEmpty() || username.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Vui lòng điền đầy đủ thông tin", Toast.LENGTH_SHORT).show();
+            idNumber.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Vui lòng điền đầy đủ thông tin bắt buộc", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -336,13 +349,20 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        if (phone.length() < 10) {
-            Toast.makeText(this, "Số điện thoại không hợp lệ", Toast.LENGTH_SHORT).show();
+        // Validate phone format (10-11 digits)
+        if (!phone.matches("^[0-9]{10,11}$")) {
+            Toast.makeText(this, "Số điện thoại không hợp lệ (10-11 chữ số)", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (password.length() < 6) {
-            Toast.makeText(this, "Mật khẩu phải có ít nhất 6 ký tự", Toast.LENGTH_SHORT).show();
+        // Validate CCCD number (9-12 digits)
+        if (!idNumber.matches("^[0-9]{9,12}$")) {
+            Toast.makeText(this, "Số CCCD không hợp lệ (9-12 chữ số)", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (password.length() < 8) {
+            Toast.makeText(this, "Mật khẩu phải có ít nhất 8 ký tự", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -351,10 +371,133 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        // Navigate to OTP verification
-        Intent intent = new Intent(RegisterActivity.this, OtpVerificationActivity.class);
-        intent.putExtra("phone", phone);
-        intent.putExtra("from", "register");
-        startActivity(intent);
+        // Show progress
+        if (progressBar != null) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+        btnRegister.setEnabled(false);
+        btnRegister.setText("Đang đăng ký...");
+
+        // Khởi tạo ApiClient nếu chưa
+        ApiClient.init(this);
+
+        // Create RegisterRequest
+        RegisterRequest registerRequest = new RegisterRequest();
+        registerRequest.setPhone(phone);
+        registerRequest.setEmail(email);
+        registerRequest.setPassword(password);
+        registerRequest.setFullName(fullName);
+        registerRequest.setCccdNumber(idNumber);
+        
+        // Optional fields
+        if (!dateOfBirth.isEmpty()) {
+            // Convert date format if needed (from DD/MM/YYYY to yyyy-MM-dd)
+            registerRequest.setDateOfBirth(convertDateFormat(dateOfBirth));
+        }
+        if (!address.isEmpty()) {
+            registerRequest.setPermanentAddress(address);
+        }
+
+        // Call API
+        AuthApiService authApiService = ApiClient.getAuthApiService();
+        Call<AuthResponse> call = authApiService.register(registerRequest);
+        
+        call.enqueue(new Callback<AuthResponse>() {
+            @Override
+            public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+                if (progressBar != null) {
+                    progressBar.setVisibility(View.GONE);
+                }
+                btnRegister.setEnabled(true);
+                btnRegister.setText("Đăng ký");
+
+                if (response.isSuccessful() && response.body() != null) {
+                    AuthResponse authResponse = response.body();
+                    
+                    // Save session
+                    DataManager dataManager = DataManager.getInstance(RegisterActivity.this);
+                    User.UserRole role = "CUSTOMER".equalsIgnoreCase(authResponse.getRole()) 
+                            ? User.UserRole.CUSTOMER 
+                            : User.UserRole.OFFICER;
+                    dataManager.saveLoggedInUser(phone, role);
+                    dataManager.saveLastUsername(phone);
+                    
+                    // Lưu token
+                    if (authResponse.getToken() != null) {
+                        dataManager.saveTokens(authResponse.getToken(), authResponse.getToken());
+                    }
+
+                    Toast.makeText(RegisterActivity.this, "Đăng ký thành công!", Toast.LENGTH_SHORT).show();
+                    
+                    // Navigate to dashboard
+                    Intent intent = new Intent(RegisterActivity.this, 
+                            role == User.UserRole.OFFICER 
+                                    ? OfficerDashboardActivity.class 
+                                    : CustomerDashboardActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    // Parse error message
+                    String errorMessage = "Đăng ký thất bại";
+                    try {
+                        if (response.errorBody() != null) {
+                            String errorBody = response.errorBody().string();
+                            JsonObject jsonObject = JsonParser.parseString(errorBody).getAsJsonObject();
+                            if (jsonObject.has("message")) {
+                                errorMessage = jsonObject.get("message").getAsString();
+                            } else if (jsonObject.has("error")) {
+                                errorMessage = jsonObject.get("error").getAsString();
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    
+                    Toast.makeText(RegisterActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<AuthResponse> call, Throwable t) {
+                if (progressBar != null) {
+                    progressBar.setVisibility(View.GONE);
+                }
+                btnRegister.setEnabled(true);
+                btnRegister.setText("Đăng ký");
+                
+                String errorMessage = "Không thể kết nối đến server";
+                if (t.getMessage() != null) {
+                    if (t.getMessage().contains("Failed to connect")) {
+                        errorMessage = "Không thể kết nối đến server. Vui lòng kiểm tra:\n" +
+                                "1. Backend đã chạy chưa?\n" +
+                                "2. Địa chỉ IP trong ApiClient đúng chưa?";
+                    } else {
+                        errorMessage = "Lỗi: " + t.getMessage();
+                    }
+                }
+                
+                Toast.makeText(RegisterActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                t.printStackTrace();
+            }
+        });
+    }
+    
+    /**
+     * Convert date format from DD/MM/YYYY to yyyy-MM-dd
+     */
+    private String convertDateFormat(String date) {
+        try {
+            if (date.contains("/")) {
+                String[] parts = date.split("/");
+                if (parts.length == 3) {
+                    return parts[2] + "-" + parts[1] + "-" + parts[0];
+                }
+            }
+            // If already in yyyy-MM-dd format, return as is
+            return date;
+        } catch (Exception e) {
+            return date;
+        }
     }
 }

@@ -38,7 +38,7 @@ public class Step4BackCardFragment extends Fragment {
     
     private ImageView ivFrontCard, ivBackCard;
     private TextView tvInstruction;
-    private Button btnCaptureBack, btnRetakeFront, btnRetakeBack, btnComplete;
+    private Button btnCaptureBack, btnRetakeFront, btnRetakeBack;
     
     public static Step4BackCardFragment newInstance(RegistrationData data) {
         Step4BackCardFragment fragment = new Step4BackCardFragment();
@@ -79,14 +79,13 @@ public class Step4BackCardFragment extends Fragment {
         btnCaptureBack = view.findViewById(R.id.btn_capture_back);
         btnRetakeFront = view.findViewById(R.id.btn_retake_front);
         btnRetakeBack = view.findViewById(R.id.btn_retake_back);
-        btnComplete = view.findViewById(R.id.btn_complete);
     }
     
     private void setupListeners() {
         btnCaptureBack.setOnClickListener(v -> startAutoScanBack());
         btnRetakeFront.setOnClickListener(v -> retakeFrontImage());
         btnRetakeBack.setOnClickListener(v -> startAutoScanBack());
-        btnComplete.setOnClickListener(v -> completeRegistration());
+        // btnComplete is no longer used - navigation happens automatically after back scan
     }
     
     private void startAutoScanBack() {
@@ -94,12 +93,7 @@ public class Step4BackCardFragment extends Fragment {
         startActivityForResult(intent, REQUEST_AUTO_SCAN_BACK);
     }
     
-    private void startFaceCapture() {
-        Log.d(TAG, "Starting face capture...");
-        Intent intent = new Intent(getActivity(), BiometricAuthActivity.class);
-        intent.putExtra("mode", "capture");
-        startActivityForResult(intent, REQUEST_FACE_CAPTURE);
-    }
+    // Face capture is now handled in Step5FaceVerificationFragment
     
     private void loadData() {
         ensureRegistrationData();
@@ -113,9 +107,6 @@ public class Step4BackCardFragment extends Fragment {
         if (registrationData != null && registrationData.getBackCardImage() != null) {
             ivBackCard.setImageBitmap(registrationData.getBackCardImage());
             btnCaptureBack.setText("Chụp lại mặt sau");
-            btnComplete.setVisibility(View.VISIBLE);
-        } else {
-            btnComplete.setVisibility(View.GONE);
         }
     }
     
@@ -154,46 +145,24 @@ public class Step4BackCardFragment extends Fragment {
                         btnCaptureBack.setText("Chụp lại mặt sau");
                         btnRetakeBack.setVisibility(View.VISIBLE);
                         
-                        Log.d(TAG, "Back image captured successfully. Auto-starting face recognition...");
-                        Toast.makeText(getActivity(), "Đã chụp ảnh mặt sau CCCD thành công!", 
+                        Log.d(TAG, "Back image captured successfully. Navigating to face verification step...");
+                        Toast.makeText(getActivity(), "Đã chụp ảnh mặt sau CCCD thành công! Chuyển sang xác thực khuôn mặt...", 
                                 Toast.LENGTH_SHORT).show();
                         
-                        // Auto-start face recognition after back scan with delay
+                        // Navigate to next step (Step 5: Face Verification) after delay
                         // This ensures CccdBackScannerActivity is fully finished and camera is released
                         new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
                             if (getActivity() != null && !getActivity().isFinishing()) {
-                                startFaceCapture();
+                                if (getActivity() instanceof MainRegistrationActivity) {
+                                    ((MainRegistrationActivity) getActivity()).goToNextStep();
+                                }
                             }
-                        }, 500); // 500ms delay to ensure smooth transition
+                        }, 800); // 800ms delay to ensure smooth transition
                         return;
-                    }
-                }
-            } else if (requestCode == REQUEST_FACE_CAPTURE && resultCode == android.app.Activity.RESULT_OK && data != null) {
-                // Handle face capture result
-                String faceImagePath = data.getStringExtra("face_image_path");
-                
-                if (faceImagePath != null) {
-                    Bitmap faceImage = BitmapFactory.decodeFile(faceImagePath);
-                    if (faceImage != null) {
-                        registrationData.setPortraitImage(faceImage);
-                        Log.d(TAG, "Face image captured successfully from path: " + faceImagePath);
-                        Toast.makeText(getActivity(), "Đã chụp ảnh khuôn mặt thành công!", Toast.LENGTH_LONG).show();
-                        
-                        // Show complete button now that both images are captured
-                        btnComplete.setVisibility(View.VISIBLE);
-                        
-                        // Open data preview activity to show all captured data
-                        openDataPreviewActivity(faceImagePath);
-                        return;
-                    } else {
-                        Log.e(TAG, "Failed to load face image from path: " + faceImagePath);
-                        Toast.makeText(getActivity(), "Không thể tải ảnh khuôn mặt", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Log.e(TAG, "No face_image_path in result");
-                    Toast.makeText(getActivity(), "Không nhận được ảnh khuôn mặt", Toast.LENGTH_SHORT).show();
-                }
-            }
+                    } // End of if (backImage != null)
+                } // End of if (backImagePath != null)
+            } // End of REQUEST_AUTO_SCAN_BACK handling
+            // Face capture is now handled in Step5FaceVerificationFragment
             
             // Fallback: handle manual capture
             if (requestCode == REQUEST_IMAGE_CAPTURE && data != null) {
@@ -208,61 +177,28 @@ public class Step4BackCardFragment extends Fragment {
                     ivBackCard.setImageBitmap(imageBitmap);
                     btnCaptureBack.setText("Chụp lại mặt sau");
                     btnRetakeBack.setVisibility(View.VISIBLE);
-                    btnComplete.setVisibility(View.VISIBLE);
                     
-                    Toast.makeText(getActivity(), "Đã chụp ảnh mặt sau CCCD", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Đã chụp ảnh mặt sau CCCD. Chuyển sang xác thực khuôn mặt...", Toast.LENGTH_SHORT).show();
+                    
+                    // Navigate to next step
+                    new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                        if (getActivity() != null && !getActivity().isFinishing()) {
+                            if (getActivity() instanceof MainRegistrationActivity) {
+                                ((MainRegistrationActivity) getActivity()).goToNextStep();
+                            }
+                        }
+                    }, 800);
                 }
             }
         }
     }
     
     private void completeRegistration() {
-        ensureRegistrationData();
-        
-        if (registrationData == null) {
-            Toast.makeText(getActivity(), "Lỗi: Không thể tải dữ liệu đăng ký", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        
-        if (registrationData.getFrontCardImage() == null) {
-            Toast.makeText(getActivity(), "Vui lòng chụp ảnh mặt trước CCCD", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        
-        if (registrationData.getBackCardImage() == null) {
-            Toast.makeText(getActivity(), "Vui lòng chụp ảnh mặt sau CCCD", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        
-        if (registrationData.getPortraitImage() == null) {
-            Toast.makeText(getActivity(), "Vui lòng chụp ảnh khuôn mặt", Toast.LENGTH_SHORT).show();
-            // Auto-start face capture if not done yet
-            startFaceCapture();
-            return;
-        }
-        
-        // All steps completed - complete registration
+        // This method is no longer used - registration completion is handled in Step5FaceVerificationFragment
+        // Navigate to next step (face verification)
         if (getActivity() instanceof MainRegistrationActivity) {
-            ((MainRegistrationActivity) getActivity()).completeRegistration();
+            ((MainRegistrationActivity) getActivity()).goToNextStep();
         }
-    }
-    
-    private void openDataPreviewActivity(String selfieImagePath) {
-        Intent intent = new Intent(getActivity(), DataPreviewActivity.class);
-        
-        // Pass image paths
-        if (selfieImagePath != null) {
-            intent.putExtra("selfie_image_path", selfieImagePath);
-        }
-        
-        // Get front and back card image paths from registration data
-        if (registrationData != null) {
-            // Try to get paths if available, otherwise pass null and let activity load from bitmap
-            // Note: We don't have paths stored, so we'll pass null and let DataPreviewActivity
-            // load from RegistrationData bitmaps
-        }
-        
-        startActivity(intent);
     }
 }
 

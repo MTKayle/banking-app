@@ -137,12 +137,12 @@ public class Step3FrontCardFragment extends Fragment {
     private void loadData() {
         ensureRegistrationData();
         
-        // Show portrait image if exists
-        if (registrationData != null && registrationData.getPortraitImage() != null) {
-            ivFrontCard.setImageBitmap(registrationData.getPortraitImage());
+        // Show front card image if exists (not portrait)
+        if (registrationData != null && registrationData.getFrontCardImage() != null) {
+            ivFrontCard.setImageBitmap(registrationData.getFrontCardImage());
             btnCapture.setText("Chụp lại");
             btnContinue.setVisibility(View.VISIBLE);
-            btnSaveImage.setVisibility(View.VISIBLE);
+            btnSaveImage.setVisibility(View.GONE); // Hide save button
         } else {
             btnContinue.setVisibility(View.GONE);
             btnSaveImage.setVisibility(View.GONE);
@@ -811,7 +811,7 @@ public class Step3FrontCardFragment extends Fragment {
     
     private void displayPortrait(Bitmap portrait, Bitmap fullImage) {
         if (portrait == null) {
-            Log.e(TAG, "Portrait is null, cannot display");
+            Log.e(TAG, "Portrait is null, cannot save");
             progressBar.setVisibility(View.GONE);
             btnCapture.setEnabled(true);
             Toast.makeText(getActivity(), "Lỗi: Không thể trích xuất ảnh chân dung", Toast.LENGTH_SHORT).show();
@@ -819,13 +819,17 @@ public class Step3FrontCardFragment extends Fragment {
         }
         
         try {
-            // Save portrait image
+            // Save portrait image silently (for face verification later)
             registrationData.setPortraitImage(portrait);
             
-            Log.d(TAG, "Displaying portrait. Size: " + portrait.getWidth() + "x" + portrait.getHeight());
+            Log.d(TAG, "Portrait saved silently. Size: " + portrait.getWidth() + "x" + portrait.getHeight());
             
-            // Display only the portrait (avatar) - use FIT_CENTER to show full face without cropping
-            ivFrontCard.setImageBitmap(portrait);
+            // Display front card image (not portrait) - user doesn't need to see extracted portrait
+            if (fullImage != null) {
+                ivFrontCard.setImageBitmap(fullImage);
+            } else {
+                ivFrontCard.setImageBitmap(registrationData.getFrontCardImage());
+            }
             ivFrontCard.setScaleType(ImageView.ScaleType.FIT_CENTER);
             
             // Force layout update to ensure proper display
@@ -836,16 +840,16 @@ public class Step3FrontCardFragment extends Fragment {
             
             btnCapture.setText("Chụp lại");
             btnContinue.setVisibility(View.VISIBLE);
-            btnSaveImage.setVisibility(View.VISIBLE);
+            btnSaveImage.setVisibility(View.GONE); // Hide save button - portrait is saved automatically
             progressBar.setVisibility(View.GONE);
             btnCapture.setEnabled(true);
             
-            Toast.makeText(getActivity(), "Đã trích xuất ảnh chân dung (" + portrait.getWidth() + "x" + portrait.getHeight() + "px)", Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), "Đã chụp ảnh mặt trước CCCD thành công!", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
-            Log.e(TAG, "Error displaying portrait", e);
+            Log.e(TAG, "Error saving portrait", e);
             progressBar.setVisibility(View.GONE);
             btnCapture.setEnabled(true);
-            Toast.makeText(getActivity(), "Lỗi hiển thị ảnh: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "Lỗi xử lý ảnh: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
     

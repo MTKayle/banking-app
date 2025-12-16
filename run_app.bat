@@ -37,7 +37,32 @@ echo.
 
 REM Start the app using am (activity manager)
 echo Starting LoginActivity...
-powershell -Command "$env:ANDROID_HOME\platform-tools\adb.exe shell am start -n com.example.mobilebanking/com.example.mobilebanking.activities.LoginActivity"
+
+REM Try to find adb in common locations
+set ADB_PATH=
+if exist "%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe" (
+    set ADB_PATH=%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe
+) else if exist "%ANDROID_HOME%\platform-tools\adb.exe" (
+    set ADB_PATH=%ANDROID_HOME%\platform-tools\adb.exe
+) else if exist "%USERPROFILE%\AppData\Local\Android\Sdk\platform-tools\adb.exe" (
+    set ADB_PATH=%USERPROFILE%\AppData\Local\Android\Sdk\platform-tools\adb.exe
+)
+
+if defined ADB_PATH (
+    "%ADB_PATH%" shell am start -n com.example.mobilebanking/com.example.mobilebanking.activities.LoginActivity
+    if %errorlevel% equ 0 (
+        echo App launched successfully!
+    ) else (
+        echo WARNING: Could not launch app automatically. Please open it manually from your device.
+    )
+) else (
+    REM Try using adb from PATH
+    adb shell am start -n com.example.mobilebanking/com.example.mobilebanking.activities.LoginActivity
+    if %errorlevel% neq 0 (
+        echo WARNING: Could not find adb. Please open the app manually from your device.
+        echo App package: com.example.mobilebanking
+    )
+)
 
 echo.
 echo ========================================

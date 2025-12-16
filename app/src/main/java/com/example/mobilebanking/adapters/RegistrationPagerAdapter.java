@@ -9,10 +9,12 @@ import com.example.mobilebanking.fragments.Step1BasicInfoFragment;
 import com.example.mobilebanking.fragments.Step2QrScanFragment;
 import com.example.mobilebanking.fragments.Step3FrontCardFragment;
 import com.example.mobilebanking.fragments.Step4BackCardFragment;
+import com.example.mobilebanking.fragments.Step5FaceVerificationFragment;
 import com.example.mobilebanking.models.RegistrationData;
 
 /**
  * Adapter for Registration ViewPager2
+ * 5 steps: Basic Info -> QR Scan -> Front CCCD -> Back CCCD -> Face Verification
  */
 public class RegistrationPagerAdapter extends FragmentStateAdapter {
     private RegistrationData registrationData;
@@ -34,6 +36,8 @@ public class RegistrationPagerAdapter extends FragmentStateAdapter {
                 return Step3FrontCardFragment.newInstance(registrationData);
             case 3:
                 return Step4BackCardFragment.newInstance(registrationData);
+            case 4:
+                return Step5FaceVerificationFragment.newInstance(registrationData);
             default:
                 return Step1BasicInfoFragment.newInstance(registrationData);
         }
@@ -41,7 +45,7 @@ public class RegistrationPagerAdapter extends FragmentStateAdapter {
     
     @Override
     public int getItemCount() {
-        return 4;
+        return 5; // Updated to 5 steps
     }
 }
 

@@ -23,7 +23,10 @@ public class RegistrationData {
     // Step 3 & 4: CCCD Images
     private Bitmap frontCardImage;
     private Bitmap backCardImage;
-    private Bitmap portraitImage; // Extracted from front card
+    private Bitmap portraitImage; // Extracted from front card (saved silently)
+    
+    // Step 5: Face Verification
+    private Bitmap selfieImage; // Selfie for face verification
     
     // Getters and Setters
     public String getPhoneNumber() { return phoneNumber; }
@@ -65,6 +68,9 @@ public class RegistrationData {
     public Bitmap getPortraitImage() { return portraitImage; }
     public void setPortraitImage(Bitmap portraitImage) { this.portraitImage = portraitImage; }
     
+    public Bitmap getSelfieImage() { return selfieImage; }
+    public void setSelfieImage(Bitmap selfieImage) { this.selfieImage = selfieImage; }
+    
     /**
      * Check if step 1 data is complete
      */
@@ -96,6 +102,13 @@ public class RegistrationData {
      */
     public boolean isStep4Complete() {
         return backCardImage != null;
+    }
+    
+    /**
+     * Check if step 5 data is complete
+     */
+    public boolean isStep5Complete() {
+        return selfieImage != null;
     }
 }
 
