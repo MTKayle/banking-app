@@ -59,6 +59,16 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        // TEMPORARY: Auto login for UI development - Skip login screen and go straight to Home
+        String defaultPhone = "0901234567"; // Số điện thoại của customer1
+        dataManager.saveLoggedInUser(defaultPhone, User.UserRole.CUSTOMER);
+        dataManager.saveLastUsername(defaultPhone);
+        dataManager.saveLastFullName("Nguyen Van A");
+        dataManager.saveTokens("mock_access_token_dev", "mock_refresh_token_dev");
+        navigateToDashboard();
+        return;
+
+        /* COMMENTED OUT: Code below is unreachable due to auto-login above
         // Chưa đăng nhập -> hiển thị màn hình login
         // Nếu đã có fullName lưu trước đó thì dùng layout quick login, ngược lại dùng layout đầy đủ
         String lastFullName = dataManager.getLastFullName();
@@ -79,6 +89,7 @@ public class LoginActivity extends AppCompatActivity {
         if (ivFingerprint != null && !biometricManager.isBiometricAvailable()) {
             ivFingerprint.setVisibility(android.view.View.GONE);
         }
+        */
     }
 
     private void initializeViews() {
