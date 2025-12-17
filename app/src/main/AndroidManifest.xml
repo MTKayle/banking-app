@@ -111,6 +111,12 @@
         <activity
             android:name="com.example.mobilebanking.activities.CustomerDashboardActivity" />
 
+        <!-- New BIDV-style Home UI Activity (frontend-only) -->
+        <activity
+            android:name="com.example.mobilebanking.ui_home.UiHomeActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MobileBanking" />
+
         <activity
             android:name="com.example.mobilebanking.activities.OfficerDashboardActivity" />
 
