@@ -31,6 +31,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.mobilebanking.R;
 import com.example.mobilebanking.activities.CccdAutoScannerActivity;
+import com.example.mobilebanking.activities.CccdBackScannerActivity;
 import com.example.mobilebanking.activities.MainRegistrationActivity;
 import com.example.mobilebanking.models.RegistrationData;
 import com.google.mlkit.vision.common.InputImage;
@@ -48,18 +49,23 @@ import java.util.List;
 public class Step3FrontCardFragment extends Fragment {
     private static final int REQUEST_IMAGE_CAPTURE = 300;
     private static final int REQUEST_IMAGE_CAPTURE_FULL = 301;
-    private static final int REQUEST_AUTO_SCAN = 302;
+    private static final int REQUEST_AUTO_SCAN_FRONT = 302;
+    private static final int REQUEST_AUTO_SCAN_BACK = 303;
     
     private static final String TAG = "Step3FrontCard";
     private static final int MIN_IMAGE_SIZE = 600; // Minimum size for saved portrait
     private static final int TARGET_IMAGE_SIZE = 800; // Target size for portrait (reduced to prevent overflow)
     
+    // State: 0 = chưa chụp, 1 = đã chụp mặt trước, 2 = đã chụp mặt sau
+    private int captureState = 0;
+    
     private RegistrationData registrationData;
     
-    private ImageView ivFrontCard;
+    private ImageView ivFrontCard, ivBackCard;
     private TextView tvInstruction;
-    private Button btnCapture, btnContinue, btnSaveImage, btnAutoScan;
+    private Button btnContinue, btnSaveImage, btnAutoScan;
     private ProgressBar progressBar;
+    private View cvBackImagePreview;
     
     private FaceDetector faceDetector;
     private Uri imageUri; // For full-size image
@@ -73,6 +79,7 @@ public class Step3FrontCardFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        android.util.Log.d(TAG, "Step3FrontCardFragment onCreateView called");
         View view = inflater.inflate(R.layout.fragment_step3_front_card, container, false);
         
         // Ensure registrationData is not null
@@ -83,6 +90,7 @@ public class Step3FrontCardFragment extends Fragment {
         setupListeners();
         loadData();
         
+        android.util.Log.d(TAG, "Step3FrontCardFragment onCreateView completed, captureState: " + captureState);
         return view;
     }
     
@@ -112,8 +120,9 @@ public class Step3FrontCardFragment extends Fragment {
     
     private void initializeViews(View view) {
         ivFrontCard = view.findViewById(R.id.iv_front_card);
+        ivBackCard = view.findViewById(R.id.iv_back_card);
+        cvBackImagePreview = view.findViewById(R.id.cv_back_image_preview);
         tvInstruction = view.findViewById(R.id.tv_instruction);
-        btnCapture = view.findViewById(R.id.btn_capture);
         btnContinue = view.findViewById(R.id.btn_continue);
         btnSaveImage = view.findViewById(R.id.btn_save_image);
         btnAutoScan = view.findViewById(R.id.btn_auto_scan);
@@ -121,32 +130,107 @@ public class Step3FrontCardFragment extends Fragment {
     }
     
     private void setupListeners() {
-        btnCapture.setOnClickListener(v -> captureImage());
         btnContinue.setOnClickListener(v -> continueToNextStep());
         btnSaveImage.setOnClickListener(v -> savePortraitImage());
         if (btnAutoScan != null) {
-            btnAutoScan.setOnClickListener(v -> startAutoScan());
+            btnAutoScan.setOnClickListener(v -> handleAutoScanClick());
         }
     }
     
-    private void startAutoScan() {
+    private void handleAutoScanClick() {
+        if (captureState == 0) {
+            // Chưa chụp -> chụp mặt trước
+            startAutoScanFront();
+        } else if (captureState == 1) {
+            // Đã chụp mặt trước -> chụp mặt sau
+            startAutoScanBack();
+        } else if (captureState == 2) {
+            // Đã chụp cả hai -> tiếp tục
+            continueToNextStep();
+        }
+    }
+    
+    private void startAutoScanFront() {
         Intent intent = new Intent(getActivity(), CccdAutoScannerActivity.class);
-        startActivityForResult(intent, REQUEST_AUTO_SCAN);
+        startActivityForResult(intent, REQUEST_AUTO_SCAN_FRONT);
+    }
+    
+    private void startAutoScanBack() {
+        Intent intent = new Intent(getActivity(), CccdBackScannerActivity.class);
+        startActivityForResult(intent, REQUEST_AUTO_SCAN_BACK);
     }
     
     private void loadData() {
         ensureRegistrationData();
         
-        // Show front card image if exists (not portrait)
-        if (registrationData != null && registrationData.getFrontCardImage() != null) {
-            ivFrontCard.setImageBitmap(registrationData.getFrontCardImage());
-            btnCapture.setText("Chụp lại");
-            btnContinue.setVisibility(View.VISIBLE);
-            btnSaveImage.setVisibility(View.GONE); // Hide save button
+        // When entering step 3 from step 2, always start from front card capture first
+        // This ensures proper flow: Step 2 -> Step 3 (chụp mặt trước CCCD) -> Step 3 (chụp mặt sau) -> Step 4
+        // Reset to state 0 to ensure user always sees front card capture UI first when coming from step 2
+        captureState = 0;
+        
+        // Determine if images exist for display purposes only
+        // But always start the flow from front card capture when entering this step
+        boolean hasFront = registrationData != null && registrationData.getFrontCardImage() != null;
+        boolean hasBack = registrationData != null && registrationData.getBackCardImage() != null;
+        
+        // If both images already exist (user returning to this step), allow them to continue
+        // Otherwise, always start from front card capture
+        if (hasFront && hasBack) {
+            // Both images exist - user has completed step 3 before, allow them to continue
+            captureState = 2; // Đã chụp cả hai
         } else {
-            btnContinue.setVisibility(View.GONE);
-            btnSaveImage.setVisibility(View.GONE);
+            // Always start from front card capture when entering step 3 from step 2
+            captureState = 0; // Chưa chụp - bắt đầu chụp mặt trước CCCD
         }
+        
+        updateUIForState();
+    }
+    
+    private void updateUIForState() {
+        if (btnAutoScan == null) return;
+        
+        switch (captureState) {
+            case 0:
+                // Chưa chụp -> chụp mặt trước
+                btnAutoScan.setText("Chụp mặt trước CCCD");
+                tvInstruction.setText("Vui lòng chụp ảnh mặt trước của thẻ CCCD. Đảm bảo ảnh rõ ràng, đủ ánh sáng và không bị mờ.");
+                if (registrationData != null && registrationData.getFrontCardImage() != null) {
+                    ivFrontCard.setImageBitmap(registrationData.getFrontCardImage());
+                }
+                btnContinue.setVisibility(View.GONE);
+                break;
+            case 1:
+                // Đã chụp mặt trước -> chụp mặt sau
+                btnAutoScan.setText("Chụp mặt sau CCCD");
+                tvInstruction.setText("Vui lòng chụp ảnh mặt sau của thẻ CCCD. Đảm bảo ảnh rõ ràng, đủ ánh sáng và không bị mờ.");
+                if (registrationData != null && registrationData.getFrontCardImage() != null) {
+                    ivFrontCard.setImageBitmap(registrationData.getFrontCardImage());
+                }
+                // Hide back card preview when only front is captured
+                if (cvBackImagePreview != null) {
+                    cvBackImagePreview.setVisibility(View.GONE);
+                }
+                btnContinue.setVisibility(View.GONE);
+                break;
+            case 2:
+                // Đã chụp cả hai -> tiếp tục
+                btnAutoScan.setText("Tiếp tục");
+                tvInstruction.setText("Đã chụp đầy đủ ảnh mặt trước và mặt sau CCCD. Nhấn tiếp tục để chuyển sang bước tiếp theo.");
+                if (registrationData != null) {
+                    if (registrationData.getFrontCardImage() != null) {
+                        ivFrontCard.setImageBitmap(registrationData.getFrontCardImage());
+                    }
+                    if (registrationData.getBackCardImage() != null && ivBackCard != null) {
+                        ivBackCard.setImageBitmap(registrationData.getBackCardImage());
+                    }
+                    if (cvBackImagePreview != null) {
+                        cvBackImagePreview.setVisibility(View.VISIBLE);
+                    }
+                }
+                btnContinue.setVisibility(View.GONE); // Use btn_auto_scan instead
+                break;
+        }
+        btnSaveImage.setVisibility(View.GONE); // Always hide save button
     }
     
     private void captureImage() {
@@ -196,8 +280,8 @@ public class Step3FrontCardFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         
         if (resultCode == android.app.Activity.RESULT_OK) {
-            // Handle auto scanner result
-            if (requestCode == REQUEST_AUTO_SCAN && data != null) {
+            // Handle auto scanner result for front card
+            if (requestCode == REQUEST_AUTO_SCAN_FRONT && data != null) {
                 String frontImagePath = data.getStringExtra("front_image_path");
                 String portraitPath = data.getStringExtra("portrait_path");
                 
@@ -229,18 +313,62 @@ public class Step3FrontCardFragment extends Fragment {
                     }
                 }
                 
-                // Display portrait (or front image if portrait not available)
-                Bitmap displayImage = registrationData.getPortraitImage();
-                if (displayImage == null) {
-                    displayImage = registrationData.getFrontCardImage();
-                }
+                // Display front card image (crop to match preview aspect ratio 16:10)
+                Bitmap displayImage = registrationData.getFrontCardImage();
                 
                 if (displayImage != null) {
-                    displayPortrait(displayImage, null);
-                    Toast.makeText(getActivity(), "Đã quét CCCD và trích xuất ảnh chân dung thành công!", 
-                            Toast.LENGTH_LONG).show();
+                    // Crop image to match preview aspect ratio (16:10)
+                    Bitmap croppedImage = cropToPreviewAspectRatio(displayImage);
+                    displayPortrait(croppedImage, croppedImage);
+                    
+                    // Update state to "đã chụp mặt trước"
+                    captureState = 1;
+                    updateUIForState();
+                    
+                    Toast.makeText(getActivity(), "Đã chụp ảnh mặt trước CCCD thành công!", 
+                            Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getActivity(), "Không thể tải ảnh đã chụp", Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
+            
+            // Handle auto scanner result for back card
+            if (requestCode == REQUEST_AUTO_SCAN_BACK && data != null) {
+                String backImagePath = data.getStringExtra("back_image_path");
+                
+                Log.d(TAG, "Received back card result - back_image_path: " + backImagePath);
+                
+                if (backImagePath != null) {
+                    Bitmap backImage = BitmapFactory.decodeFile(backImagePath);
+                    if (backImage != null) {
+                        // Crop image to match preview aspect ratio (16:10)
+                        Bitmap croppedBackImage = cropToPreviewAspectRatio(backImage);
+                        registrationData.setBackCardImage(croppedBackImage);
+                        
+                        Log.d(TAG, "Back card image loaded and set. Size: " + croppedBackImage.getWidth() + "x" + croppedBackImage.getHeight());
+                        
+                        // Update state to "đã chụp cả hai"
+                        captureState = 2;
+                        updateUIForState();
+                        
+                        // Display back card image
+                        if (ivBackCard != null) {
+                            ivBackCard.setImageBitmap(croppedBackImage);
+                        }
+                        if (cvBackImagePreview != null) {
+                            cvBackImagePreview.setVisibility(View.VISIBLE);
+                        }
+                        
+                        Toast.makeText(getActivity(), "Đã chụp ảnh mặt sau CCCD thành công!", 
+                                Toast.LENGTH_SHORT).show();
+                    } else {
+                        Log.e(TAG, "Failed to decode back image from path: " + backImagePath);
+                        Toast.makeText(getActivity(), "Không thể tải ảnh mặt sau", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Log.e(TAG, "back_image_path is null in result");
+                    Toast.makeText(getActivity(), "Không thể tải ảnh mặt sau", Toast.LENGTH_SHORT).show();
                 }
                 return;
             }
@@ -264,15 +392,18 @@ public class Step3FrontCardFragment extends Fragment {
                 // Scale up if too small
                 imageBitmap = ensureMinimumSize(imageBitmap);
                 
-                // Save full image
-                registrationData.setFrontCardImage(imageBitmap);
+                // Crop to match preview aspect ratio (16:10) before saving
+                Bitmap croppedImage = cropToPreviewAspectRatio(imageBitmap);
+                
+                // Save cropped image (matching preview)
+                registrationData.setFrontCardImage(croppedImage);
                 
                 // Show progress
                 progressBar.setVisibility(View.VISIBLE);
-                btnCapture.setEnabled(false);
                 
                 // Extract portrait from front card using ML Kit Face Detection
-                extractPortrait(imageBitmap);
+                // Use original image for better face detection, but pass cropped version for display
+                extractPortrait(imageBitmap, croppedImage);
             } else {
                 Toast.makeText(getActivity(), "Không thể tải ảnh", Toast.LENGTH_SHORT).show();
             }
@@ -348,13 +479,19 @@ public class Step3FrontCardFragment extends Fragment {
     }
     
     private void extractPortrait(Bitmap fullImage) {
+        extractPortrait(fullImage, null);
+    }
+    
+    private void extractPortrait(Bitmap fullImage, Bitmap croppedImageForDisplay) {
         if (fullImage == null) {
             Log.e(TAG, "Full image is null, cannot extract portrait");
             progressBar.setVisibility(View.GONE);
-            btnCapture.setEnabled(true);
             Toast.makeText(getActivity(), "Lỗi: Không thể xử lý ảnh", Toast.LENGTH_SHORT).show();
             return;
         }
+        
+        // Use cropped image for display if provided, otherwise use full image
+        final Bitmap displayImage = (croppedImageForDisplay != null) ? croppedImageForDisplay : fullImage;
         
         Log.d(TAG, "Starting face detection. Image size: " + fullImage.getWidth() + "x" + fullImage.getHeight());
         
@@ -373,9 +510,9 @@ public class Step3FrontCardFragment extends Fragment {
                 Log.w(TAG, "Face detection timeout, using smart crop");
                 Bitmap portrait = cropCccdPortraitLocation(fullImage);
                 if (portrait != null) {
-                    displayPortrait(portrait, fullImage);
+                    displayPortrait(portrait, displayImage);
                 } else {
-                    displayPortrait(ensureMinimumSize(fullImage), fullImage);
+                    displayPortrait(ensureMinimumSize(fullImage), displayImage);
                 }
             };
             handler.postDelayed(timeoutRunnable, 5000);
@@ -438,22 +575,21 @@ public class Step3FrontCardFragment extends Fragment {
                         
                         // Always display portrait - ensure we have a valid bitmap
                         if (portrait != null && !portrait.isRecycled()) {
-                            displayPortrait(portrait, fullImage);
+                            displayPortrait(portrait, displayImage);
                         } else {
                             Log.e(TAG, "Portrait is null or recycled, using fallback");
                             portrait = cropCccdPortraitLocation(fullImage);
                             if (portrait != null && !portrait.isRecycled()) {
-                                displayPortrait(portrait, fullImage);
+                                displayPortrait(portrait, displayImage);
                             } else {
                                 // Last resort: use full image
                                 Bitmap fallback = ensureMinimumSize(fullImage);
                                 if (fallback != null && !fallback.isRecycled()) {
-                                    displayPortrait(fallback, fullImage);
+                                    displayPortrait(fallback, displayImage);
                                 } else {
                                     // Ultimate fallback: show error but still try to display something
                                     Log.e(TAG, "All fallbacks failed, cannot display portrait");
                                     progressBar.setVisibility(View.GONE);
-                                    btnCapture.setEnabled(true);
                                     Toast.makeText(getActivity(), "Lỗi: Không thể trích xuất ảnh chân dung. Vui lòng thử lại.", Toast.LENGTH_LONG).show();
                                 }
                             }
@@ -465,15 +601,14 @@ public class Step3FrontCardFragment extends Fragment {
                         // Fallback: use smart crop for CCCD
                         Bitmap portrait = cropCccdPortraitLocation(fullImage);
                         if (portrait != null && !portrait.isRecycled()) {
-                            displayPortrait(portrait, fullImage);
+                            displayPortrait(portrait, displayImage);
                         } else {
                             // Last resort: use full image scaled
                             Bitmap fallback = ensureMinimumSize(fullImage);
                             if (fallback != null && !fallback.isRecycled()) {
-                                displayPortrait(fallback, fullImage);
+                                displayPortrait(fallback, displayImage);
                             } else {
                                 progressBar.setVisibility(View.GONE);
-                                btnCapture.setEnabled(true);
                                 Toast.makeText(getActivity(), "Lỗi: Không thể trích xuất ảnh chân dung. Vui lòng thử lại.", Toast.LENGTH_LONG).show();
                             }
                         }
@@ -483,14 +618,13 @@ public class Step3FrontCardFragment extends Fragment {
             // Fallback: use smart crop
             Bitmap portrait = cropCccdPortraitLocation(fullImage);
             if (portrait != null && !portrait.isRecycled()) {
-                displayPortrait(portrait, fullImage);
+                displayPortrait(portrait, displayImage);
             } else {
                 Bitmap fallback = ensureMinimumSize(fullImage);
                 if (fallback != null && !fallback.isRecycled()) {
-                    displayPortrait(fallback, fullImage);
+                    displayPortrait(fallback, displayImage);
                 } else {
                     progressBar.setVisibility(View.GONE);
-                    btnCapture.setEnabled(true);
                     Toast.makeText(getActivity(), "Lỗi: Không thể trích xuất ảnh chân dung. Vui lòng thử lại.", Toast.LENGTH_LONG).show();
                 }
             }
@@ -809,11 +943,64 @@ public class Step3FrontCardFragment extends Fragment {
     }
     
     
+    /**
+     * Crop image to match preview aspect ratio (16:10)
+     * This ensures the displayed image matches what was shown in the camera preview
+     */
+    private Bitmap cropToPreviewAspectRatio(Bitmap image) {
+        if (image == null) return null;
+        
+        int imageWidth = image.getWidth();
+        int imageHeight = image.getHeight();
+        
+        // Preview aspect ratio: 16:10 = 1.6:1
+        float previewAspectRatio = 16f / 10f; // 1.6
+        float imageAspectRatio = (float) imageWidth / imageHeight;
+        
+        // If image already matches preview ratio, return as is
+        if (Math.abs(imageAspectRatio - previewAspectRatio) < 0.01f) {
+            return image;
+        }
+        
+        int cropWidth, cropHeight;
+        int cropX = 0, cropY = 0;
+        
+        if (imageAspectRatio > previewAspectRatio) {
+            // Image is wider than preview - crop width
+            cropHeight = imageHeight;
+            cropWidth = (int) (cropHeight * previewAspectRatio);
+            cropX = (imageWidth - cropWidth) / 2; // Center horizontally
+        } else {
+            // Image is taller than preview - crop height
+            cropWidth = imageWidth;
+            cropHeight = (int) (cropWidth / previewAspectRatio);
+            cropY = (imageHeight - cropHeight) / 2; // Center vertically
+        }
+        
+        // Ensure valid crop bounds
+        if (cropWidth <= 0 || cropHeight <= 0 || 
+            cropX < 0 || cropY < 0 || 
+            cropX + cropWidth > imageWidth || 
+            cropY + cropHeight > imageHeight) {
+            Log.w(TAG, "Invalid crop bounds, returning original image");
+            return image;
+        }
+        
+        try {
+            Bitmap cropped = Bitmap.createBitmap(image, cropX, cropY, cropWidth, cropHeight);
+            Log.d(TAG, "Cropped image to preview ratio. Original: " + imageWidth + "x" + imageHeight + 
+                  ", Cropped: " + cropWidth + "x" + cropHeight);
+            return cropped;
+        } catch (Exception e) {
+            Log.e(TAG, "Error cropping image to preview ratio", e);
+            return image; // Return original if crop fails
+        }
+    }
+    
     private void displayPortrait(Bitmap portrait, Bitmap fullImage) {
         if (portrait == null) {
             Log.e(TAG, "Portrait is null, cannot save");
             progressBar.setVisibility(View.GONE);
-            btnCapture.setEnabled(true);
             Toast.makeText(getActivity(), "Lỗi: Không thể trích xuất ảnh chân dung", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -825,12 +1012,13 @@ public class Step3FrontCardFragment extends Fragment {
             Log.d(TAG, "Portrait saved silently. Size: " + portrait.getWidth() + "x" + portrait.getHeight());
             
             // Display front card image (not portrait) - user doesn't need to see extracted portrait
+            // Use centerCrop to fill the preview frame exactly
             if (fullImage != null) {
                 ivFrontCard.setImageBitmap(fullImage);
             } else {
                 ivFrontCard.setImageBitmap(registrationData.getFrontCardImage());
             }
-            ivFrontCard.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            ivFrontCard.setScaleType(ImageView.ScaleType.CENTER_CROP);
             
             // Force layout update to ensure proper display
             ivFrontCard.post(() -> {
@@ -838,17 +1026,15 @@ public class Step3FrontCardFragment extends Fragment {
                 ivFrontCard.requestLayout();
             });
             
-            btnCapture.setText("Chụp lại");
-            btnContinue.setVisibility(View.VISIBLE);
-            btnSaveImage.setVisibility(View.GONE); // Hide save button - portrait is saved automatically
+            // Update UI based on current state
+            if (captureState == 0) {
+                captureState = 1; // Đã chụp mặt trước
+            }
+            updateUIForState();
             progressBar.setVisibility(View.GONE);
-            btnCapture.setEnabled(true);
-            
-            Toast.makeText(getActivity(), "Đã chụp ảnh mặt trước CCCD thành công!", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             Log.e(TAG, "Error saving portrait", e);
             progressBar.setVisibility(View.GONE);
-            btnCapture.setEnabled(true);
             Toast.makeText(getActivity(), "Lỗi xử lý ảnh: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
@@ -948,11 +1134,18 @@ public class Step3FrontCardFragment extends Fragment {
     private void continueToNextStep() {
         Log.d(TAG, "continueToNextStep() called");
         Log.d(TAG, "Front card image: " + (registrationData.getFrontCardImage() != null ? "exists" : "null"));
+        Log.d(TAG, "Back card image: " + (registrationData.getBackCardImage() != null ? "exists" : "null"));
         Log.d(TAG, "Portrait image: " + (registrationData.getPortraitImage() != null ? "exists" : "null"));
         
         if (registrationData.getFrontCardImage() == null) {
             Log.e(TAG, "Front card image is null, cannot continue");
             Toast.makeText(getActivity(), "Vui lòng chụp ảnh mặt trước CCCD", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        if (registrationData.getBackCardImage() == null) {
+            Log.e(TAG, "Back card image is null, cannot continue");
+            Toast.makeText(getActivity(), "Vui lòng chụp ảnh mặt sau CCCD", Toast.LENGTH_SHORT).show();
             return;
         }
         

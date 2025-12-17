@@ -21,10 +21,13 @@ import com.google.android.material.tabs.TabLayoutMediator;
 public class MainRegistrationActivity extends AppCompatActivity {
     private ViewPager2 viewPager;
     private TabLayout tabLayout;
-    private ProgressBar progressBar;
-    private TextView tvProgress;
     private RegistrationPagerAdapter adapter;
     private RegistrationData registrationData;
+    private boolean isNavigating = false; // Prevent multiple navigation calls
+
+    // Step indicator views (4 steps now)
+    private TextView stepCircle1, stepCircle2, stepCircle3, stepCircle4;
+    private View line1_2, line2_3, line3_4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,8 +47,15 @@ public class MainRegistrationActivity extends AppCompatActivity {
     private void initializeViews() {
         viewPager = findViewById(R.id.view_pager);
         tabLayout = findViewById(R.id.tab_layout);
-        progressBar = findViewById(R.id.progress_bar);
-        tvProgress = findViewById(R.id.tv_progress);
+
+        stepCircle1 = findViewById(R.id.step_circle_1);
+        stepCircle2 = findViewById(R.id.step_circle_2);
+        stepCircle3 = findViewById(R.id.step_circle_3);
+        stepCircle4 = findViewById(R.id.step_circle_4);
+
+        line1_2 = findViewById(R.id.step_line_1_2);
+        line2_3 = findViewById(R.id.step_line_2_3);
+        line3_4 = findViewById(R.id.step_line_3_4);
         
         // Disable swipe between pages (only allow programmatic navigation)
         viewPager.setUserInputEnabled(false);
@@ -55,37 +65,92 @@ public class MainRegistrationActivity extends AppCompatActivity {
         adapter = new RegistrationPagerAdapter(this, registrationData);
         viewPager.setAdapter(adapter);
         
+        // Set offscreen page limit to 1 to prevent pre-loading too many fragments
+        // Minimum value is 1, cannot be 0
+        viewPager.setOffscreenPageLimit(1);
+        
         // Connect TabLayout with ViewPager2
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             // Tab icons or labels can be set here if needed
         }).attach();
         
-        // Update progress indicator
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                updateProgress(position + 1);
+                android.util.Log.d("MainRegistrationActivity", "onPageSelected called with position: " + position);
+                isNavigating = false; // Reset flag when page selection completes
+                updateStepIndicator(position);
             }
         });
         
-        updateProgress(1);
+        updateStepIndicator(0);
     }
-    
-    private void updateProgress(int currentStep) {
-        int totalSteps = 5; // Updated to 5 steps
-        int progress = (currentStep * 100) / totalSteps;
-        progressBar.setProgress(progress);
-        tvProgress.setText(String.format("%d/%d", currentStep, totalSteps));
+
+    private void updateStepIndicator(int position) {
+        // position: 0-based index của STEP HIỆN TẠI
+        // Chỉ tô xanh cho các bước ĐÃ HOÀN THÀNH (index < position)
+        // 4 steps: Basic Info -> QR Scan -> Front+Back CCCD -> Face Verification
+        setStepState(stepCircle1, line1_2, position > 0); // Step 1 xanh khi đã sang Step 2
+        setStepState(stepCircle2, line2_3, position > 1); // Step 2 xanh khi đã sang Step 3
+        setStepState(stepCircle3, line3_4, position > 2); // Step 3 xanh khi đã sang Step 4
+        // Step 4 (Face Verification) - no line after it
+        setCircleState(stepCircle4, position > 2);
+    }
+
+    private void setStepState(TextView circle, View lineToNext, boolean active) {
+        setCircleState(circle, active);
+        if (lineToNext != null) {
+            lineToNext.setBackgroundColor(active ? 0xFF0F5613 : 0x80FFFFFF);
+        }
+    }
+
+    private void setCircleState(TextView circle, boolean active) {
+        if (circle == null) return;
+        circle.setBackgroundResource(active ? R.drawable.step_circle_active : R.drawable.step_circle_inactive);
+        circle.setTextColor(0xFFFFFFFF);
     }
     
     /**
      * Navigate to next step
      */
     public void goToNextStep() {
+        if (isNavigating) {
+            android.util.Log.w("MainRegistrationActivity", "Navigation already in progress, ignoring duplicate call");
+            return;
+        }
+        
         int currentItem = viewPager.getCurrentItem();
-        if (currentItem < adapter.getItemCount() - 1) {
-            viewPager.setCurrentItem(currentItem + 1, true);
+        int nextItem = currentItem + 1;
+        int itemCount = adapter.getItemCount();
+        
+        android.util.Log.d("MainRegistrationActivity", "goToNextStep called. Current: " + currentItem + ", Next: " + nextItem + ", Total: " + itemCount);
+        
+        // Validate next item is within bounds
+        if (nextItem >= itemCount) {
+            android.util.Log.w("MainRegistrationActivity", "Next item " + nextItem + " exceeds item count " + itemCount);
+            return;
+        }
+        
+        if (currentItem < itemCount - 1) {
+            isNavigating = true;
+            // Use false for smooth scroll to avoid potential issues with fragment lifecycle
+            viewPager.setCurrentItem(nextItem, false);
+            android.util.Log.d("MainRegistrationActivity", "ViewPager setCurrentItem to: " + nextItem + " (no smooth scroll)");
+            
+            // Verify the change took effect
+            viewPager.post(() -> {
+                int actualItem = viewPager.getCurrentItem();
+                android.util.Log.d("MainRegistrationActivity", "After setCurrentItem, actual position is: " + actualItem);
+                if (actualItem != nextItem) {
+                    android.util.Log.e("MainRegistrationActivity", "ERROR: ViewPager position mismatch! Expected: " + nextItem + ", Actual: " + actualItem);
+                    // Force set again if mismatch
+                    viewPager.setCurrentItem(nextItem, false);
+                }
+                isNavigating = false;
+            });
+        } else {
+            android.util.Log.d("MainRegistrationActivity", "Already at last step, cannot go next");
         }
     }
     

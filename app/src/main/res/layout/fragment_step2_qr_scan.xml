@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:background="@drawable/bg_welcome_gradient">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -19,65 +20,90 @@
             android:text="Quét mã QR CCCD"
             android:textSize="24sp"
             android:textStyle="bold"
-            android:textColor="@color/primary_color"
+            android:textColor="@android:color/white"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
-        <!-- Step 1 Info (Read-only) -->
+        <!-- Instruction banner under title -->
         <androidx.cardview.widget.CardView
             android:id="@+id/cv_step1_info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="2dp"
+            android:layout_marginTop="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:cardUseCompatPadding="false"
+            app:cardBackgroundColor="@android:color/transparent"
             app:layout_constraintTop_toBottomOf="@id/tv_title">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:orientation="vertical"
+                android:gravity="center_vertical"
                 android:padding="16dp">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/tv_qr_hint"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Thông tin từ bước 1"
-                    android:textStyle="bold"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_secondary"
-                    android:layout_marginBottom="8dp"/>
-
-                <TextView
-                    android:id="@+id/tv_phone"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Số điện thoại: "
-                    android:textSize="14sp"
-                    android:layout_marginBottom="4dp"/>
-
-                <TextView
-                    android:id="@+id/tv_email"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Email: "
-                    android:textSize="14sp"/>
+                    android:text="Di chuyển camera để thấy rõ nét mã QR trên căn cước.\nHệ thống sẽ tự động quét mã QR."
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp" />
 
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Scan QR Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_scan_qr"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="24dp"
-            android:text="Quét mã QR CCCD"
-            android:textSize="16sp"
-            app:icon="@drawable/ic_qr_scanner"
-            app:cornerRadius="8dp"
-            app:layout_constraintTop_toBottomOf="@id/cv_step1_info"/>
+        <!-- QR Scanner Area shown directly on Step 2 (smaller, centered) -->
+        <androidx.camera.view.PreviewView
+            android:id="@+id/preview_view"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_marginTop="100dp"
+            app:layout_constraintTop_toBottomOf="@id/cv_step1_info"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <!-- Overlay frame for QR area -->
+        <View
+            android:id="@+id/overlay_frame"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_margin="0dp"
+            android:background="@drawable/qr_scanner_overlay"
+            app:layout_constraintTop_toTopOf="@id/preview_view"
+            app:layout_constraintBottom_toBottomOf="@id/preview_view"
+            app:layout_constraintStart_toStartOf="@id/preview_view"
+            app:layout_constraintEnd_toEndOf="@id/preview_view" />
+
+        <!-- Status text under scanner -->
+        <TextView
+            android:id="@+id/tv_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#80000000"
+            android:padding="8dp"
+            android:text="Đang khởi động camera..."
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/preview_view"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Progress while starting camera / scanning -->
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:indeterminateTint="@android:color/white"
+            android:visibility="visible"
+            app:layout_constraintTop_toBottomOf="@id/tv_status"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <!-- Info Container (Hidden initially) -->
         <LinearLayout
@@ -87,7 +113,7 @@
             android:orientation="vertical"
             android:layout_marginTop="24dp"
             android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/btn_scan_qr">
+            app:layout_constraintTop_toBottomOf="@id/progress_bar">
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"

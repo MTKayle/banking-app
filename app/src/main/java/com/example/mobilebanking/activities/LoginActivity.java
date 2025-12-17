@@ -107,7 +107,8 @@ public class LoginActivity extends AppCompatActivity {
 
         if (tvRegister != null) {
             tvRegister.setOnClickListener(v -> {
-                Intent intent = new Intent(LoginActivity.this, MainRegistrationActivity.class);
+                // Mở màn hình giới thiệu + banner (WelcomeBannerActivity)
+                Intent intent = new Intent(LoginActivity.this, WelcomeBannerActivity.class);
                 startActivity(intent);
             });
         }

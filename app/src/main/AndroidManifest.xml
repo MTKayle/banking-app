@@ -159,6 +159,11 @@
             android:name="com.example.mobilebanking.activities.ProfileActivity"
             android:parentActivityName="com.example.mobilebanking.activities.CustomerDashboardActivity" />
 
+        <!-- Welcome Banner Activity (Zalo-like intro screen) -->
+        <activity
+            android:name="com.example.mobilebanking.activities.WelcomeBannerActivity"
+            android:screenOrientation="portrait" />
+
     </application>
 
 </manifest>
