@@ -162,8 +162,9 @@ public class DataManager {
     }
 
     public void logout() {
-        // Lưu username trước khi clear để giữ lại cho lần đăng nhập sau
+        // Lưu username và fullName trước khi clear để giữ lại cho lần đăng nhập sau
         String lastUsername = getLoggedInUser();
+        String lastFullName = getLastFullName(); // Giữ lại fullName hiện tại
         
         // Xóa session và token trong SharedPreferences
         // NHƯNG KHÔNG xóa refresh token trong Keystore (để có thể đăng nhập bằng vân tay lần sau)
@@ -173,9 +174,12 @@ public class DataManager {
         editor.remove(KEY_ACCESS_TOKEN);
         editor.remove(KEY_REFRESH_TOKEN);
         
-        // Lưu lại username cuối cùng
+        // Lưu lại username và fullName cuối cùng (nếu có)
         if (lastUsername != null) {
             editor.putString(KEY_LAST_USERNAME, lastUsername);
+        }
+        if (lastFullName != null && !lastFullName.isEmpty()) {
+            editor.putString(KEY_LAST_FULL_NAME, lastFullName);
         }
         
         editor.apply();
