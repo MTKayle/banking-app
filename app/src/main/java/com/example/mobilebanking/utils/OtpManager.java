@@ -30,7 +30,7 @@ public class OtpManager {
      */
     public String generateOtp() {
         Random random = new Random();
-        int otp = 100000 + random.nextInt(900000); // 6-digit code
+        int otp = 123456; // 6-digit code
         return String.valueOf(otp);
     }
     

@@ -44,7 +44,7 @@
     <string name="verify">Xác Thực</string>
     <string name="resend_otp">Gửi Lại OTP</string>
     <string name="resend_timer">Gửi lại sau %1$ds</string>
-    
+
     <!-- Forgot Password -->
     <string name="forgot_password_title">Quên Mật Khẩu</string>
     <string name="forgot_password_description">Nhập số điện thoại đã đăng ký để nhận mã OTP</string>
@@ -76,7 +76,7 @@
     <!-- Dashboard -->
     <string name="dashboard">Trang Chủ</string>
     <string name="welcome_user">Xin Chào</string>
-    <string name="total_balance">Tổng Số Dư</string>
+    <string name="total_balance">Tổng số dư VND</string>
     <string name="my_accounts">Tài Khoản Của Tôi</string>
     <string name="services">Dịch Vụ</string>
     <string name="transfer">Chuyển Tiền</string>
@@ -93,6 +93,7 @@
     <string name="action_profile">Hồ Sơ</string>
     <string name="action_logout">Đăng Xuất</string>
     <string name="action_settings">Cài Đặt</string>
+    <string name="promotions">Ưu Đãi</string>
 
     <!-- QR Scanner -->
     <string name="scan_cccd_qr">Quét mã QR CCCD</string>
@@ -189,4 +190,12 @@
     <string name="second_fragment_label">Fragment Thứ Hai</string>
     <string name="previous">Trước</string>
     <string name="lorem_ipsum">Đây là văn bản mẫu để kiểm tra giao diện ứng dụng. Nội dung này sẽ được thay thế bằng dữ liệu thực tế khi ứng dụng hoạt động.</string>
+
+    <!-- UI Home additions -->
+    <string name="qr_pay">QR Pay</string>
+    <string name="cards">Thẻ</string>
+    <string name="savings">Tiết Kiệm</string>
+    <string name="loans">Vay</string>
+    <string name="insurance">Bảo Hiểm</string>
+
 </resources>

@@ -7,7 +7,8 @@ import retrofit2.http.POST;
 
 /**
  * Service interface for Goixe247 OTP API.
- * Currently only supports requesting OTP via SMS.
+ * - requestOtp: gửi SMS chứa mã OTP
+ * - verifyOtp: xác thực mã OTP người dùng đã nhập
  */
 public interface OtpApiService {
 
@@ -17,6 +18,15 @@ public interface OtpApiService {
             @Field("user_id") String userId,
             @Field("api_key") String apiKey,
             @Field("recipient_phone") String phone
+    );
+
+    @FormUrlEncoded
+    @POST("verify_otp.php")
+    Call<OtpResponse> verifyOtp(
+            @Field("user_id") String userId,
+            @Field("api_key") String apiKey,
+            @Field("recipient_phone") String phone,
+            @Field("otp_code") String otpCode
     );
 }
 
