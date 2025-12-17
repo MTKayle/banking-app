@@ -53,14 +53,32 @@ public class LoginActivity extends AppCompatActivity {
         dataManager = DataManager.getInstance(this);
         biometricManager = new BiometricAuthManager(this);
 
-        // DEV MODE: tự động đăng nhập thẳng vào app để bạn chỉnh giao diện
-        String defaultPhone = "0901234567"; // customer1
-        dataManager.saveLoggedInUser(defaultPhone, User.UserRole.CUSTOMER);
-        dataManager.saveLastUsername(defaultPhone);
-        dataManager.saveLastFullName("Nguyen Van A");
-        dataManager.saveTokens("mock_access_token_dev", "mock_refresh_token_dev");
-        navigateToDashboard();
-        finish();
+        // Nếu đã đăng nhập rồi -> chuyển thẳng vào Dashboard
+        if (dataManager.isLoggedIn()) {
+            navigateToDashboard();
+            return;
+        }
+
+        // Chưa đăng nhập -> hiển thị màn hình login
+        // Nếu đã có fullName lưu trước đó thì dùng layout quick login, ngược lại dùng layout đầy đủ
+        String lastFullName = dataManager.getLastFullName();
+        if (lastFullName != null && !lastFullName.isEmpty()) {
+            setContentView(R.layout.activity_login_quick);
+            isQuickLoginMode = true;
+        } else {
+            setContentView(R.layout.activity_login);
+            isQuickLoginMode = false;
+        }
+
+        initializeViews();
+        setupListeners();
+        loadLastUsername();
+        loadLastUserInfo();
+
+        // Hide fingerprint icon if biometric is not available
+        if (ivFingerprint != null && !biometricManager.isBiometricAvailable()) {
+            ivFingerprint.setVisibility(android.view.View.GONE);
+        }
     }
 
     private void initializeViews() {
