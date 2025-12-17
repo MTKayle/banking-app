@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bidv_background">
+
+    <!-- Main Scrollable Content -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/bidv_background">
+
+            <!-- Header Section with Gradient -->
+            <include
+                android:id="@+id/header_section"
+                layout="@layout/widget_header_v2" />
+
+            <!-- Image Carousel -->
+            <include
+                android:id="@+id/carousel_section"
+                layout="@layout/widget_carousel_v2" />
+
+            <!-- Quick Actions Grid -->
+            <include
+                android:id="@+id/quick_actions_section"
+                layout="@layout/widget_quick_actions_v2" />
+
+            <!-- Highlight Section (Accounts) -->
+            <include
+                android:id="@+id/highlight_section"
+                layout="@layout/widget_highlight_section" />
+
+            <!-- Bottom Padding -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="80dp" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+

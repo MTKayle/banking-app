@@ -37,4 +37,17 @@
 
     <!-- Divider -->
     <color name="divider_color">#E0E0E0</color>
+    
+    <!-- BIDV Banking Colors -->
+    <color name="bidv_blue_primary">#0066CC</color>
+    <color name="bidv_blue_dark">#004C99</color>
+    <color name="bidv_blue_light">#3399FF</color>
+    <color name="bidv_blue_gradient_start">#0066CC</color>
+    <color name="bidv_blue_gradient_end">#004C99</color>
+    <color name="bidv_background">#F8F9FA</color>
+    <color name="bidv_card_white">#FFFFFF</color>
+    <color name="bidv_text_primary">#1A1A1A</color>
+    <color name="bidv_text_secondary">#6C757D</color>
+    <color name="bidv_shadow_light">#1A000000</color>
+    <color name="bidv_shadow_medium">#33000000</color>
 </resources>

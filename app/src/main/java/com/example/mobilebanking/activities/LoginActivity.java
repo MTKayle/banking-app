@@ -72,6 +72,19 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        // TEMPORARY: Auto login for UI editing - Skip password requirement
+        // Tự động đăng nhập với tài khoản customer1 để chỉnh sửa giao diện
+        String defaultPhone = "0901234567"; // Số điện thoại của customer1
+        dataManager.saveLoggedInUser(defaultPhone, User.UserRole.CUSTOMER);
+        dataManager.saveLastUsername(defaultPhone);
+        dataManager.saveLastFullName("Nguyen Van A");
+        // Tạo mock tokens
+        dataManager.saveTokens("mock_access_token_dev", "mock_refresh_token_dev");
+        navigateToDashboard();
+        return;
+
+        // Original code (commented for UI editing):
+        /*
         initializeViews();
         setupListeners();
         loadLastUsername();
@@ -81,6 +94,7 @@ public class LoginActivity extends AppCompatActivity {
         if (ivFingerprint != null && !biometricManager.isBiometricAvailable()) {
             ivFingerprint.setVisibility(android.view.View.GONE);
         }
+        */
     }
 
     private void initializeViews() {
