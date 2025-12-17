@@ -53,7 +53,7 @@ public class CustomerDashboardActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Use new modern layout
+        // Use modern v2 layout (still kept for compatibility, even if not used as main entry)
         setContentView(R.layout.activity_customer_dashboard_v2);
 
         dataManager = DataManager.getInstance(this);

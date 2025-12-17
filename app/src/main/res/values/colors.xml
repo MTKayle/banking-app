@@ -5,7 +5,7 @@
     <color name="primary_dark">#0D47A1</color>
     <color name="primary_light">#BBDEFB</color>
     <color name="accent_color">#FF5722</color>
-    
+
     <!-- Green Theme Colors -->
     <color name="green_primary">#2E7D32</color>
     <color name="green_primary_dark">#1B5E20</color>
@@ -37,7 +37,7 @@
 
     <!-- Divider -->
     <color name="divider_color">#E0E0E0</color>
-    
+
     <!-- BIDV Banking Colors -->
     <color name="bidv_blue_primary">#0066CC</color>
     <color name="bidv_blue_dark">#004C99</color>
@@ -50,4 +50,17 @@
     <color name="bidv_text_secondary">#6C757D</color>
     <color name="bidv_shadow_light">#1A000000</color>
     <color name="bidv_shadow_medium">#33000000</color>
+
+    <!-- UI Home palette (BIDV-inspired) -->
+    <!-- Xanh chủ đạo đậm hơn -->
+    <color name="uihome_primary">#0A66C2</color>
+    <color name="uihome_primary_variant">#064B96</color>
+    <color name="uihome_accent">#38BDF8</color>
+    <!-- Nền xanh đậm hơn, vẫn đủ sáng để text đen dễ đọc -->
+    <color name="uihome_background">#D2E3FF</color>
+    <color name="uihome_text_primary">#0F172A</color>
+    <color name="uihome_text_secondary">#475569</color>
+    <!-- Nền card xanh nhạt hơn nền, vẫn tách lớp -->
+    <color name="uihome_card_bg">#E6F0FF</color>
+    <color name="uihome_shadow">#33000000</color>
 </resources>

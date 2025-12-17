@@ -22,6 +22,7 @@ import com.example.mobilebanking.api.dto.FeatureStatusResponse;
 import com.example.mobilebanking.models.User;
 import com.example.mobilebanking.utils.BiometricAuthManager;
 import com.example.mobilebanking.utils.DataManager;
+import com.example.mobilebanking.ui_home.UiHomeActivity;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -46,55 +47,20 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // TEMPORARY: Always use quick login layout for testing
-        setContentView(R.layout.activity_login_quick);
-        isQuickLoginMode = true;
-        
-        // Original logic (commented for testing):
-        // String lastFullName = DataManager.getInstance(this).getLastFullName();
-        // if (lastFullName != null && !lastFullName.isEmpty()) {
-        //     setContentView(R.layout.activity_login_quick);
-        //     isQuickLoginMode = true;
-        // } else {
-        //     setContentView(R.layout.activity_login);
-        //     isQuickLoginMode = false;
-        // }
-
         // Khởi tạo ApiClient
         ApiClient.init(this);
 
         dataManager = DataManager.getInstance(this);
         biometricManager = new BiometricAuthManager(this);
 
-        // Check if already logged in
-        if (dataManager.isLoggedIn()) {
-            navigateToDashboard();
-            return;
-        }
-
-        // TEMPORARY: Auto login for UI editing - Skip password requirement
-        // Tự động đăng nhập với tài khoản customer1 để chỉnh sửa giao diện
-        String defaultPhone = "0901234567"; // Số điện thoại của customer1
+        // DEV MODE: tự động đăng nhập thẳng vào app để bạn chỉnh giao diện
+        String defaultPhone = "0901234567"; // customer1
         dataManager.saveLoggedInUser(defaultPhone, User.UserRole.CUSTOMER);
         dataManager.saveLastUsername(defaultPhone);
         dataManager.saveLastFullName("Nguyen Van A");
-        // Tạo mock tokens
         dataManager.saveTokens("mock_access_token_dev", "mock_refresh_token_dev");
         navigateToDashboard();
-        return;
-
-        // Original code (commented for UI editing):
-        /*
-        initializeViews();
-        setupListeners();
-        loadLastUsername();
-        loadLastUserInfo();
-        
-        // Hide fingerprint icon if biometric is not available
-        if (ivFingerprint != null && !biometricManager.isBiometricAvailable()) {
-            ivFingerprint.setVisibility(android.view.View.GONE);
-        }
-        */
+        finish();
     }
 
     private void initializeViews() {
@@ -493,7 +459,8 @@ public class LoginActivity extends AppCompatActivity {
         if (role == User.UserRole.OFFICER) {
             intent = new Intent(LoginActivity.this, OfficerDashboardActivity.class);
         } else {
-            intent = new Intent(LoginActivity.this, CustomerDashboardActivity.class);
+            // Redirect CUSTOMERS to new BIDV-style Home UI
+            intent = new Intent(LoginActivity.this, UiHomeActivity.class);
         }
         
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
