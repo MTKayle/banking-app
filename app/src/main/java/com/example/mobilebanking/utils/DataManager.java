@@ -24,6 +24,7 @@ public class DataManager {
     private static final String KEY_ACCESS_TOKEN = "access_token";
     private static final String KEY_REFRESH_TOKEN = "refresh_token";
     private static final String KEY_LAST_USERNAME = "last_username";
+    private static final String KEY_LAST_FULL_NAME = "last_full_name";
 
     private DataManager(Context context) {
         sharedPreferences = context.getApplicationContext()
@@ -194,6 +195,22 @@ public class DataManager {
      */
     public String getLastUsername() {
         return sharedPreferences.getString(KEY_LAST_USERNAME, null);
+    }
+    
+    /**
+     * Lưu tên đầy đủ (full name) của người dùng đăng nhập lần cuối
+     */
+    public void saveLastFullName(String fullName) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(KEY_LAST_FULL_NAME, fullName);
+        editor.apply();
+    }
+    
+    /**
+     * Lấy tên đầy đủ (full name) của người dùng đăng nhập lần cuối
+     */
+    public String getLastFullName() {
+        return sharedPreferences.getString(KEY_LAST_FULL_NAME, null);
     }
 
     public boolean isLoggedIn() {
