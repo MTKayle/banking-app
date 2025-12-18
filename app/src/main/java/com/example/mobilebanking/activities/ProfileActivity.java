@@ -183,9 +183,9 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void setupClickListeners() {
-        // Edit Profile
+        // Edit Profile - Navigate to Settings
         btnEditProfile.setOnClickListener(v -> {
-            Toast.makeText(this, "Tính năng chỉnh sửa hồ sơ đang phát triển", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, SettingsActivity.class));
         });
         
         // eKYC Button
@@ -212,13 +212,13 @@ public class ProfileActivity extends AppCompatActivity {
             startActivity(intent);
         });
         
-        // Security actions
+        // Security actions - Navigate to Settings
         llChangePassword.setOnClickListener(v -> {
-            Toast.makeText(this, "Tính năng đổi mật khẩu đang phát triển", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, SettingsActivity.class));
         });
         
         llTransactionPin.setOnClickListener(v -> {
-            Toast.makeText(this, "Tính năng mã PIN giao dịch đang phát triển", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, SettingsActivity.class));
         });
         
         llBiometricAuth.setOnClickListener(v -> {
