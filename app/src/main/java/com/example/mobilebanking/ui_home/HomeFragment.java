@@ -25,6 +25,7 @@ import com.example.mobilebanking.activities.QrScannerActivity;
 import com.example.mobilebanking.activities.ServicesActivity;
 import com.example.mobilebanking.activities.TransferActivity;
 import com.example.mobilebanking.activities.LoginActivity;
+import com.example.mobilebanking.activities.ProfileActivity;
 import com.example.mobilebanking.adapters.CarouselAdapter;
 import com.example.mobilebanking.utils.DataManager;
 
@@ -127,7 +128,7 @@ public class HomeFragment extends Fragment {
         }
         if (navMore != null) {
             navMore.setOnClickListener(v ->
-                    startActivity(new Intent(requireContext(), ServicesActivity.class)));
+                    startActivity(new Intent(requireContext(), ProfileActivity.class)));
         }
 
         // Carousel banners (promo)
