@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -24,6 +25,7 @@ public class MovieListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_movie_list_dark);
 
         setupNavigation();
+        setupTabs();
     }
 
     private void setupNavigation() {
@@ -74,6 +76,39 @@ public class MovieListActivity extends AppCompatActivity {
 
         if (itemTotoro != null) itemTotoro.setOnClickListener(totoroClick);
         if (btnBookTotoro != null) btnBookTotoro.setOnClickListener(totoroClick);
+    }
+
+    /**
+     * Đăng ký click cho 2 tab Đang chiếu / Sắp chiếu để người dùng có cảm giác chuyển màn,
+     * hiện tại chỉ đổi style (demo, chưa lọc danh sách phim thực tế).
+     */
+    private void setupTabs() {
+        TextView tabNow = findViewById(R.id.tab_now_showing);
+        TextView tabComing = findViewById(R.id.tab_coming_soon);
+
+        if (tabNow == null || tabComing == null) return;
+
+        View.OnClickListener listener = v -> {
+            if (v == tabNow) {
+                // Kích hoạt "Đang chiếu"
+                tabNow.setBackgroundColor(0xFF0EB378);
+                tabNow.setTextColor(0xFFFFFFFF);
+
+                tabComing.setBackgroundColor(0xFF26313A);
+                tabComing.setTextColor(0xFFB0BAC5);
+            } else if (v == tabComing) {
+                // Kích hoạt "Sắp chiếu"
+                tabComing.setBackgroundColor(0xFF0EB378);
+                tabComing.setTextColor(0xFFFFFFFF);
+
+                tabNow.setBackgroundColor(0xFF26313A);
+                tabNow.setTextColor(0xFFB0BAC5);
+            }
+            // Demo: danh sách phim hiện dùng chung cho cả 2 tab, chỉ khác trạng thái tab.
+        };
+
+        tabNow.setOnClickListener(listener);
+        tabComing.setOnClickListener(listener);
     }
 
     private void openMovieDetail(String title,

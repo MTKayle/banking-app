@@ -2,8 +2,11 @@ package com.example.mobilebanking.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,7 +15,7 @@ import com.example.mobilebanking.R;
 
 /**
  * SelectShowtimeActivity
- * FRONTEND ONLY: Cho phép người dùng chọn ngày chiếu, rạp và suất chiếu mẫu.
+ * FRONTEND ONLY: Cho phép người dùng chọn ngày chiếu, hệ thống rạp và suất chiếu mẫu.
  */
 public class SelectShowtimeActivity extends AppCompatActivity {
 
@@ -24,12 +27,16 @@ public class SelectShowtimeActivity extends AppCompatActivity {
     public static final String EXTRA_SHOWDATE = "extra_showdate";
     public static final String EXTRA_ROOM = "extra_room";
 
+    private String selectedShowDate = "18/12/2025";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_showtime_dark);
 
         bindHeader();
+        setupDateSelection();
+        setupBrandSelection();
         setupClickListeners();
     }
 
@@ -46,6 +53,146 @@ public class SelectShowtimeActivity extends AppCompatActivity {
         }
     }
 
+    private void setupDateSelection() {
+        // Ngày 18
+        LinearLayout date18 = findViewById(R.id.date_item_18);
+        TextView num18 = findViewById(R.id.tv_date_18_number);
+        TextView lbl18 = findViewById(R.id.tv_date_18_label);
+
+        LinearLayout date19 = findViewById(R.id.date_item_19);
+        TextView num19 = findViewById(R.id.tv_date_19_number);
+        TextView lbl19 = findViewById(R.id.tv_date_19_label);
+
+        LinearLayout date20 = findViewById(R.id.date_item_20);
+        TextView num20 = findViewById(R.id.tv_date_20_number);
+        TextView lbl20 = findViewById(R.id.tv_date_20_label);
+
+        LinearLayout date21 = findViewById(R.id.date_item_21);
+        TextView num21 = findViewById(R.id.tv_date_21_number);
+        TextView lbl21 = findViewById(R.id.tv_date_21_label);
+
+        LinearLayout date22 = findViewById(R.id.date_item_22);
+        TextView num22 = findViewById(R.id.tv_date_22_number);
+        TextView lbl22 = findViewById(R.id.tv_date_22_label);
+
+        View.OnClickListener listener = v -> {
+            resetAllDateStyles(
+                    date18, num18, lbl18,
+                    date19, num19, lbl19,
+                    date20, num20, lbl20,
+                    date21, num21, lbl21,
+                    date22, num22, lbl22
+            );
+
+            if (v == date18) {
+                highlightDate(date18, num18, lbl18);
+                selectedShowDate = "18/12/2025";
+            } else if (v == date19) {
+                highlightDate(date19, num19, lbl19);
+                selectedShowDate = "19/12/2025";
+            } else if (v == date20) {
+                highlightDate(date20, num20, lbl20);
+                selectedShowDate = "20/12/2025";
+            } else if (v == date21) {
+                highlightDate(date21, num21, lbl21);
+                selectedShowDate = "21/12/2025";
+            } else if (v == date22) {
+                highlightDate(date22, num22, lbl22);
+                selectedShowDate = "22/12/2025";
+            }
+        };
+
+        if (date18 != null) date18.setOnClickListener(listener);
+        if (date19 != null) date19.setOnClickListener(listener);
+        if (date20 != null) date20.setOnClickListener(listener);
+        if (date21 != null) date21.setOnClickListener(listener);
+        if (date22 != null) date22.setOnClickListener(listener);
+    }
+
+    private void resetAllDateStyles(
+            LinearLayout d18, TextView n18, TextView l18,
+            LinearLayout d19, TextView n19, TextView l19,
+            LinearLayout d20, TextView n20, TextView l20,
+            LinearLayout d21, TextView n21, TextView l21,
+            LinearLayout d22, TextView n22, TextView l22
+    ) {
+        resetSingleDate(d18, n18, l18);
+        resetSingleDate(d19, n19, l19);
+        resetSingleDate(d20, n20, l20);
+        resetSingleDate(d21, n21, l21);
+        resetSingleDate(d22, n22, l22);
+    }
+
+    private void resetSingleDate(LinearLayout container, TextView number, TextView label) {
+        if (container == null || number == null || label == null) return;
+        container.setBackgroundColor(0xFF181D22);
+        number.setTextColor(0xFFE2E7F0);
+        label.setTextColor(0xFF9EA7B3);
+    }
+
+    private void highlightDate(LinearLayout container, TextView number, TextView label) {
+        container.setBackgroundColor(0xFF0EB378);
+        number.setTextColor(0xFFFFFFFF);
+        label.setTextColor(0xFFFFFFFF);
+    }
+
+    private void setupBrandSelection() {
+        LinearLayout brandFavorite = findViewById(R.id.brand_favorite);
+        ImageView ivFavorite = findViewById(R.id.iv_brand_favorite);
+        TextView tvFavorite = findViewById(R.id.tv_brand_favorite);
+
+        LinearLayout brandCgv = findViewById(R.id.brand_cgv);
+        ImageView ivCgv = findViewById(R.id.iv_brand_cgv);
+        TextView tvCgv = findViewById(R.id.tv_brand_cgv);
+
+        LinearLayout brandLotte = findViewById(R.id.brand_lotte);
+        ImageView ivLotte = findViewById(R.id.iv_brand_lotte);
+        TextView tvLotte = findViewById(R.id.tv_brand_lotte);
+
+        LinearLayout brandBeta = findViewById(R.id.brand_beta);
+        ImageView ivBeta = findViewById(R.id.iv_brand_beta);
+        TextView tvBeta = findViewById(R.id.tv_brand_beta);
+
+        View.OnClickListener listener = v -> {
+            resetBrandStyle(brandFavorite, ivFavorite, tvFavorite);
+            resetBrandStyle(brandCgv, ivCgv, tvCgv);
+            resetBrandStyle(brandLotte, ivLotte, tvLotte);
+            resetBrandStyle(brandBeta, ivBeta, tvBeta);
+
+            if (v == brandFavorite) {
+                highlightBrand(brandFavorite, ivFavorite, tvFavorite);
+            } else if (v == brandCgv) {
+                highlightBrand(brandCgv, ivCgv, tvCgv);
+            } else if (v == brandLotte) {
+                highlightBrand(brandLotte, ivLotte, tvLotte);
+            } else if (v == brandBeta) {
+                highlightBrand(brandBeta, ivBeta, tvBeta);
+            }
+        };
+
+        if (brandFavorite != null) brandFavorite.setOnClickListener(listener);
+        if (brandCgv != null) brandCgv.setOnClickListener(listener);
+        if (brandLotte != null) brandLotte.setOnClickListener(listener);
+        if (brandBeta != null) brandBeta.setOnClickListener(listener);
+
+        // Mặc định chọn "Gần tôi"
+        highlightBrand(brandFavorite, ivFavorite, tvFavorite);
+    }
+
+    private void resetBrandStyle(LinearLayout container, ImageView icon, TextView label) {
+        if (container == null || icon == null || label == null) return;
+        container.setBackgroundColor(0xFF181D22);
+        icon.setColorFilter(0xFF0EB378);
+        label.setTextColor(0xFFE2E7F0);
+    }
+
+    private void highlightBrand(LinearLayout container, ImageView icon, TextView label) {
+        if (container == null || icon == null || label == null) return;
+        container.setBackgroundColor(0xFF0EB378);
+        icon.setColorFilter(0xFFFFFFFF);
+        label.setTextColor(0xFFFFFFFF);
+    }
+
     private void setupClickListeners() {
         // Ví dụ: chọn suất 23:20 tại CGV Sư Vạn Hạnh
         Button btnShowtimeCgv2320 = findViewById(R.id.btn_showtime_1_2320);
@@ -55,7 +202,7 @@ public class SelectShowtimeActivity extends AppCompatActivity {
                             "CGV Sư Vạn Hạnh",
                             "Tầng 6, Vạn Hạnh Mall, 11 Sư Vạn Hạnh, Phường 12, Quận 10",
                             "23:20",
-                            "18/12/2025",
+                            selectedShowDate,
                             "Cinema 9"
                     ));
         }
@@ -68,7 +215,7 @@ public class SelectShowtimeActivity extends AppCompatActivity {
                             "Lotte Gò Vấp",
                             "Tầng 3, TTTM Lotte Mart Gò Vấp, 242 Nguyễn Văn Lượng",
                             "18:00",
-                            "18/12/2025",
+                            selectedShowDate,
                             "Phòng 2"
                     ));
         }
@@ -92,5 +239,4 @@ public class SelectShowtimeActivity extends AppCompatActivity {
         startActivity(intent);
     }
 }
-
 
