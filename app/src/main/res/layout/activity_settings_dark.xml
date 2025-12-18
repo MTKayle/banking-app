@@ -151,7 +151,7 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@android:drawable/ic_menu_myplaces"
+                    android:src="@drawable/avatar_facebook_mac_dinh_5"
                     android:tint="#4CAF50"
                     android:contentDescription="Devices"
                     android:layout_marginEnd="12dp" />
@@ -375,7 +375,7 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@android:drawable/ic_menu_myplaces"
+                    android:src="@drawable/avatar_facebook_mac_dinh_5"
                     android:tint="#4CAF50"
                     android:contentDescription="Fingerprint"
                     android:layout_marginEnd="12dp" />

@@ -28,9 +28,9 @@
                 android:id="@+id/iv_avatar"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                android:src="@android:drawable/ic_menu_myplaces"
+                android:src="@drawable/avatar_facebook_mac_dinh_5"
                 android:background="#1A3A1A"
-                android:padding="20dp"
+                android:scaleType="centerCrop"
                 android:contentDescription="User Avatar"
                 android:layout_marginBottom="16dp" />
 

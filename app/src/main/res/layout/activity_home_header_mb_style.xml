@@ -21,7 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="top"
+        android:gravity="center_vertical"
         android:paddingStart="16dp"
         android:paddingEnd="16dp">
 
@@ -41,10 +41,9 @@
                 android:id="@+id/iv_avatar"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:src="@android:drawable/ic_menu_myplaces"
-                android:background="#2E7D32"
-                android:padding="12dp"
-                android:tint="#A5D6A7"
+            android:src="@drawable/avatar_facebook_mac_dinh_5"
+            android:background="#2E7D32"
+            android:scaleType="centerCrop"
                 android:contentDescription="User Profile"
                 android:clickable="true"
                 android:focusable="true" />
@@ -76,7 +75,8 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:background="#2E7D32"
-            android:padding="14dp">
+            android:padding="10dp"
+            android:maxWidth="280dp">
 
             <!-- Balance Label Row -->
             <LinearLayout
@@ -84,14 +84,14 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="6dp">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Tổng số dư VND"
-                    android:textSize="12sp"
+                    android:textSize="11sp"
                     android:textColor="#A5D6A7" />
 
                 <!-- Eye Icon to Show/Hide Balance -->
@@ -114,17 +114,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="*** *** VND"
-                android:textSize="22sp"
+                android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="#A5D6A7"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="4dp" />
 
             <!-- Subtext: Daily Profit -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="SINH LỜI MỖI NGÀY"
-                android:textSize="11sp"
+                android:textSize="10sp"
                 android:textColor="#A5D6A7" />
 
         </LinearLayout>
