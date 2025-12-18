@@ -5,10 +5,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,18 +19,22 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.mobilebanking.R;
+import com.example.mobilebanking.adapters.HomeBannerAdapter;
 import com.example.mobilebanking.activities.BillPaymentActivity;
 import com.example.mobilebanking.activities.BranchLocatorActivity;
+import com.example.mobilebanking.activities.HotelBookingActivity;
 import com.example.mobilebanking.activities.MobileTopUpActivity;
+import com.example.mobilebanking.activities.MovieListActivity;
 import com.example.mobilebanking.activities.QrScannerActivity;
 import com.example.mobilebanking.activities.ServicesActivity;
+import com.example.mobilebanking.activities.TicketBookingActivity;
 import com.example.mobilebanking.activities.TransferActivity;
 import com.example.mobilebanking.activities.LoginActivity;
 import com.example.mobilebanking.activities.ProfileActivity;
-import com.example.mobilebanking.adapters.CarouselAdapter;
 import com.example.mobilebanking.utils.DataManager;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -44,13 +48,16 @@ public class HomeFragment extends Fragment {
     private TextView tvMaskedBalance;
     private ImageView ivToggleMask;
     private boolean masked = true;
-
-    // Carousel (promo banners)
-    private ViewPager2 viewPagerCarousel;
-    private LinearLayout dotsContainer;
-    private CarouselAdapter carouselAdapter;
-    private Handler carouselHandler;
-    private Runnable carouselRunnable;
+    private ViewPager2 viewPagerBanner;
+    private HomeBannerAdapter bannerAdapter;
+    private Handler autoScrollHandler;
+    private Runnable autoScrollRunnable;
+    private Handler resumeScrollHandler; // Handler để delay resume auto-scroll
+    private Runnable resumeScrollRunnable;
+    private int currentBannerPage = 0;
+    private List<Integer> originalBannerImages; // 4 banners gốc
+    private static final long AUTO_SCROLL_DELAY_MS = 3000; // 3 giây giữa các banner
+    private static final long RESUME_SCROLL_DELAY_MS = 5000; // 5 giây sau khi user thả tay mới tiếp tục auto-scroll
 
     @Nullable
     @Override
@@ -116,17 +123,20 @@ public class HomeFragment extends Fragment {
 
         // Quick actions
         setupQuickAction(view, R.id.uihome_action_transfer, new Intent(requireContext(), TransferActivity.class));
-        setupQuickAction(view, R.id.uihome_action_qr, new Intent(requireContext(), QrScannerActivity.class));
+        setupQuickAction(view, R.id.uihome_action_data, new Intent(requireContext(), MobileTopUpActivity.class));
         setupQuickAction(view, R.id.uihome_action_topup, new Intent(requireContext(), MobileTopUpActivity.class));
         setupQuickAction(view, R.id.uihome_action_bill, new Intent(requireContext(), BillPaymentActivity.class));
-        setupQuickAction(view, R.id.uihome_action_card, new Intent(requireContext(), ServicesActivity.class));
         setupQuickAction(view, R.id.uihome_action_saving, new Intent(requireContext(), ServicesActivity.class));
         setupQuickAction(view, R.id.uihome_action_loan, new Intent(requireContext(), ServicesActivity.class));
-        setupQuickAction(view, R.id.uihome_action_insurance, new Intent(requireContext(), ServicesActivity.class));
 
         // Services shortcuts
         setupQuickAction(view, R.id.uihome_action_locations, new Intent(requireContext(), BranchLocatorActivity.class));
-        setupQuickAction(view, R.id.uihome_action_more, new Intent(requireContext(), ServicesActivity.class));
+        
+        // Tiện ích - Mua sắm - Giải trí
+        setupQuickAction(view, R.id.uihome_action_movie_tickets, new Intent(requireContext(), MovieListActivity.class));
+        setupQuickAction(view, R.id.uihome_action_flight_tickets, new Intent(requireContext(), TicketBookingActivity.class));
+        setupQuickAction(view, R.id.uihome_action_taxi, new Intent(requireContext(), ServicesActivity.class));
+        setupQuickAction(view, R.id.uihome_action_hotel, new Intent(requireContext(), HotelBookingActivity.class));
 
         // Bottom navigation actions
         View navHome = view.findViewById(R.id.uihome_nav_home);
@@ -152,8 +162,348 @@ public class HomeFragment extends Fragment {
                     startActivity(new Intent(requireContext(), ProfileActivity.class)));
         }
 
-        // Carousel banners (promo)
-        setupCarousel(view);
+        // Setup banner ViewPager2 với 4 banners có thể swipe
+        setupBannerViewPager(view);
+    }
+
+    private void setupBannerViewPager(View view) {
+        viewPagerBanner = view.findViewById(R.id.viewpager_banner);
+        
+        // Danh sách 4 banner images gốc
+        originalBannerImages = Arrays.asList(
+            R.drawable.home_banner_1,
+            R.drawable.home_banner_2,
+            R.drawable.home_banner_3,
+            R.drawable.home_banner_4
+        );
+        
+        // Tạo looped list: [banner4, banner1, banner2, banner3, banner4, banner1]
+        // Fake đầu = banner4 (cuối), Fake cuối = banner1 (đầu)
+        List<Integer> loopedBannerImages = new ArrayList<>();
+        loopedBannerImages.add(originalBannerImages.get(originalBannerImages.size() - 1)); // fake first = banner4
+        loopedBannerImages.addAll(originalBannerImages); // real banners: 1, 2, 3, 4
+        loopedBannerImages.add(originalBannerImages.get(0)); // fake last = banner1
+        
+        // Tạo adapter và setup ViewPager2
+        bannerAdapter = new HomeBannerAdapter(loopedBannerImages);
+        viewPagerBanner.setAdapter(bannerAdapter);
+        
+        // Setup click listener cho banner - trả về logical position
+        bannerAdapter.setOnBannerClickListener(position -> {
+            // Convert physical position sang logical position
+            int logicalPosition = getLogicalPosition(position);
+            Toast.makeText(requireContext(), "Banner " + (logicalPosition + 1), Toast.LENGTH_SHORT).show();
+        });
+        
+        // Set offscreen page limit để cải thiện performance
+        viewPagerBanner.setOffscreenPageLimit(1);
+        
+        // Setup peek effect: hiển thị một phần banner bên cạnh
+        // Sử dụng ViewTreeObserver để đảm bảo ViewPager2 đã được layout xong
+        viewPagerBanner.getViewTreeObserver().addOnGlobalLayoutListener(new android.view.ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                // Chỉ chạy 1 lần
+                viewPagerBanner.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                
+                // Tìm RecyclerView bên trong ViewPager2
+                androidx.recyclerview.widget.RecyclerView recyclerView = (androidx.recyclerview.widget.RecyclerView) viewPagerBanner.getChildAt(0);
+                if (recyclerView != null) {
+                    // Convert dp to pixels - 60dp padding để hiển thị một phần banner bên cạnh
+                    float density = getResources().getDisplayMetrics().density;
+                    int paddingPx = (int) (60 * density);
+                    
+                    recyclerView.setPadding(paddingPx, 0, paddingPx, 0);
+                    recyclerView.setClipToPadding(false);
+                    recyclerView.setClipChildren(false);
+                    
+                    // Đợi RecyclerView layout lại với padding mới, sau đó mới set currentItem
+                    // Sử dụng post với delay nhỏ để đảm bảo padding đã được apply
+                    recyclerView.postDelayed(() -> {
+                        currentBannerPage = 1;
+                        viewPagerBanner.setCurrentItem(currentBannerPage, false);
+                        // Cập nhật elevation sau khi set current item
+                        recyclerView.postDelayed(() -> updateBannerElevations(), 100);
+                    }, 50); // Delay 50ms để đảm bảo layout đã hoàn tất
+                } else {
+                    // Fallback: nếu không tìm thấy RecyclerView, thử lại sau một chút
+                    viewPagerBanner.postDelayed(() -> {
+                        androidx.recyclerview.widget.RecyclerView rv = (androidx.recyclerview.widget.RecyclerView) viewPagerBanner.getChildAt(0);
+                        if (rv != null) {
+                            float density = getResources().getDisplayMetrics().density;
+                            int paddingPx = (int) (60 * density);
+                            rv.setPadding(paddingPx, 0, paddingPx, 0);
+                            rv.setClipToPadding(false);
+                            rv.setClipChildren(false);
+                            rv.postDelayed(() -> {
+                                currentBannerPage = 1;
+                                viewPagerBanner.setCurrentItem(currentBannerPage, false);
+                                // Cập nhật elevation sau khi set current item
+                                rv.postDelayed(() -> updateBannerElevations(), 100);
+                            }, 50);
+                        } else {
+                            // Nếu vẫn không tìm thấy, set currentItem ngay
+                            currentBannerPage = 1;
+                            viewPagerBanner.setCurrentItem(currentBannerPage, false);
+                            // Cập nhật elevation sau khi set current item
+                            viewPagerBanner.postDelayed(() -> updateBannerElevations(), 100);
+                        }
+                    }, 100);
+                }
+            }
+        });
+        
+        // Setup PageTransformer để banner chính nổi lên trên hơn so với 2 banner bên cạnh
+        viewPagerBanner.setPageTransformer(new ViewPager2.PageTransformer() {
+            @Override
+            public void transformPage(@NonNull View page, float position) {
+                // Tìm CardView trong page
+                CardView cardView = page.findViewById(R.id.cv_banner_card);
+                if (cardView == null) {
+                    // Nếu không tìm thấy với id, tìm bằng cách duyệt children
+                    cardView = findCardView(page);
+                }
+                
+                if (cardView != null) {
+                    // position = 0: banner chính (đang hiển thị ở giữa)
+                    // position < 0: banner bên trái (đã scroll qua)
+                    // position > 0: banner bên phải (sắp scroll đến)
+                    float absPosition = Math.abs(position);
+                    
+                    if (absPosition <= 0.5f) {
+                        // Banner chính hoặc gần chính: elevation cao để nổi bật
+                        float elevation = 12f - (absPosition * 10f); // Từ 12dp xuống 7dp
+                        cardView.setCardElevation(dpToPx(Math.max(elevation, 7f)));
+                        // Scale gần như bình thường
+                        float scale = 1f - (absPosition * 0.03f);
+                        page.setScaleX(scale);
+                        page.setScaleY(scale);
+                    } else {
+                        // Banner bên cạnh: elevation thấp hơn nhiều
+                        cardView.setCardElevation(dpToPx(2f));
+                        // Scale nhỏ hơn một chút để tạo hiệu ứng depth
+                        float scale = 0.92f;
+                        page.setScaleX(scale);
+                        page.setScaleY(scale);
+                    }
+                }
+            }
+        });
+        
+        // Setup page change callback để xử lý loop
+        viewPagerBanner.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                currentBannerPage = position;
+                // Cập nhật elevation sau khi chọn page
+                updateBannerElevations();
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                super.onPageScrollStateChanged(state);
+                
+                // Dừng auto-scroll khi người dùng đang swipe banner
+                if (state == ViewPager2.SCROLL_STATE_DRAGGING) {
+                    // Người dùng đang kéo/swipe -> dừng auto-scroll ngay
+                    stopAutoScroll();
+                    cancelResumeAutoScroll();
+                } else if (state == ViewPager2.SCROLL_STATE_IDLE) {
+                    // Xử lý loop khi scroll xong
+                    int lastIndex = bannerAdapter.getItemCount() - 1;
+                    if (currentBannerPage == 0) {
+                        // Swiped left từ banner1 -> jump đến banner4 (last real)
+                        viewPagerBanner.setCurrentItem(lastIndex - 1, false);
+                    } else if (currentBannerPage == lastIndex) {
+                        // Swiped right từ banner4 -> jump đến banner1 (first real)
+                        viewPagerBanner.setCurrentItem(1, false);
+                    }
+                    
+                    // Sau khi scroll xong, đợi một khoảng thời gian rồi mới tiếp tục auto-scroll
+                    scheduleResumeAutoScroll();
+                }
+            }
+        });
+        
+        // Setup touch listener để tạm dừng auto-scroll khi user chạm/giữ banner
+        viewPagerBanner.setOnTouchListener((v, event) -> {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    // Người dùng chạm vào banner -> dừng auto-scroll ngay lập tức
+                    stopAutoScroll();
+                    cancelResumeAutoScroll();
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    // Người dùng đang giữ/kéo -> tiếp tục dừng
+                    stopAutoScroll();
+                    cancelResumeAutoScroll();
+                    break;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    // Người dùng thả tay -> đợi một khoảng thời gian rồi mới tiếp tục auto-scroll
+                    // Không restart ngay để người dùng có thời gian đọc nội dung
+                    scheduleResumeAutoScroll();
+                    break;
+            }
+            return false; // Vẫn cho ViewPager xử lý swipe
+        });
+        
+        // Setup auto-scroll
+        setupAutoScroll();
+    }
+    
+    /**
+     * Tìm CardView trong view hierarchy
+     */
+    private CardView findCardView(View view) {
+        if (view instanceof CardView) {
+            return (CardView) view;
+        }
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                CardView found = findCardView(group.getChildAt(i));
+                if (found != null) {
+                    return found;
+                }
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Convert dp to pixels
+     */
+    private float dpToPx(float dp) {
+        return dp * getResources().getDisplayMetrics().density;
+    }
+    
+    /**
+     * Cập nhật elevation của các banner dựa trên vị trí hiện tại
+     */
+    private void updateBannerElevations() {
+        if (viewPagerBanner == null) return;
+        
+        androidx.recyclerview.widget.RecyclerView recyclerView = 
+            (androidx.recyclerview.widget.RecyclerView) viewPagerBanner.getChildAt(0);
+        if (recyclerView == null) return;
+        
+        // Duyệt qua các view trong RecyclerView
+        for (int i = 0; i < recyclerView.getChildCount(); i++) {
+            View child = recyclerView.getChildAt(i);
+            CardView cardView = findCardView(child);
+            
+            if (cardView != null) {
+                // Lấy vị trí của view trong adapter
+                androidx.recyclerview.widget.RecyclerView.ViewHolder holder = 
+                    recyclerView.getChildViewHolder(child);
+                if (holder != null) {
+                    int position = holder.getAdapterPosition();
+                    if (position == currentBannerPage) {
+                        // Banner chính: elevation cao
+                        cardView.setCardElevation(dpToPx(12f));
+                    } else {
+                        // Banner bên cạnh: elevation thấp
+                        cardView.setCardElevation(dpToPx(2f));
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Chuyển đổi physical position (có fake items) sang logical position (0-3)
+     */
+    private int getLogicalPosition(int physicalPosition) {
+        if (physicalPosition == 0) {
+            // Fake first -> logical last (banner 4)
+            return originalBannerImages.size() - 1;
+        } else if (physicalPosition == bannerAdapter.getItemCount() - 1) {
+            // Fake last -> logical first (banner 1)
+            return 0;
+        } else {
+            // Real banners: shift by 1 (vì có fake item ở đầu)
+            return physicalPosition - 1;
+        }
+    }
+    
+    /**
+     * Setup auto-scroll mỗi 3 giây
+     */
+    private void setupAutoScroll() {
+        autoScrollHandler = new Handler(Looper.getMainLooper());
+        resumeScrollHandler = new Handler(Looper.getMainLooper());
+        
+        autoScrollRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (viewPagerBanner == null || bannerAdapter == null) {
+                    return;
+                }
+
+                int itemCount = bannerAdapter.getItemCount();
+                if (itemCount == 0) return;
+
+                int next = viewPagerBanner.getCurrentItem() + 1;
+                viewPagerBanner.setCurrentItem(next, true);
+
+                autoScrollHandler.postDelayed(this, AUTO_SCROLL_DELAY_MS);
+            }
+        };
+        
+        resumeScrollRunnable = new Runnable() {
+            @Override
+            public void run() {
+                // Sau khi đợi một khoảng thời gian, tiếp tục auto-scroll
+                startAutoScroll();
+            }
+        };
+        
+        startAutoScroll();
+    }
+    
+    /**
+     * Bắt đầu auto-scroll
+     */
+    private void startAutoScroll() {
+        if (autoScrollHandler != null && autoScrollRunnable != null) {
+            // Hủy bỏ các callback cũ trước khi bắt đầu mới
+            autoScrollHandler.removeCallbacks(autoScrollRunnable);
+            autoScrollHandler.postDelayed(autoScrollRunnable, AUTO_SCROLL_DELAY_MS);
+        }
+    }
+    
+    /**
+     * Dừng auto-scroll ngay lập tức
+     */
+    private void stopAutoScroll() {
+        if (autoScrollHandler != null && autoScrollRunnable != null) {
+            autoScrollHandler.removeCallbacks(autoScrollRunnable);
+        }
+    }
+    
+    /**
+     * Lên lịch tiếp tục auto-scroll sau một khoảng thời gian
+     * Được gọi khi người dùng thả tay khỏi banner
+     */
+    private void scheduleResumeAutoScroll() {
+        if (resumeScrollHandler != null && resumeScrollRunnable != null) {
+            // Hủy bỏ callback cũ nếu có
+            resumeScrollHandler.removeCallbacks(resumeScrollRunnable);
+            // Lên lịch resume sau RESUME_SCROLL_DELAY_MS (5 giây)
+            resumeScrollHandler.postDelayed(resumeScrollRunnable, RESUME_SCROLL_DELAY_MS);
+        }
+    }
+    
+    /**
+     * Hủy bỏ lịch tiếp tục auto-scroll
+     * Được gọi khi người dùng lại chạm vào banner
+     */
+    private void cancelResumeAutoScroll() {
+        if (resumeScrollHandler != null && resumeScrollRunnable != null) {
+            resumeScrollHandler.removeCallbacks(resumeScrollRunnable);
+        }
     }
 
     private void setupQuickAction(View root, int cardId, Intent intent) {
@@ -179,106 +529,27 @@ public class HomeFragment extends Fragment {
             // ivToggleMask.setImageResource(masked ? android.R.drawable.ic_lock_lock : android.R.drawable.ic_menu_view);
         }
     }
-
-    // FAB speed dial removed – replaced by bottom navigation bar
-
-    private void setupCarousel(View root) {
-        viewPagerCarousel = root.findViewById(R.id.viewpager_carousel);
-        dotsContainer = root.findViewById(R.id.ll_dots_indicator);
-
-        if (viewPagerCarousel == null || dotsContainer == null) {
-            return;
-        }
-
-        // Use the 4 home banners already in drawable
-        List<Integer> images = Arrays.asList(
-                R.drawable.home_banner_1,
-                R.drawable.home_banner_2,
-                R.drawable.home_banner_3,
-                R.drawable.home_banner_4
-        );
-
-        carouselAdapter = new CarouselAdapter(images);
-        viewPagerCarousel.setAdapter(carouselAdapter);
-
-        setupDotsIndicator(images.size());
-
-        carouselHandler = new Handler(Looper.getMainLooper());
-        startAutoScroll();
-
-        viewPagerCarousel.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-                updateDotsIndicator(position);
-            }
-        });
+    
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Chỉ start auto-scroll nếu không có tương tác gần đây
+        scheduleResumeAutoScroll();
     }
-
-    private void setupDotsIndicator(int count) {
-        if (dotsContainer == null) return;
-        dotsContainer.removeAllViews();
-        for (int i = 0; i < count; i++) {
-            View dot = new View(requireContext());
-            int size = (int) (8 * getResources().getDisplayMetrics().density);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
-            int margin = (int) (4 * getResources().getDisplayMetrics().density);
-            params.setMargins(margin, 0, margin, 0);
-            dot.setLayoutParams(params);
-            dot.setBackgroundResource(R.drawable.bg_card_rounded);
-            dot.setAlpha(i == 0 ? 1f : 0.3f);
-            int color = getResources().getColor(i == 0 ? R.color.uihome_primary : R.color.uihome_text_secondary, null);
-            dot.getBackground().setTint(color);
-            dotsContainer.addView(dot);
-        }
-    }
-
-    private void updateDotsIndicator(int position) {
-        if (dotsContainer == null) return;
-        int count = dotsContainer.getChildCount();
-        for (int i = 0; i < count; i++) {
-            View dot = dotsContainer.getChildAt(i);
-            boolean active = i == position;
-            dot.setAlpha(active ? 1f : 0.3f);
-            int color = getResources().getColor(active ? R.color.uihome_primary : R.color.uihome_text_secondary, null);
-            dot.getBackground().setTint(color);
-        }
-    }
-
-    private void startAutoScroll() {
-        if (viewPagerCarousel == null || carouselAdapter == null) return;
-        stopAutoScroll();
-        carouselRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (viewPagerCarousel == null || carouselAdapter == null) return;
-                int count = carouselAdapter.getItemCount();
-                if (count <= 1) return;
-                int current = viewPagerCarousel.getCurrentItem();
-                int next = (current + 1) % count;
-                viewPagerCarousel.setCurrentItem(next, true);
-                carouselHandler.postDelayed(this, 4000); // 4s mỗi banner
-            }
-        };
-        carouselHandler.postDelayed(carouselRunnable, 4000);
-    }
-
-    private void stopAutoScroll() {
-        if (carouselHandler != null && carouselRunnable != null) {
-            carouselHandler.removeCallbacks(carouselRunnable);
-        }
-    }
-
+    
     @Override
     public void onPause() {
         super.onPause();
         stopAutoScroll();
+        cancelResumeAutoScroll();
+    }
+    
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        stopAutoScroll();
+        cancelResumeAutoScroll();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        startAutoScroll();
-    }
 }
 

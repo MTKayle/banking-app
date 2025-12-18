@@ -38,7 +38,7 @@
                 android:layout_height="24dp"
                 android:src="@drawable/ic_lock"
                 android:contentDescription="@string/available_balance"
-                android:tint="@android:color/white" />
+                app:tint="@android:color/white" />
         </LinearLayout>
 
         <TextView

@@ -5,16 +5,8 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:layout_marginTop="8dp"
+    android:layout_marginBottom="5dp"
     android:padding="8dp">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/services"
-        android:textColor="@color/uihome_text_primary"
-        android:textStyle="bold"
-        android:textSize="14sp"
-        android:paddingBottom="2dp" />
 
     <GridLayout
         android:layout_width="match_parent"
@@ -24,156 +16,192 @@
         android:useDefaultMargins="false">
 
         <!-- 1) Chuyển tiền -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/uihome_action_transfer"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_columnWeight="1"
             android:layout_rowWeight="1"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            android:foreground="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="10dp">
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_transfer"
-                    android:tint="#4CAF50"
-                    android:contentDescription="@string/transfer" />
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/transfer"
-                    android:textColor="@color/uihome_text_primary"
-                    android:textSize="10sp"
-                    android:layout_marginTop="4dp"
-                    android:gravity="center"
-                    android:maxLines="2"
-                    android:includeFontPadding="false"
-                    android:lineSpacingExtra="1dp" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+            android:gravity="center"
+            android:orientation="vertical">
 
-        <!-- 2) Thanh toán hóa đơn -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/uihome_action_bill"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/uihome_action_transfer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                android:foreground="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="10dp">
+                    <ImageView
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
+                        android:src="@drawable/ic_transfer"
+                        app:tint="#4CAF50"
+                        android:contentDescription="@string/transfer" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/transfer"
+                android:textColor="@color/uihome_text_primary"
+                android:textSize="10sp"
+                android:layout_marginTop="4dp"
+                android:gravity="center"
+                android:maxLines="2"
+                android:includeFontPadding="false"
+                android:lineSpacingExtra="1dp" />
+        </LinearLayout>
+
+        <!-- 2) QR của tôi (thay cho Thanh toán hóa đơn) -->
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_columnWeight="1"
             android:layout_rowWeight="1"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            android:foreground="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="10dp">
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_bill"
-                    android:tint="#4CAF50"
-                    android:contentDescription="@string/bill_payment" />
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/bill_payment"
-                    android:textColor="@color/uihome_text_primary"
-                    android:textSize="10sp"
-                    android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/uihome_action_my_qr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                android:foreground="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:gravity="center"
-                    android:maxLines="2"
-                    android:includeFontPadding="false"
-                    android:lineSpacingExtra="1dp" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+                    android:orientation="vertical"
+                    android:padding="10dp">
+                    <ImageView
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:src="@drawable/ic_qr_scanner"
+                        android:tint="#4CAF50"
+                        android:contentDescription="@string/my_qr" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/my_qr"
+                android:textColor="@color/uihome_text_primary"
+                android:textSize="10sp"
+                android:layout_marginTop="4dp"
+                android:gravity="center"
+                android:maxLines="2"
+                android:includeFontPadding="false"
+                android:lineSpacingExtra="1dp" />
+        </LinearLayout>
 
         <!-- 3) Vay -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/uihome_action_loan"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_columnWeight="1"
             android:layout_rowWeight="1"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            android:foreground="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="10dp">
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_lock"
-                    android:tint="#4CAF50"
-                    android:contentDescription="@string/loans" />
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/loans"
-                    android:textColor="@color/uihome_text_primary"
-                    android:textSize="10sp"
-                    android:layout_marginTop="4dp"
-                    android:gravity="center"
-                    android:maxLines="2"
-                    android:includeFontPadding="false"
-                    android:lineSpacingExtra="1dp" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+            android:gravity="center"
+            android:orientation="vertical">
 
-        <!-- 4) Tìm chi nhánh -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/uihome_action_locations"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/uihome_action_loan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                android:foreground="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="10dp">
+                    <ImageView
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:src="@drawable/ic_vaytien"
+                        android:tint="#4CAF50"
+                        android:contentDescription="@string/loans" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Vay nhanh"
+                android:textColor="@color/uihome_text_primary"
+                android:textSize="10sp"
+                android:layout_marginTop="4dp"
+                android:gravity="center"
+                android:maxLines="2"
+                android:includeFontPadding="false"
+                android:lineSpacingExtra="1dp" />
+        </LinearLayout>
+
+        <!-- 4) Tiết kiệm (thay cho Tìm chi nhánh) -->
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_columnWeight="1"
             android:layout_rowWeight="1"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            android:foreground="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="10dp">
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_location"
-                    android:tint="#4CAF50"
-                    android:contentDescription="@string/branch_locator" />
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/branch_locator"
-                    android:textColor="@color/uihome_text_primary"
-                    android:textSize="10sp"
-                    android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/uihome_action_saving"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                android:foreground="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:gravity="center"
-                    android:maxLines="2"
-                    android:includeFontPadding="false"
-                    android:lineSpacingExtra="1dp" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+                    android:orientation="vertical"
+                    android:padding="10dp">
+                    <ImageView
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:src="@drawable/ic_bank_logo"
+                        android:tint="#4CAF50"
+                        android:contentDescription="@string/savings" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/savings"
+                android:textColor="@color/uihome_text_primary"
+                android:textSize="10sp"
+                android:layout_marginTop="4dp"
+                android:gravity="center"
+                android:maxLines="2"
+                android:includeFontPadding="false"
+                android:lineSpacingExtra="1dp" />
+        </LinearLayout>
 
     </GridLayout>
 </LinearLayout>

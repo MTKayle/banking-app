@@ -32,7 +32,9 @@ public class CarouselAdapter extends RecyclerView.Adapter<CarouselAdapter.Carous
 
     @Override
     public void onBindViewHolder(@NonNull CarouselViewHolder holder, int position) {
-        int imageRes = imageResources.get(position % imageResources.size());
+        // Không dùng modulo để hỗ trợ looped list (với fake items)
+        // Nếu list đã được loop sẵn, position sẽ tương ứng trực tiếp với image
+        int imageRes = imageResources.get(position);
         holder.imageView.setImageResource(imageRes);
     }
 

@@ -5,12 +5,14 @@
 <!-- NO horizontal padding or margin on root container -->
 <!-- ============================================ -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/header"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="#1B5E20"
-    android:paddingTop="12dp"
-    android:paddingBottom="16dp">
+    android:background="@android:color/transparent"
+    android:paddingTop="30dp"
+    android:paddingBottom="10dp">
 
     <!-- ============================================ -->
     <!-- INNER CONTENT CONTAINER -->
@@ -37,28 +39,29 @@
             android:gravity="center"
             android:layout_marginEnd="16dp">
 
-            <ImageView
+            <!-- Avatar bo tròn -->
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/iv_avatar"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-            android:src="@drawable/avatar_facebook_mac_dinh_5"
-            android:background="#2E7D32"
-            android:scaleType="centerCrop"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
+                android:src="@drawable/avatar_facebook_mac_dinh_5"
+                android:scaleType="centerCrop"
                 android:contentDescription="User Profile"
                 android:clickable="true"
-                android:focusable="true" />
+                android:focusable="true"
+                app:shapeAppearanceOverlay="@style/CircleImage" />
 
-            <!-- Badge "NÂNG HẠNG" -->
+            <!-- Badge "NÂNG HẠNG" bo tròn -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="NÂNG HẠNG"
                 android:textSize="8sp"
-                android:textColor="#4CAF50"
+                android:textColor="#A5D6A7"
                 android:textStyle="bold"
-                android:background="#2E7D32"
-                android:paddingStart="6dp"
-                android:paddingEnd="6dp"
+                android:background="@drawable/bg_uiname_rank_badge"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
                 android:paddingTop="3dp"
                 android:paddingBottom="3dp"
                 android:layout_marginTop="6dp" />
@@ -74,50 +77,50 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:background="#2E7D32"
+            android:background="@drawable/bg_uiname_balance_card"
             android:padding="10dp"
             android:maxWidth="280dp">
 
             <!-- Balance Label Row -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tổng số dư"
+                android:textSize="11sp"
+                android:textColor="#A5D6A7"
+                android:layout_marginBottom="6dp" />
+
+            <!-- Main Balance Amount + VNĐ + Eye icon cùng một hàng -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="6dp">
+                android:layout_marginBottom="4dp">
 
                 <TextView
-                    android:layout_width="0dp"
+                    android:id="@+id/tv_total_balance"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Tổng số dư VND"
-                    android:textSize="11sp"
-                    android:textColor="#A5D6A7" />
+                    android:text="*** *** VNĐ"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#A5D6A7"
+                    android:layout_marginEnd="4dp" />
 
-                <!-- Eye Icon to Show/Hide Balance -->
+                <!-- Eye Icon ngay cạnh chữ VNĐ -->
                 <ImageView
                     android:id="@+id/iv_toggle_balance"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@android:drawable/ic_menu_view"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_eye_open"
                     android:tint="#A5D6A7"
                     android:contentDescription="Show/Hide Balance"
                     android:clickable="true"
                     android:focusable="true"
-                    android:padding="4dp" />
+                    android:padding="2dp" />
 
             </LinearLayout>
-
-            <!-- Main Balance Amount -->
-            <TextView
-                android:id="@+id/tv_total_balance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="*** *** VND"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="#A5D6A7"
-                android:layout_marginBottom="4dp" />
 
             <!-- Subtext: Daily Profit -->
             <TextView
