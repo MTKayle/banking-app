@@ -144,6 +144,10 @@
             android:parentActivityName="com.example.mobilebanking.activities.BillPaymentActivity" />
 
         <activity
+            android:name="com.example.mobilebanking.activities.BillHistoryActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.BillPaymentActivity" />
+
+        <activity
             android:name="com.example.mobilebanking.activities.MobileTopUpActivity"
             android:parentActivityName="com.example.mobilebanking.activities.CustomerDashboardActivity" />
 
