@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Screen 1 – Movie List (Dark Mode)
+  UX: Dark banking theme, clear hierarchy, scrollable movie list with quick "Đặt vé" actions.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_movie_list"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#101418"
+    android:padding="12dp">
+
+    <!-- TOP APP BAR -->
+    <LinearLayout
+        android:id="@+id/layout_app_bar"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@android:color/transparent"
+            android:padding="4dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_arrow_back" />
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="Đặt vé xem phim"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <!-- SEARCH BAR -->
+    <LinearLayout
+        android:id="@+id/layout_search"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="12dp"
+        android:background="@drawable/bg_card_rounded"
+        android:layout_marginHorizontal="2dp"
+        android:layout_marginBottom="8dp"
+        android:clipToPadding="false"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
+
+        <ImageView
+            android:id="@+id/iv_search_icon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:tint="#9EA7B3"
+            android:src="@android:drawable/ic_menu_search" />
+
+        <EditText
+            android:id="@+id/et_search"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:hint="Tìm kiếm phim hoặc rạp chiếu"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:maxLines="1"
+            android:paddingVertical="6dp"
+            android:textColor="@android:color/white"
+            android:textColorHint="#768190"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <!-- TAB FILTER: Đang chiếu / Sắp chiếu -->
+    <LinearLayout
+        android:id="@+id/layout_tab_filter"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="4dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:padding="2dp"
+        android:background="#181D22">
+
+        <TextView
+            android:id="@+id/tab_now_showing"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Đang chiếu"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:background="#0EB378" />
+
+        <TextView
+            android:id="@+id/tab_coming_soon"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Sắp chiếu"
+            android:textAllCaps="false"
+            android:textColor="#B0BAC5"
+            android:textSize="14sp"
+            android:background="#26313A" />
+    </LinearLayout>
+
+    <!-- LABEL: DANH SÁCH PHIM -->
+    <TextView
+        android:id="@+id/tv_movie_list_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="DANH SÁCH PHIM"
+        android:textAllCaps="true"
+        android:textColor="#9EA7B3"
+        android:textSize="12sp"
+        android:letterSpacing="0.08" />
+
+    <!-- MOVIE LIST SCROLL AREA -->
+    <ScrollView
+        android:id="@+id/scroll_movie_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="4dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:id="@+id/container_movies"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="12dp">
+
+            <!-- MOVIE ITEM 1: VUA CỦA CÁC VUA -->
+            <LinearLayout
+                android:id="@+id/item_movie_king_of_kings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:padding="10dp"
+                android:orientation="horizontal"
+                android:background="#181D22">
+
+                <ImageView
+                    android:id="@+id/iv_poster_king_of_kings"
+                    android:layout_width="72dp"
+                    android:layout_height="104dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/home_banner_1" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tv_title_king_of_kings"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="VUA CỦA CÁC VUA (T13)"
+                        android:textColor="@android:color/white"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:maxLines="2"
+                        android:ellipsize="end" />
+
+                    <TextView
+                        android:id="@+id/tv_genre_king_of_kings"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Gia đình, Hoạt hình"
+                        android:textColor="#9EA7B3"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tv_release_date_king_of_kings"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Khởi chiếu: 12/12/2025"
+                        android:textColor="#9EA7B3"
+                        android:textSize="12sp" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/tv_duration_king_of_kings"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="101 phút"
+                            android:textColor="#CED4DF"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/tv_age_rating_king_of_kings"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="2dp"
+                            android:background="#F2C94C"
+                            android:text="T13"
+                            android:textColor="#111111"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/btn_book_king_of_kings"
+                    android:layout_width="72dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="#0EB378"
+                    android:text="Đặt vé"
+                    android:textAllCaps="false"
+                    android:textColor="@android:color/white"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <!-- MOVIE ITEM 2: AVATAR 3 -->
+            <LinearLayout
+                android:id="@+id/item_movie_avatar3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:padding="10dp"
+                android:orientation="horizontal"
+                android:background="#181D22">
+
+                <ImageView
+                    android:id="@+id/iv_poster_avatar3"
+                    android:layout_width="72dp"
+                    android:layout_height="104dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/home_banner_2" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tv_title_avatar3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="AVATAR 3: LỬA VÀ TRO TÀN (T13)"
+                        android:textColor="@android:color/white"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:maxLines="2"
+                        android:ellipsize="end" />
+
+                    <TextView
+                        android:id="@+id/tv_genre_avatar3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Khoa học viễn tưởng, Hành động"
+                        android:textColor="#9EA7B3"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tv_release_date_avatar3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Khởi chiếu: 16/12/2025"
+                        android:textColor="#9EA7B3"
+                        android:textSize="12sp" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/tv_duration_avatar3"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="180 phút"
+                            android:textColor="#CED4DF"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/tv_age_rating_avatar3"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="2dp"
+                            android:background="#F2C94C"
+                            android:text="T13"
+                            android:textColor="#111111"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/btn_book_avatar3"
+                    android:layout_width="72dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="#0EB378"
+                    android:text="Đặt vé"
+                    android:textAllCaps="false"
+                    android:textColor="@android:color/white"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <!-- MOVIE ITEM 3: TOTORO -->
+            <LinearLayout
+                android:id="@+id/item_movie_totoro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:padding="10dp"
+                android:orientation="horizontal"
+                android:background="#181D22">
+
+                <ImageView
+                    android:id="@+id/iv_poster_totoro"
+                    android:layout_width="72dp"
+                    android:layout_height="104dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/home_banner_3" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tv_title_totoro"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="PHIM ĐIỆN ẢNH HÀNG XÓM CỦA TÔI TOTORO (P)"
+                        android:textColor="@android:color/white"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:maxLines="2"
+                        android:ellipsize="end" />
+
+                    <TextView
+                        android:id="@+id/tv_genre_totoro"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Hoạt hình, Phiêu lưu"
+                        android:textColor="#9EA7B3"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tv_release_date_totoro"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Khởi chiếu: 19/12/2025"
+                        android:textColor="#9EA7B3"
+                        android:textSize="12sp" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/tv_duration_totoro"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="87 phút"
+                            android:textColor="#CED4DF"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/tv_age_rating_totoro"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="2dp"
+                            android:background="#2ECC71"
+                            android:text="P"
+                            android:textColor="#111111"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/btn_book_totoro"
+                    android:layout_width="72dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="#0EB378"
+                    android:text="Đặt vé"
+                    android:textAllCaps="false"
+                    android:textColor="@android:color/white"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

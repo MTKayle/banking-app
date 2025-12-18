@@ -45,7 +45,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_transfer"
-                    android:tint="@color/uihome_primary"
+                    android:tint="#4CAF50"
                     android:contentDescription="@string/transfer" />
                 <TextView
                     android:layout_width="match_parent"
@@ -83,7 +83,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_bill"
-                    android:tint="@color/uihome_primary"
+                    android:tint="#4CAF50"
                     android:contentDescription="@string/bill_payment" />
                 <TextView
                     android:layout_width="match_parent"
@@ -121,7 +121,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_lock"
-                    android:tint="@color/uihome_primary"
+                    android:tint="#4CAF50"
                     android:contentDescription="@string/loans" />
                 <TextView
                     android:layout_width="match_parent"
@@ -159,7 +159,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_location"
-                    android:tint="@color/uihome_primary"
+                    android:tint="#4CAF50"
                     android:contentDescription="@string/branch_locator" />
                 <TextView
                     android:layout_width="match_parent"

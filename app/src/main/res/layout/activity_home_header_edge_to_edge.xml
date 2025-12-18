@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ============================================ -->
+<!-- EDGE-TO-EDGE HEADER CONTAINER -->
+<!-- Background touches both left and right screen edges -->
+<!-- NO horizontal padding or margin on this container -->
+<!-- ============================================ -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#1B5E20"
+    android:paddingTop="4dp"
+    android:paddingBottom="12dp">
+
+    <!-- ============================================ -->
+    <!-- INNER CONTENT CONTAINER -->
+    <!-- This container has horizontal padding for readable content -->
+    <!-- Background stays edge-to-edge, but text has safe padding -->
+    <!-- ============================================ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+
+        <!-- ============================================ -->
+        <!-- TOP ROW: Avatar (Left) + Notification (Right) -->
+        <!-- ============================================ -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <!-- Left: Avatar Icon (Clickable) -->
+            <ImageView
+                android:id="@+id/iv_avatar"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+            android:src="@drawable/avatar_facebook_mac_dinh_5"
+            android:background="#2E7D32"
+            android:scaleType="centerCrop"
+                android:contentDescription="User Profile"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <!-- Spacer -->
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <!-- Right: Notification Icon -->
+            <ImageView
+                android:id="@+id/iv_notification"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@android:drawable/ic_menu_view"
+                android:background="#2E7D32"
+                android:padding="6dp"
+                android:tint="#A5D6A7"
+                android:contentDescription="Notifications"
+                android:clickable="true"
+                android:focusable="true" />
+
+        </LinearLayout>
+
+        <!-- ============================================ -->
+        <!-- GREETING SECTION -->
+        <!-- ============================================ -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Xin chào, "
+                android:textSize="14sp"
+                android:textColor="#A5D6A7" />
+
+            <TextView
+                android:id="@+id/tv_user_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nguyễn Văn A"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF" />
+
+        </LinearLayout>
+
+        <!-- ============================================ -->
+        <!-- BALANCE CARD (Simulated with background) -->
+        <!-- ============================================ -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#2E7D32"
+            android:padding="12dp">
+
+            <!-- Balance Label Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Tổng số dư VND"
+                    android:textSize="12sp"
+                    android:textColor="#A5D6A7" />
+
+                <!-- Eye Icon to Show/Hide Balance -->
+                <ImageView
+                    android:id="@+id/iv_toggle_balance"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@android:drawable/ic_menu_view"
+                    android:tint="#A5D6A7"
+                    android:contentDescription="Show/Hide Balance"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="4dp" />
+
+            </LinearLayout>
+
+            <!-- Main Balance Amount -->
+            <TextView
+                android:id="@+id/tv_total_balance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="*** *** VND"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="#A5D6A7"
+                android:layout_marginBottom="4dp" />
+
+            <!-- Subtext: Daily Profit -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SINH LỜI MỖI NGÀY"
+                android:textSize="11sp"
+                android:textColor="#A5D6A7" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
+

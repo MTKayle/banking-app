@@ -13,7 +13,7 @@ import com.example.mobilebanking.R;
  * Services Activity - All banking services
  */
 public class ServicesActivity extends AppCompatActivity {
-    private CardView cvTransfer, cvBillPay, cvTopUp, cvTickets, cvHotels, cvBranches;
+    private CardView cvTransfer, cvBillPay, cvTopUp, cvTickets, cvMovieTickets, cvHotels, cvBranches;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +39,7 @@ public class ServicesActivity extends AppCompatActivity {
         cvBillPay = findViewById(R.id.cv_bill_pay);
         cvTopUp = findViewById(R.id.cv_top_up);
         cvTickets = findViewById(R.id.cv_tickets);
+        cvMovieTickets = findViewById(R.id.cv_movie_tickets);
         cvHotels = findViewById(R.id.cv_hotels);
         cvBranches = findViewById(R.id.cv_branches);
     }
@@ -55,6 +56,12 @@ public class ServicesActivity extends AppCompatActivity {
         
         cvTickets.setOnClickListener(v -> 
             startActivity(new Intent(this, TicketBookingActivity.class)));
+
+        // New: cinema ticket booking flow (CGV / Galaxy style) inside super app
+        if (cvMovieTickets != null) {
+            cvMovieTickets.setOnClickListener(v ->
+                    startActivity(new Intent(this, MovieListActivity.class)));
+        }
         
         cvHotels.setOnClickListener(v -> 
             startActivity(new Intent(this, HotelBookingActivity.class)));

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ============================================ -->
+<!-- EDGE-TO-EDGE HEADER CONTAINER -->
+<!-- Background touches both left and right screen edges -->
+<!-- NO horizontal padding or margin on root container -->
+<!-- ============================================ -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#1B5E20"
+    android:paddingTop="12dp"
+    android:paddingBottom="16dp">
+
+    <!-- ============================================ -->
+    <!-- INNER CONTENT CONTAINER -->
+    <!-- Horizontal padding for readable content -->
+    <!-- Background stays edge-to-edge, content has safe padding -->
+    <!-- ============================================ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+
+        <!-- ============================================ -->
+        <!-- LEFT SIDE: Avatar + Badge -->
+        <!-- Circular icon with badge below, clearly tappable -->
+        <!-- On click → navigate to User Profile screen -->
+        <!-- ============================================ -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginEnd="16dp">
+
+            <ImageView
+                android:id="@+id/iv_avatar"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+            android:src="@drawable/avatar_facebook_mac_dinh_5"
+            android:background="#2E7D32"
+            android:scaleType="centerCrop"
+                android:contentDescription="User Profile"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <!-- Badge "NÂNG HẠNG" -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="NÂNG HẠNG"
+                android:textSize="8sp"
+                android:textColor="#4CAF50"
+                android:textStyle="bold"
+                android:background="#2E7D32"
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:layout_marginTop="6dp" />
+
+        </LinearLayout>
+
+        <!-- ============================================ -->
+        <!-- RIGHT SIDE: Balance Card -->
+        <!-- Prominent balance display with card background -->
+        <!-- ============================================ -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:background="#2E7D32"
+            android:padding="10dp"
+            android:maxWidth="280dp">
+
+            <!-- Balance Label Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="6dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Tổng số dư VND"
+                    android:textSize="11sp"
+                    android:textColor="#A5D6A7" />
+
+                <!-- Eye Icon to Show/Hide Balance -->
+                <ImageView
+                    android:id="@+id/iv_toggle_balance"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@android:drawable/ic_menu_view"
+                    android:tint="#A5D6A7"
+                    android:contentDescription="Show/Hide Balance"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="4dp" />
+
+            </LinearLayout>
+
+            <!-- Main Balance Amount -->
+            <TextView
+                android:id="@+id/tv_total_balance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="*** *** VND"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#A5D6A7"
+                android:layout_marginBottom="4dp" />
+
+            <!-- Subtext: Daily Profit -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SINH LỜI MỖI NGÀY"
+                android:textSize="10sp"
+                android:textColor="#A5D6A7" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
+
