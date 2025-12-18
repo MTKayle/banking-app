@@ -245,7 +245,7 @@ public class ProfileActivity extends AppCompatActivity {
         
         // Transaction History
         btnTransactionHistory.setOnClickListener(v -> {
-            Toast.makeText(this, "Tính năng lịch sử giao dịch đang phát triển", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, TransactionHistoryActivity.class));
         });
         
         // Logout
