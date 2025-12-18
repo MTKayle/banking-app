@@ -159,6 +159,31 @@
             android:name="com.example.mobilebanking.activities.ServicesActivity"
             android:parentActivityName="com.example.mobilebanking.activities.CustomerDashboardActivity" />
 
+        <!-- Movie ticket booking flow inside super app (frontend-only demo) -->
+        <activity
+            android:name="com.example.mobilebanking.activities.MovieListActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.ServicesActivity" />
+
+        <activity
+            android:name="com.example.mobilebanking.activities.MovieDetailActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.MovieListActivity" />
+
+        <activity
+            android:name="com.example.mobilebanking.activities.SelectShowtimeActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.MovieDetailActivity" />
+
+        <activity
+            android:name="com.example.mobilebanking.activities.SeatSelectionActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.SelectShowtimeActivity" />
+
+        <activity
+            android:name="com.example.mobilebanking.activities.MoviePaymentActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.SeatSelectionActivity" />
+
+        <activity
+            android:name="com.example.mobilebanking.activities.MovieTicketSuccessActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.MoviePaymentActivity" />
+
         <!-- Map Activity -->
         <activity
             android:name="com.example.mobilebanking.activities.BranchLocatorActivity"
