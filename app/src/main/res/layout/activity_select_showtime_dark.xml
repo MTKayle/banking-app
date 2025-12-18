@@ -1,0 +1,547 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Screen 3 – Select Date & Cinema (Dark Mode)
+  UX: Step-by-step – choose date, cinema brand, then specific cinema and showtime.
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_select_showtime"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#101418">
+
+    <!-- MAIN SCROLL CONTENT -->
+    <ScrollView
+        android:id="@+id/scroll_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:id="@+id/container_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- TOP BAR -->
+            <LinearLayout
+                android:id="@+id/layout_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageButton
+                    android:id="@+id/btn_back"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="@android:color/transparent"
+                    android:padding="4dp"
+                    android:src="@drawable/ic_arrow_back" />
+
+                <TextView
+                    android:id="@+id/tv_header_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="VUA CỦA CÁC VUA (T13)"
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+            </LinearLayout>
+
+            <!-- DATE SELECTOR -->
+            <TextView
+                android:id="@+id/tv_date_section_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="CHỌN NGÀY CHIẾU"
+                android:textAllCaps="true"
+                android:textColor="#9EA7B3"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <HorizontalScrollView
+                android:id="@+id/hsv_dates"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/layout_dates"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <!-- Selected date -->
+                    <LinearLayout
+                        android:id="@+id/date_item_18"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:layout_marginEnd="8dp"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:background="#0EB378">
+
+                        <TextView
+                            android:id="@+id/tv_date_18_number"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="18"
+                            android:textColor="@android:color/white"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_date_18_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="T5"
+                            android:textColor="@android:color/white"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <!-- Other dates -->
+                    <LinearLayout
+                        android:id="@+id/date_item_19"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:layout_marginEnd="8dp"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:background="#181D22">
+
+                        <TextView
+                            android:id="@+id/tv_date_19_number"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="19"
+                            android:textColor="#E2E7F0"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_date_19_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="T6"
+                            android:textColor="#9EA7B3"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/date_item_20"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:layout_marginEnd="8dp"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:background="#181D22">
+
+                        <TextView
+                            android:id="@+id/tv_date_20_number"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="20"
+                            android:textColor="#E2E7F0"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_date_20_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="T7"
+                            android:textColor="#9EA7B3"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/date_item_21"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:layout_marginEnd="8dp"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:background="#181D22">
+
+                        <TextView
+                            android:id="@+id/tv_date_21_number"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="21"
+                            android:textColor="#E2E7F0"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_date_21_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="CN"
+                            android:textColor="#9EA7B3"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/date_item_22"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:layout_marginEnd="8dp"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:background="#181D22">
+
+                        <TextView
+                            android:id="@+id/tv_date_22_number"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="22"
+                            android:textColor="#E2E7F0"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_date_22_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="T2"
+                            android:textColor="#9EA7B3"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </HorizontalScrollView>
+
+            <!-- CINEMA BRAND FILTER -->
+            <TextView
+                android:id="@+id/tv_brand_section_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="CHỌN HỆ THỐNG RẠP"
+                android:textAllCaps="true"
+                android:textColor="#9EA7B3"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/layout_brand_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <!-- Favorite / nearby -->
+                <LinearLayout
+                    android:id="@+id/brand_favorite"
+                    android:layout_width="0dp"
+                    android:layout_height="72dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:background="#181D22"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/iv_brand_favorite"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:tint="#0EB378"
+                        android:src="@drawable/ic_location" />
+
+                    <TextView
+                        android:id="@+id/tv_brand_favorite"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Gần tôi"
+                        android:textColor="#E2E7F0"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <!-- CGV -->
+                <LinearLayout
+                    android:id="@+id/brand_cgv"
+                    android:layout_width="0dp"
+                    android:layout_height="72dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:background="#181D22"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/iv_brand_cgv"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/ic_ticket" />
+
+                    <TextView
+                        android:id="@+id/tv_brand_cgv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="CGV"
+                        android:textColor="#E2E7F0"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <!-- LOTTE -->
+                <LinearLayout
+                    android:id="@+id/brand_lotte"
+                    android:layout_width="0dp"
+                    android:layout_height="72dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:background="#181D22"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/iv_brand_lotte"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/ic_ticket" />
+
+                    <TextView
+                        android:id="@+id/tv_brand_lotte"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Lotte"
+                        android:textColor="#E2E7F0"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <!-- Beta / Galaxy -->
+                <LinearLayout
+                    android:id="@+id/brand_beta"
+                    android:layout_width="0dp"
+                    android:layout_height="72dp"
+                    android:layout_weight="1"
+                    android:background="#181D22"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/iv_brand_beta"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/ic_ticket" />
+
+                    <TextView
+                        android:id="@+id/tv_brand_beta"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Beta"
+                        android:textColor="#E2E7F0"
+                        android:textSize="11sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- CINEMA LIST -->
+            <TextView
+                android:id="@+id/tv_cinema_section_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="DANH SÁCH RẠP ĐỀ XUẤT"
+                android:textAllCaps="true"
+                android:textColor="#9EA7B3"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <!-- CINEMA ITEM 1 -->
+            <LinearLayout
+                android:id="@+id/item_cinema_cgv_suvanhanh"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:padding="12dp"
+                android:orientation="vertical"
+                android:background="#181D22">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tv_cinema_name_1"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="CGV Sư Vạn Hạnh"
+                        android:textColor="@android:color/white"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_cinema_distance_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="7.81 km"
+                        android:textColor="#9EA7B3"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_cinema_address_1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Tầng 6, Vạn Hạnh Mall, 11 Sư Vạn Hạnh, Phường 12, Quận 10"
+                    android:textColor="#B0BAC5"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tv_format_1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="2D – Phụ đề"
+                    android:textColor="#E2E7F0"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:id="@+id/layout_showtimes_1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btn_showtime_1_2320"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="#26313A"
+                        android:text="23:20"
+                        android:textAllCaps="false"
+                        android:textColor="#E2E7F0"
+                        android:textSize="12sp" />
+
+                    <Button
+                        android:id="@+id/btn_showtime_1_2130"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:background="#26313A"
+                        android:text="21:30"
+                        android:textAllCaps="false"
+                        android:textColor="#E2E7F0"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- CINEMA ITEM 2 -->
+            <LinearLayout
+                android:id="@+id/item_cinema_lotte_govap"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:padding="12dp"
+                android:orientation="vertical"
+                android:background="#181D22">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tv_cinema_name_2"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Lotte Gò Vấp"
+                        android:textColor="@android:color/white"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_cinema_distance_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="15.22 km"
+                        android:textColor="#9EA7B3"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_cinema_address_2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Tầng 3, TTTM Lotte Mart Gò Vấp, 242 Nguyễn Văn Lượng"
+                    android:textColor="#B0BAC5"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tv_format_2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="2D – Thuyết minh"
+                    android:textColor="#E2E7F0"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:id="@+id/layout_showtimes_2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btn_showtime_2_1350"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="#26313A"
+                        android:text="13:50"
+                        android:textAllCaps="false"
+                        android:textColor="#E2E7F0"
+                        android:textSize="12sp" />
+
+                    <Button
+                        android:id="@+id/btn_showtime_2_1800"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="#26313A"
+                        android:text="18:00"
+                        android:textAllCaps="false"
+                        android:textColor="#E2E7F0"
+                        android:textSize="12sp" />
+
+                    <Button
+                        android:id="@+id/btn_showtime_2_2220"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:background="#26313A"
+                        android:text="22:20"
+                        android:textAllCaps="false"
+                        android:textColor="#E2E7F0"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>
+
+

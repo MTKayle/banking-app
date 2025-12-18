@@ -146,6 +146,35 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
+            <!-- Movie ticket booking inside banking super app -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cv_movie_tickets"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:padding="16dp"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_ticket"
+                        android:contentDescription="Đặt vé xem phim"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="Đặt vé xem phim"
+                        android:textSize="16sp"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
             <androidx.cardview.widget.CardView
                 android:id="@+id/cv_hotels"
                 android:layout_width="match_parent"
