@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,11 +35,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import com.example.mobilebanking.models.Account;
+
 /**
  * New Home screen fragment (BIDV-inspired). Frontend-only UI.
  */
 public class HomeFragment extends Fragment {
-    private TextView tvUserName, tvMaskedBalance;
+    private TextView tvMaskedBalance;
     private ImageView ivToggleMask;
     private boolean masked = true;
 
@@ -60,36 +63,54 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         DataManager dm = DataManager.getInstance(requireContext());
 
-        tvUserName = view.findViewById(R.id.uihome_tv_user_name);
-        tvMaskedBalance = view.findViewById(R.id.uihome_tv_balance);
-        ivToggleMask = view.findViewById(R.id.uihome_iv_eye);
-
-        String fullName = dm.getLastFullName();
-        if (fullName == null || fullName.isEmpty()) fullName = dm.getLoggedInUser();
-        if (fullName == null) fullName = getString(R.string.welcome_user);
-        tvUserName.setText(fullName);
+        // New compact header views (MB Bank style)
+        tvMaskedBalance = view.findViewById(R.id.tv_total_balance);
+        ivToggleMask = view.findViewById(R.id.iv_toggle_balance);
+        ImageView ivAvatar = view.findViewById(R.id.iv_avatar);
+        ImageView ivNotification = view.findViewById(R.id.iv_notification);
+        ImageView ivSearch = view.findViewById(R.id.iv_search);
+        ImageView ivMenu = view.findViewById(R.id.iv_menu);
 
         // Calculate mock total balance
-        double total = dm.getMockAccounts("U001").stream()
+        List<com.example.mobilebanking.models.Account> accounts = dm.getMockAccounts("U001");
+        double total = accounts.stream()
                 .filter(a -> a.getType() != com.example.mobilebanking.models.Account.AccountType.MORTGAGE)
                 .mapToDouble(com.example.mobilebanking.models.Account::getBalance)
                 .sum();
         String balanceText = NumberFormat.getCurrencyInstance(new Locale("vi","VN")).format(total);
-        applyMask(balanceText);
-
-        ivToggleMask.setOnClickListener(v -> {
-            masked = !masked;
+        
+        // Setup balance toggle
+        if (tvMaskedBalance != null && ivToggleMask != null) {
             applyMask(balanceText);
-        });
+            ivToggleMask.setOnClickListener(v -> {
+                masked = !masked;
+                applyMask(balanceText);
+            });
+        }
 
-        // Logout button: về màn hình Login
-        TextView tvLogout = view.findViewById(R.id.uihome_tv_logout);
-        if (tvLogout != null) {
-            tvLogout.setOnClickListener(v -> {
-                dm.logout();
-                Intent intent = new Intent(requireContext(), LoginActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
+        // Avatar click -> Profile
+        if (ivAvatar != null) {
+            ivAvatar.setOnClickListener(v -> {
+                startActivity(new Intent(requireContext(), ProfileActivity.class));
+            });
+        }
+
+        // Top bar icons
+        if (ivSearch != null) {
+            ivSearch.setOnClickListener(v -> {
+                Toast.makeText(requireContext(), "Tìm kiếm", Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        if (ivNotification != null) {
+            ivNotification.setOnClickListener(v -> {
+                Toast.makeText(requireContext(), "Thông báo", Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        if (ivMenu != null) {
+            ivMenu.setOnClickListener(v -> {
+                startActivity(new Intent(requireContext(), ProfileActivity.class));
             });
         }
 
@@ -143,15 +164,20 @@ public class HomeFragment extends Fragment {
     }
 
     private void applyMask(String balance) {
+        if (tvMaskedBalance == null) return;
+        
         // Crossfade the balance text for smooth toggle
         tvMaskedBalance.animate().alpha(0f).setDuration(120).withEndAction(() -> {
-            String display = masked ? "**** *** VND" : balance + " VND";
+            String display = masked ? "**** *** VNĐ" : balance;
             tvMaskedBalance.setText(display);
             tvMaskedBalance.animate().alpha(1f).setDuration(120).start();
         }).start();
 
-        // Update eye icon
-        ivToggleMask.setImageResource(masked ? R.drawable.ic_lock : R.drawable.ic_eye_open);
+        // Update eye icon (using default Android icons if custom ones don't exist)
+        if (ivToggleMask != null) {
+            // Use default Android drawable for eye icon
+            // ivToggleMask.setImageResource(masked ? android.R.drawable.ic_lock_lock : android.R.drawable.ic_menu_view);
+        }
     }
 
     // FAB speed dial removed – replaced by bottom navigation bar

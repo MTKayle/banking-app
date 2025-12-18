@@ -45,7 +45,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_qr_scanner"
-                    android:tint="@color/uihome_primary"
+                    android:tint="#4CAF50"
                     android:contentDescription="@string/qr_pay" />
                 <TextView
                     android:layout_width="match_parent"
@@ -83,7 +83,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_phone"
-                    android:tint="@color/uihome_primary"
+                    android:tint="#4CAF50"
                     android:contentDescription="@string/mobile_topup" />
                 <TextView
                     android:layout_width="match_parent"
@@ -121,7 +121,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_card"
-                    android:tint="@color/uihome_primary"
+                    android:tint="#4CAF50"
                     android:contentDescription="@string/cards" />
                 <TextView
                     android:layout_width="match_parent"
@@ -159,7 +159,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_bank_logo"
-                    android:tint="@color/uihome_primary"
+                    android:tint="#4CAF50"
                     android:contentDescription="@string/savings" />
                 <TextView
                     android:layout_width="match_parent"
@@ -198,7 +198,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_person"
-                    android:tint="@color/uihome_primary"
+                    android:tint="#4CAF50"
                     android:contentDescription="@string/insurance" />
                 <TextView
                     android:layout_width="match_parent"
@@ -237,7 +237,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_more"
-                    android:tint="@color/uihome_primary"
+                    android:tint="#4CAF50"
                     android:contentDescription="@string/more_services" />
                 <TextView
                     android:layout_width="match_parent"
