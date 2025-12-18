@@ -22,7 +22,6 @@ import com.example.mobilebanking.api.dto.FeatureStatusResponse;
 import com.example.mobilebanking.models.User;
 import com.example.mobilebanking.utils.BiometricAuthManager;
 import com.example.mobilebanking.utils.DataManager;
-import com.example.mobilebanking.ui_home.UiHomeActivity;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -38,44 +37,41 @@ public class LoginActivity extends AppCompatActivity {
     private EditText etUsername, etPassword;
     private Button btnLogin;
     private TextView tvRegister, tvForgotPassword, tvUserName, tvOtherAccount;
+    private TextView tvBackText, tvUserNameBack;
+    private ImageView btnBack;
+    private android.view.View backButtonContainer;
     private CheckBox cbRememberMe;
     private ImageView ivFingerprint;
     private DataManager dataManager;
     private BiometricAuthManager biometricManager;
-    private boolean isQuickLoginMode = true; // Flag to determine which layout is used
+    private boolean isQuickLoginMode = false; // Flag to determine which layout is used
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
         // Khởi tạo ApiClient
         ApiClient.init(this);
 
         dataManager = DataManager.getInstance(this);
         biometricManager = new BiometricAuthManager(this);
 
-        // Nếu đã đăng nhập rồi -> chuyển thẳng vào Dashboard
+        // Check if already logged in
         if (dataManager.isLoggedIn()) {
             navigateToDashboard();
             return;
         }
 
-        // TEMPORARY: Auto login for UI development - Skip login screen and go straight to Home
-        String defaultPhone = "0901234567"; // Số điện thoại của customer1
-        dataManager.saveLoggedInUser(defaultPhone, User.UserRole.CUSTOMER);
-        dataManager.saveLastUsername(defaultPhone);
-        dataManager.saveLastFullName("Nguyen Van A");
-        dataManager.saveTokens("mock_access_token_dev", "mock_refresh_token_dev");
-        navigateToDashboard();
-        return;
-
-        /* COMMENTED OUT: Code below is unreachable due to auto-login above
-        // Chưa đăng nhập -> hiển thị màn hình login
-        // Nếu đã có fullName lưu trước đó thì dùng layout quick login, ngược lại dùng layout đầy đủ
+        // Kiểm tra xem đã có lần đăng nhập nào trước đó chưa
+        String lastUsername = dataManager.getLastUsername();
         String lastFullName = dataManager.getLastFullName();
-        if (lastFullName != null && !lastFullName.isEmpty()) {
+        
+        if (lastUsername != null && !lastUsername.isEmpty()) {
+            // Đã có lần đăng nhập trước đó → hiển thị quick login
             setContentView(R.layout.activity_login_quick);
             isQuickLoginMode = true;
         } else {
+            // Lần đầu tải app → hiển thị full login (không có phần "Quay lại")
             setContentView(R.layout.activity_login);
             isQuickLoginMode = false;
         }
@@ -84,12 +80,12 @@ public class LoginActivity extends AppCompatActivity {
         setupListeners();
         loadLastUsername();
         loadLastUserInfo();
-
+        setupBackButton();
+        
         // Hide fingerprint icon if biometric is not available
         if (ivFingerprint != null && !biometricManager.isBiometricAvailable()) {
             ivFingerprint.setVisibility(android.view.View.GONE);
         }
-        */
     }
 
     private void initializeViews() {
@@ -102,7 +98,10 @@ public class LoginActivity extends AppCompatActivity {
         // These may be null in quick login mode
         etUsername = findViewById(R.id.et_username);
         tvRegister = findViewById(R.id.tv_register);
-//        cbRememberMe = findViewById(R.id.cb_remember_me);
+        backButtonContainer = findViewById(R.id.back_button_container);
+        btnBack = findViewById(R.id.btn_back);
+        tvBackText = findViewById(R.id.tv_back_text);
+        tvUserNameBack = findViewById(R.id.tv_user_name_back);
         
         // Views that only exist in quick login layout (activity_login_quick.xml)
         // These may be null in full login mode
@@ -110,13 +109,78 @@ public class LoginActivity extends AppCompatActivity {
         tvOtherAccount = findViewById(R.id.tv_other_account);
         ivFingerprint = findViewById(R.id.iv_fingerprint);
     }
+    
+    /**
+     * Setup back button container visibility based on whether user has logged in before
+     */
+    private void setupBackButton() {
+        if (backButtonContainer == null) {
+            return; // Not in full login layout
+        }
+        
+        // Kiểm tra xem đã có lần đăng nhập nào trước đó chưa
+        String lastUsername = dataManager.getLastUsername();
+        String lastFullName = dataManager.getLastFullName();
+        
+        if (lastUsername != null && !lastUsername.isEmpty()) {
+            // Đã có lần đăng nhập → hiển thị phần "Quay lại người dùng"
+            backButtonContainer.setVisibility(android.view.View.VISIBLE);
+            
+            // Hiển thị tên người dùng
+            if (tvUserNameBack != null) {
+                if (lastFullName != null && !lastFullName.isEmpty()) {
+                    tvUserNameBack.setText(lastFullName.toUpperCase());
+                } else {
+                    tvUserNameBack.setText(lastUsername);
+                }
+            }
+            
+            // Setup click listener cho nút back
+            if (btnBack != null) {
+                btnBack.setOnClickListener(v -> switchToQuickLogin());
+            }
+            if (tvBackText != null) {
+                tvBackText.setOnClickListener(v -> switchToQuickLogin());
+            }
+            if (tvUserNameBack != null) {
+                tvUserNameBack.setOnClickListener(v -> switchToQuickLogin());
+            }
+        } else {
+            // Lần đầu tải app → ẩn phần "Quay lại người dùng"
+            backButtonContainer.setVisibility(android.view.View.GONE);
+        }
+    }
+    
+    /**
+     * Chuyển từ full login về quick login
+     */
+    private void switchToQuickLogin() {
+        setContentView(R.layout.activity_login_quick);
+        isQuickLoginMode = true;
+        
+        // Re-initialize all components for the new layout
+        initializeViews();
+        setupListeners();
+        loadLastUserInfo();
+        
+        // Clear password field when switching
+        if (etPassword != null) {
+            etPassword.setText("");
+        }
+        
+        // Hide fingerprint icon if biometric is not available
+        if (ivFingerprint != null && !biometricManager.isBiometricAvailable()) {
+            ivFingerprint.setVisibility(android.view.View.GONE);
+        }
+    }
 
     private void setupListeners() {
         btnLogin.setOnClickListener(v -> handleLogin());
 
         if (tvRegister != null) {
             tvRegister.setOnClickListener(v -> {
-                Intent intent = new Intent(LoginActivity.this, MainRegistrationActivity.class);
+                // Mở màn hình giới thiệu + banner (WelcomeBannerActivity)
+                Intent intent = new Intent(LoginActivity.this, WelcomeBannerActivity.class);
                 startActivity(intent);
             });
         }
@@ -139,6 +203,7 @@ public class LoginActivity extends AppCompatActivity {
                 initializeViews();
                 setupListeners();
                 loadLastUsername();
+                setupBackButton(); // Setup back button với tên người dùng
                 
                 // Clear password field when switching
                 if (etPassword != null) {
@@ -488,8 +553,8 @@ public class LoginActivity extends AppCompatActivity {
         if (role == User.UserRole.OFFICER) {
             intent = new Intent(LoginActivity.this, OfficerDashboardActivity.class);
         } else {
-            // Redirect CUSTOMERS to new BIDV-style Home UI
-            intent = new Intent(LoginActivity.this, UiHomeActivity.class);
+            // Chuyển đến UiHomeActivity thay vì CustomerDashboardActivity
+            intent = new Intent(LoginActivity.this, com.example.mobilebanking.ui_home.UiHomeActivity.class);
         }
         
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

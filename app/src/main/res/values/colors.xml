@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Primary Colors -->
-    <color name="primary_color">#1976D2</color>
-    <color name="primary_dark">#0D47A1</color>
-    <color name="primary_light">#BBDEFB</color>
+    <color name="primary_color">#66BB6A</color>
+    <color name="primary_dark">#388E3C</color>
+    <color name="primary_light">#C8E6C9</color>
     <color name="accent_color">#FF5722</color>
-
+    
     <!-- Green Theme Colors -->
     <color name="green_primary">#2E7D32</color>
     <color name="green_primary_dark">#1B5E20</color>

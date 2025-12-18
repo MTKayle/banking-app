@@ -2,6 +2,8 @@ package com.example.mobilebanking.fragments;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,6 +74,43 @@ public class Step1BasicInfoFragment extends Fragment {
     
     private void setupListeners() {
         btnContinue.setOnClickListener(v -> validateAndContinue());
+
+        // Khi người dùng bắt đầu nhập, tự động xoá thông báo lỗi + dấu chấm than
+        etPhone.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                tilPhone.setError(null);
+                tilPhone.setErrorEnabled(false);
+            }
+            @Override public void afterTextChanged(Editable s) {}
+        });
+
+        etEmail.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                tilEmail.setError(null);
+                tilEmail.setErrorEnabled(false);
+            }
+            @Override public void afterTextChanged(Editable s) {}
+        });
+
+        etPassword.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                tilPassword.setError(null);
+                tilPassword.setErrorEnabled(false);
+            }
+            @Override public void afterTextChanged(Editable s) {}
+        });
+
+        etConfirmPassword.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                tilConfirmPassword.setError(null);
+                tilConfirmPassword.setErrorEnabled(false);
+            }
+            @Override public void afterTextChanged(Editable s) {}
+        });
     }
     
     private void loadData() {
@@ -103,10 +142,10 @@ public class Step1BasicInfoFragment extends Fragment {
         String confirmPassword = etConfirmPassword.getText().toString();
         
         // Clear previous errors
-        tilPhone.setError(null);
-        tilEmail.setError(null);
-        tilPassword.setError(null);
-        tilConfirmPassword.setError(null);
+        tilPhone.setError(null);           tilPhone.setErrorEnabled(false);
+        tilEmail.setError(null);           tilEmail.setErrorEnabled(false);
+        tilPassword.setError(null);        tilPassword.setErrorEnabled(false);
+        tilConfirmPassword.setError(null); tilConfirmPassword.setErrorEnabled(false);
         
         boolean isValid = true;
         

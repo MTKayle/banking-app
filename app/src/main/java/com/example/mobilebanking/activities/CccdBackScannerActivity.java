@@ -589,54 +589,28 @@ public class CccdBackScannerActivity extends AppCompatActivity {
                     .addOnSuccessListener(text -> {
                         if (text != null && !text.getText().isEmpty()) {
                             String recognizedText = text.getText();
-                            showConfirmationDialog(bitmap, recognizedText);
-                        } else {
-                            // No text found, show preview and allow confirmation
-                            Log.w(TAG, "No text found in captured image, showing preview for confirmation");
-                            showImagePreview(bitmap);
+                            // Auto-save without showing confirmation dialog
                             progressBar.setVisibility(View.GONE);
-                            
-                            new AlertDialog.Builder(this)
-                                    .setTitle("Xác nhận ảnh")
-                                    .setMessage("Đã chụp ảnh mặt sau CCCD.\n\n" +
-                                               "Không thể nhận diện text từ ảnh này.\n\n" +
-                                               "Bạn có muốn sử dụng ảnh này không?")
-                                    .setPositiveButton("Xác nhận", (dialog, which) -> {
-                                        saveBackImage(bitmap, null);
-                                        finish();
-                                    })
-                                    .setNegativeButton("Chụp lại", (dialog, which) -> {
-                                        resetScan();
-                                        // startCamera() is called inside resetScan() with delay
-                                    })
-                                    .setCancelable(false)
-                                    .show();
+                            CccdBackParser.CccdBackData data = CccdBackParser.parseBackText(recognizedText);
+                            saveBackImage(bitmap, data);
+                        } else {
+                            // No text found, auto-save without confirmation
+                            Log.w(TAG, "No text found in captured image, auto-saving");
+                            progressBar.setVisibility(View.GONE);
+                            saveBackImage(bitmap, null);
                         }
                     })
                     .addOnFailureListener(e -> {
-                        Log.e(TAG, "Failed to recognize text from captured image", e);
-                        // Show preview and allow confirmation even if recognition failed
-                        showImagePreview(bitmap);
+                        Log.e(TAG, "Failed to recognize text from captured image, auto-saving", e);
+                        // Auto-save even if recognition failed
                         progressBar.setVisibility(View.GONE);
-                        
-                        new AlertDialog.Builder(this)
-                                .setTitle("Xác nhận ảnh")
-                                .setMessage("Đã chụp ảnh mặt sau CCCD.\n\n" +
-                                           "Lỗi khi nhận diện text.\n\n" +
-                                           "Bạn có muốn sử dụng ảnh này không?")
-                                .setPositiveButton("Xác nhận", (dialog, which) -> {
-                                    saveBackImage(bitmap, null);
-                                    finish();
-                                })
-                                .setNegativeButton("Chụp lại", (dialog, which) -> {
-                                    resetScan();
-                                    // startCamera() is called inside resetScan() with delay
-                                })
-                                .setCancelable(false)
-                                .show();
+                        saveBackImage(bitmap, null);
                     });
         } else {
-            showConfirmationDialog(bitmap, textToParse);
+            // Auto-save without showing confirmation dialog
+            progressBar.setVisibility(View.GONE);
+            CccdBackParser.CccdBackData data = CccdBackParser.parseBackText(textToParse);
+            saveBackImage(bitmap, data);
         }
     }
     
