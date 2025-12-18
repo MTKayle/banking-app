@@ -104,11 +104,11 @@ public class MoviePaymentActivity extends AppCompatActivity {
         cbConfirm.setOnCheckedChangeListener((buttonView, isChecked) -> {
             btnConfirmPayment.setEnabled(isChecked);
             if (isChecked) {
-                btnConfirmPayment.setBackgroundColor(0xFF0EB378);
+                btnConfirmPayment.setBackgroundResource(R.drawable.bg_button_primary_rounded);
                 btnConfirmPayment.setTextColor(0xFFFFFFFF);
             } else {
-                btnConfirmPayment.setBackgroundColor(0xFF26313A);
-                btnConfirmPayment.setTextColor(0xFF6B747F);
+                btnConfirmPayment.setBackgroundResource(R.drawable.bg_button_secondary_rounded);
+                btnConfirmPayment.setTextColor(0xFF6C757D);
             }
         });
 

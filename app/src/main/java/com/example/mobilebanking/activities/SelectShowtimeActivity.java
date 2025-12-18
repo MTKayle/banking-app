@@ -75,13 +75,23 @@ public class SelectShowtimeActivity extends AppCompatActivity {
         TextView num22 = findViewById(R.id.tv_date_22_number);
         TextView lbl22 = findViewById(R.id.tv_date_22_label);
 
+        LinearLayout date23 = findViewById(R.id.date_item_23);
+        TextView num23 = findViewById(R.id.tv_date_23_number);
+        TextView lbl23 = findViewById(R.id.tv_date_23_label);
+
+        LinearLayout date24 = findViewById(R.id.date_item_24);
+        TextView num24 = findViewById(R.id.tv_date_24_number);
+        TextView lbl24 = findViewById(R.id.tv_date_24_label);
+
         View.OnClickListener listener = v -> {
             resetAllDateStyles(
                     date18, num18, lbl18,
                     date19, num19, lbl19,
                     date20, num20, lbl20,
                     date21, num21, lbl21,
-                    date22, num22, lbl22
+                    date22, num22, lbl22,
+                    date23, num23, lbl23,
+                    date24, num24, lbl24
             );
 
             if (v == date18) {
@@ -99,6 +109,12 @@ public class SelectShowtimeActivity extends AppCompatActivity {
             } else if (v == date22) {
                 highlightDate(date22, num22, lbl22);
                 selectedShowDate = "22/12/2025";
+            } else if (v == date23) {
+                highlightDate(date23, num23, lbl23);
+                selectedShowDate = "23/12/2025";
+            } else if (v == date24) {
+                highlightDate(date24, num24, lbl24);
+                selectedShowDate = "24/12/2025";
             }
         };
 
@@ -107,6 +123,8 @@ public class SelectShowtimeActivity extends AppCompatActivity {
         if (date20 != null) date20.setOnClickListener(listener);
         if (date21 != null) date21.setOnClickListener(listener);
         if (date22 != null) date22.setOnClickListener(listener);
+        if (date23 != null) date23.setOnClickListener(listener);
+        if (date24 != null) date24.setOnClickListener(listener);
     }
 
     private void resetAllDateStyles(
@@ -114,24 +132,28 @@ public class SelectShowtimeActivity extends AppCompatActivity {
             LinearLayout d19, TextView n19, TextView l19,
             LinearLayout d20, TextView n20, TextView l20,
             LinearLayout d21, TextView n21, TextView l21,
-            LinearLayout d22, TextView n22, TextView l22
+            LinearLayout d22, TextView n22, TextView l22,
+            LinearLayout d23, TextView n23, TextView l23,
+            LinearLayout d24, TextView n24, TextView l24
     ) {
         resetSingleDate(d18, n18, l18);
         resetSingleDate(d19, n19, l19);
         resetSingleDate(d20, n20, l20);
         resetSingleDate(d21, n21, l21);
         resetSingleDate(d22, n22, l22);
+        resetSingleDate(d23, n23, l23);
+        resetSingleDate(d24, n24, l24);
     }
 
     private void resetSingleDate(LinearLayout container, TextView number, TextView label) {
         if (container == null || number == null || label == null) return;
-        container.setBackgroundColor(0xFF181D22);
-        number.setTextColor(0xFFE2E7F0);
-        label.setTextColor(0xFF9EA7B3);
+        container.setBackgroundResource(R.drawable.bg_movie_date_inactive);
+        number.setTextColor(0xFF212121); // text_primary
+        label.setTextColor(0xFF757575);  // text_secondary
     }
 
     private void highlightDate(LinearLayout container, TextView number, TextView label) {
-        container.setBackgroundColor(0xFF0EB378);
+        container.setBackgroundResource(R.drawable.bg_movie_date_active);
         number.setTextColor(0xFFFFFFFF);
         label.setTextColor(0xFFFFFFFF);
     }
@@ -179,17 +201,46 @@ public class SelectShowtimeActivity extends AppCompatActivity {
         highlightBrand(brandFavorite, ivFavorite, tvFavorite);
     }
 
+    /**
+     * Check if the icon is a bitmap logo icon (PNG/JPG) that should not have color filters applied
+     * Logo icons: ic_cgv, ic_lotte, ic_beta
+     * Vector icon: ic_location (iv_brand_favorite)
+     */
+    private boolean isLogoIcon(ImageView icon) {
+        if (icon == null) return false;
+        
+        int iconId = icon.getId();
+        // Logo icons are bitmap images (PNG/JPG) that should not have color filters
+        return iconId == R.id.iv_brand_cgv || 
+               iconId == R.id.iv_brand_lotte || 
+               iconId == R.id.iv_brand_beta;
+    }
+
     private void resetBrandStyle(LinearLayout container, ImageView icon, TextView label) {
         if (container == null || icon == null || label == null) return;
-        container.setBackgroundColor(0xFF181D22);
-        icon.setColorFilter(0xFF0EB378);
-        label.setTextColor(0xFFE2E7F0);
+        container.setBackgroundResource(R.drawable.bg_movie_brand_card);
+        
+        // Only apply color filter to vector icons (ic_location), not bitmap logo icons
+        if (isLogoIcon(icon)) {
+            icon.clearColorFilter(); // Clear any existing filters for logo icons
+        } else {
+            icon.setColorFilter(0xFF0EB378); // Apply green filter for vector icons
+        }
+        
+        label.setTextColor(0xFF212121);
     }
 
     private void highlightBrand(LinearLayout container, ImageView icon, TextView label) {
         if (container == null || icon == null || label == null) return;
-        container.setBackgroundColor(0xFF0EB378);
-        icon.setColorFilter(0xFFFFFFFF);
+        container.setBackgroundResource(R.drawable.bg_movie_brand_active);
+        
+        // Only apply color filter to vector icons (ic_location), not bitmap logo icons
+        if (isLogoIcon(icon)) {
+            icon.clearColorFilter(); // Clear any existing filters for logo icons
+        } else {
+            icon.setColorFilter(0xFFFFFFFF); // Apply white filter for vector icons
+        }
+        
         label.setTextColor(0xFFFFFFFF);
     }
 
@@ -217,6 +268,31 @@ public class SelectShowtimeActivity extends AppCompatActivity {
                             "18:00",
                             selectedShowDate,
                             "Phòng 2"
+                    ));
+        }
+
+        // Một vài suất demo cho các rạp khác
+        Button btnShowtimeBhd1930 = findViewById(R.id.btn_showtime_3_1930);
+        if (btnShowtimeBhd1930 != null) {
+            btnShowtimeBhd1930.setOnClickListener(v ->
+                    openSeatSelection(
+                            "BHD Star Bitexco",
+                            "Tầng 3, Tháp Tài Chính Bitexco, Quận 1",
+                            "19:30",
+                            selectedShowDate,
+                            "Phòng 3"
+                    ));
+        }
+
+        Button btnShowtimeGalaxy2030 = findViewById(R.id.btn_showtime_4_2030);
+        if (btnShowtimeGalaxy2030 != null) {
+            btnShowtimeGalaxy2030.setOnClickListener(v ->
+                    openSeatSelection(
+                            "Galaxy Nguyễn Du",
+                            "116 Nguyễn Du, Quận 1",
+                            "20:30",
+                            selectedShowDate,
+                            "Phòng 5"
                     ));
         }
     }
