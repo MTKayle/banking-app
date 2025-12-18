@@ -57,6 +57,17 @@ public class BillPaymentActivity extends AppCompatActivity {
     }
 
     private void initializeViews() {
+        // Header actions (MB Bank style)
+        View backButton = findViewById(R.id.btn_bill_back);
+        View historyButton = findViewById(R.id.btn_bill_history);
+        if (backButton != null) {
+            backButton.setOnClickListener(v -> onBackPressed());
+        }
+        if (historyButton != null) {
+            historyButton.setOnClickListener(v ->
+                    startActivity(new Intent(this, BillHistoryActivity.class)));
+        }
+        
         // Bill type selection
         llBillElectricity = findViewById(R.id.ll_bill_electricity);
         llBillWater = findViewById(R.id.ll_bill_water);
@@ -129,14 +140,14 @@ public class BillPaymentActivity extends AppCompatActivity {
     private void selectBillType(int billType) {
         selectedBillType = billType;
         
-        // Reset all bill type cards
+        // Reset all bill type cards về trạng thái mặc định (bo tròn)
         resetBillTypeStyles();
         
-        // Highlight selected card
+        // Highlight card được chọn nhưng vẫn giữ bo tròn
         if (billType == BILL_TYPE_ELECTRICITY && llBillElectricity != null) {
-            llBillElectricity.setBackgroundColor(Color.parseColor("#2E7D32")); // Darker green
+            llBillElectricity.setBackgroundResource(R.drawable.bg_bill_type_pill_selected);
         } else if (billType == BILL_TYPE_WATER && llBillWater != null) {
-            llBillWater.setBackgroundColor(Color.parseColor("#2E7D32")); // Darker green
+            llBillWater.setBackgroundResource(R.drawable.bg_bill_type_pill_selected);
         }
     }
     
@@ -144,12 +155,11 @@ public class BillPaymentActivity extends AppCompatActivity {
      * Reset bill type card styles
      */
     private void resetBillTypeStyles() {
-        int defaultBgColor = Color.parseColor("#1A3A1A");
         if (llBillElectricity != null) {
-            llBillElectricity.setBackgroundColor(defaultBgColor);
+            llBillElectricity.setBackgroundResource(R.drawable.bg_bill_type_pill);
         }
         if (llBillWater != null) {
-            llBillWater.setBackgroundColor(defaultBgColor);
+            llBillWater.setBackgroundResource(R.drawable.bg_bill_type_pill);
         }
     }
     

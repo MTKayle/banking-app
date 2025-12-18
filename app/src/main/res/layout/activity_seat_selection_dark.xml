@@ -107,36 +107,14 @@
                         <View
                             android:layout_width="14dp"
                             android:layout_height="14dp"
-                            android:background="#0EB378" />
+                            android:background="@drawable/bg_seat_available" />
 
                         <TextView
-                            android:id="@+id/tv_legend_standard"
+                            android:id="@+id/tv_legend_available"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="6dp"
-                            android:text="Thường"
-                            android:textColor="#E2E7F0"
-                            android:textSize="12sp" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                        <View
-                            android:layout_width="14dp"
-                            android:layout_height="14dp"
-                            android:background="#F2C94C" />
-
-                        <TextView
-                            android:id="@+id/tv_legend_vip"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="6dp"
-                            android:text="VIP"
+                            android:text="Ghế trống"
                             android:textColor="#E2E7F0"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -154,11 +132,33 @@
                             android:background="#EB5757" />
 
                         <TextView
-                            android:id="@+id/tv_legend_couple"
+                            android:id="@+id/tv_legend_selected"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="6dp"
-                            android:text="Ghế đôi"
+                            android:text="Ghế bạn chọn"
+                            android:textColor="#E2E7F0"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <View
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:background="#4F4F4F" />
+
+                        <TextView
+                            android:id="@+id/tv_legend_reserved"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:text="Đã đặt"
                             android:textColor="#E2E7F0"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -235,7 +235,7 @@
                 android:orientation="vertical"
                 android:gravity="center_horizontal">
 
-                <!-- Row A (Standard) -->
+                <!-- Row A -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -257,7 +257,7 @@
                         android:layout_height="26dp"
                         android:layout_marginStart="4dp"
                         android:layout_marginEnd="2dp"
-                        android:background="#0EB378"
+                        android:background="@drawable/bg_seat_available"
                         android:text="1"
                         android:textAllCaps="false"
                         android:textColor="@android:color/white"
@@ -268,7 +268,7 @@
                         android:layout_width="26dp"
                         android:layout_height="26dp"
                         android:layout_marginEnd="2dp"
-                        android:background="#0EB378"
+                        android:background="@drawable/bg_seat_available"
                         android:text="2"
                         android:textAllCaps="false"
                         android:textColor="@android:color/white"
@@ -279,7 +279,7 @@
                         android:layout_width="26dp"
                         android:layout_height="26dp"
                         android:layout_marginEnd="2dp"
-                        android:background="#0EB378"
+                        android:background="@drawable/bg_seat_available"
                         android:text="3"
                         android:textAllCaps="false"
                         android:textColor="@android:color/white"
@@ -290,7 +290,7 @@
                         android:layout_width="26dp"
                         android:layout_height="26dp"
                         android:layout_marginEnd="2dp"
-                        android:background="#0EB378"
+                        android:background="@drawable/bg_seat_available"
                         android:text="4"
                         android:textAllCaps="false"
                         android:textColor="@android:color/white"
@@ -301,7 +301,7 @@
                         android:layout_width="26dp"
                         android:layout_height="26dp"
                         android:layout_marginEnd="2dp"
-                        android:background="#0EB378"
+                        android:background="@drawable/bg_seat_available"
                         android:text="5"
                         android:textAllCaps="false"
                         android:textColor="@android:color/white"
@@ -311,14 +311,58 @@
                         android:id="@+id/seat_A6"
                         android:layout_width="26dp"
                         android:layout_height="26dp"
-                        android:background="#0EB378"
+                        android:background="@drawable/bg_seat_available"
                         android:text="6"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_A7"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="7"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_A8"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="8"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_A9"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="9"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_A10"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="10"
                         android:textAllCaps="false"
                         android:textColor="@android:color/white"
                         android:textSize="11sp" />
                 </LinearLayout>
 
-                <!-- Row H (VIP) -->
+                <!-- Row B -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -329,57 +373,123 @@
                     <TextView
                         android:layout_width="20dp"
                         android:layout_height="wrap_content"
-                        android:text="H"
+                        android:text="B"
                         android:textColor="#9EA7B3"
                         android:textSize="12sp"
                         android:gravity="center" />
 
                     <Button
-                        android:id="@+id/seat_H10"
+                        android:id="@+id/seat_B1"
                         android:layout_width="26dp"
                         android:layout_height="26dp"
                         android:layout_marginStart="4dp"
                         android:layout_marginEnd="2dp"
-                        android:background="#F2C94C"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="1"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_B2"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="2"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_B3"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="3"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_B4"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="4"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_B5"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="5"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_B6"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="6"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_B7"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="7"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_B8"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="8"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_B9"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="9"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_B10"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:background="@drawable/bg_seat_available"
                         android:text="10"
                         android:textAllCaps="false"
-                        android:textColor="#1A1A1A"
-                        android:textSize="11sp" />
-
-                    <Button
-                        android:id="@+id/seat_H11"
-                        android:layout_width="26dp"
-                        android:layout_height="26dp"
-                        android:layout_marginEnd="2dp"
-                        android:background="#F2C94C"
-                        android:text="11"
-                        android:textAllCaps="false"
-                        android:textColor="#1A1A1A"
-                        android:textSize="11sp" />
-
-                    <Button
-                        android:id="@+id/seat_H12"
-                        android:layout_width="26dp"
-                        android:layout_height="26dp"
-                        android:layout_marginEnd="2dp"
-                        android:background="#F2C94C"
-                        android:text="12"
-                        android:textAllCaps="false"
-                        android:textColor="#1A1A1A"
-                        android:textSize="11sp" />
-
-                    <Button
-                        android:id="@+id/seat_H13"
-                        android:layout_width="26dp"
-                        android:layout_height="26dp"
-                        android:background="#F2C94C"
-                        android:text="13"
-                        android:textAllCaps="false"
-                        android:textColor="#1A1A1A"
+                        android:textColor="@android:color/white"
                         android:textSize="11sp" />
                 </LinearLayout>
 
-                <!-- Row K (Couple seats) -->
+                <!-- Row C -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -390,41 +500,244 @@
                     <TextView
                         android:layout_width="20dp"
                         android:layout_height="wrap_content"
-                        android:text="K"
+                        android:text="C"
+                        android:textColor="#9EA7B3"
+                        android:textSize="12sp"
+                        android:gravity="center" />
+                    
+                    <Button
+                        android:id="@+id/seat_C1"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="1"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_C2"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="2"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_C3"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="3"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_C4"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="4"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_C5"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="5"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_C6"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="6"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_C7"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="7"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_C8"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="8"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_C9"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="9"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_C10"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="10"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <!-- Row D -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="8dp">
+
+                    <TextView
+                        android:layout_width="20dp"
+                        android:layout_height="wrap_content"
+                        android:text="D"
                         android:textColor="#9EA7B3"
                         android:textSize="12sp"
                         android:gravity="center" />
 
                     <Button
-                        android:id="@+id/seat_K1K2"
-                        android:layout_width="54dp"
+                        android:id="@+id/seat_D1"
+                        android:layout_width="26dp"
                         android:layout_height="26dp"
                         android:layout_marginStart="4dp"
-                        android:layout_marginEnd="4dp"
-                        android:background="#EB5757"
-                        android:text="K1–K2"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="1"
                         android:textAllCaps="false"
                         android:textColor="@android:color/white"
                         android:textSize="11sp" />
 
                     <Button
-                        android:id="@+id/seat_K3K4"
-                        android:layout_width="54dp"
+                        android:id="@+id/seat_D2"
+                        android:layout_width="26dp"
                         android:layout_height="26dp"
-                        android:layout_marginEnd="4dp"
-                        android:background="#EB5757"
-                        android:text="K3–K4"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="2"
                         android:textAllCaps="false"
                         android:textColor="@android:color/white"
                         android:textSize="11sp" />
 
                     <Button
-                        android:id="@+id/seat_K5K6"
-                        android:layout_width="54dp"
+                        android:id="@+id/seat_D3"
+                        android:layout_width="26dp"
                         android:layout_height="26dp"
-                        android:layout_marginEnd="4dp"
-                        android:background="#EB5757"
-                        android:text="K5–K6"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="3"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_D4"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="4"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_D5"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="5"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_D6"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="6"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_D7"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="7"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_D8"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="8"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_D9"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="9"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/seat_D10"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:background="@drawable/bg_seat_available"
+                        android:text="10"
                         android:textAllCaps="false"
                         android:textColor="@android:color/white"
                         android:textSize="11sp" />

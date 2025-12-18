@@ -318,7 +318,7 @@
             android:id="@+id/btn_book_now"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#0EB378"
+            android:background="@drawable/bg_button_primary_rounded"
             android:text="Đặt vé"
             android:textAllCaps="false"
             android:textColor="@android:color/white"

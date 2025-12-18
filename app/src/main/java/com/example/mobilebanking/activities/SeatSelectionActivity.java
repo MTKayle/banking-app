@@ -3,6 +3,7 @@ package com.example.mobilebanking.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -135,21 +136,53 @@ public class SeatSelectionActivity extends AppCompatActivity {
 
     private void setupSeatSelection() {
         // Map từng Button với mã ghế và loại ghế để tính giá
+        // Hàng A
         addSeat(R.id.seat_A1, "A1", SeatType.STANDARD);
         addSeat(R.id.seat_A2, "A2", SeatType.STANDARD);
         addSeat(R.id.seat_A3, "A3", SeatType.STANDARD);
         addSeat(R.id.seat_A4, "A4", SeatType.STANDARD);
         addSeat(R.id.seat_A5, "A5", SeatType.STANDARD);
         addSeat(R.id.seat_A6, "A6", SeatType.STANDARD);
+        addSeat(R.id.seat_A7, "A7", SeatType.STANDARD);
+        addSeat(R.id.seat_A8, "A8", SeatType.STANDARD);
+        addSeat(R.id.seat_A9, "A9", SeatType.STANDARD);
+        addSeat(R.id.seat_A10, "A10", SeatType.STANDARD);
 
-        addSeat(R.id.seat_H10, "H10", SeatType.VIP);
-        addSeat(R.id.seat_H11, "H11", SeatType.VIP);
-        addSeat(R.id.seat_H12, "H12", SeatType.VIP);
-        addSeat(R.id.seat_H13, "H13", SeatType.VIP);
+        // Hàng B
+        addSeat(R.id.seat_B1, "B1", SeatType.STANDARD);
+        addSeat(R.id.seat_B2, "B2", SeatType.STANDARD);
+        addSeat(R.id.seat_B3, "B3", SeatType.STANDARD);
+        addSeat(R.id.seat_B4, "B4", SeatType.STANDARD);
+        addSeat(R.id.seat_B5, "B5", SeatType.STANDARD);
+        addSeat(R.id.seat_B6, "B6", SeatType.STANDARD);
+        addSeat(R.id.seat_B7, "B7", SeatType.STANDARD);
+        addSeat(R.id.seat_B8, "B8", SeatType.STANDARD);
+        addSeat(R.id.seat_B9, "B9", SeatType.STANDARD);
+        addSeat(R.id.seat_B10, "B10", SeatType.STANDARD);
 
-        addSeat(R.id.seat_K1K2, "K1–K2", SeatType.COUPLE);
-        addSeat(R.id.seat_K3K4, "K3–K4", SeatType.COUPLE);
-        addSeat(R.id.seat_K5K6, "K5–K6", SeatType.COUPLE);
+        // Hàng C
+        addSeat(R.id.seat_C1, "C1", SeatType.STANDARD);
+        addSeat(R.id.seat_C2, "C2", SeatType.STANDARD);
+        addSeat(R.id.seat_C3, "C3", SeatType.STANDARD);
+        addSeat(R.id.seat_C4, "C4", SeatType.STANDARD);
+        addSeat(R.id.seat_C5, "C5", SeatType.STANDARD);
+        addSeat(R.id.seat_C6, "C6", SeatType.STANDARD);
+        addSeat(R.id.seat_C7, "C7", SeatType.STANDARD);
+        addSeat(R.id.seat_C8, "C8", SeatType.STANDARD);
+        addSeat(R.id.seat_C9, "C9", SeatType.STANDARD);
+        addSeat(R.id.seat_C10, "C10", SeatType.STANDARD);
+
+        // Hàng D
+        addSeat(R.id.seat_D1, "D1", SeatType.STANDARD);
+        addSeat(R.id.seat_D2, "D2", SeatType.STANDARD);
+        addSeat(R.id.seat_D3, "D3", SeatType.STANDARD);
+        addSeat(R.id.seat_D4, "D4", SeatType.STANDARD);
+        addSeat(R.id.seat_D5, "D5", SeatType.STANDARD);
+        addSeat(R.id.seat_D6, "D6", SeatType.STANDARD);
+        addSeat(R.id.seat_D7, "D7", SeatType.STANDARD);
+        addSeat(R.id.seat_D8, "D8", SeatType.STANDARD);
+        addSeat(R.id.seat_D9, "D9", SeatType.STANDARD);
+        addSeat(R.id.seat_D10, "D10", SeatType.STANDARD);
     }
 
     private void addSeat(int buttonId, String code, SeatType type) {
@@ -158,6 +191,9 @@ public class SeatSelectionActivity extends AppCompatActivity {
 
         SeatInfo info = new SeatInfo(code, type);
         seats.put(button, info);
+
+        // Set màu ban đầu cho ghế (xanh lá)
+        updateSeatVisual(button, info);
 
         button.setOnClickListener(v -> {
             info.selected = !info.selected;
@@ -168,26 +204,49 @@ public class SeatSelectionActivity extends AppCompatActivity {
 
     private void updateSeatVisual(Button button, SeatInfo info) {
         if (info.selected) {
-            // Trạng thái được chọn: nền trắng, chữ xanh
-            button.setBackgroundColor(Color.WHITE);
-            button.setTextColor(0xFF0EB378);
+            // Trạng thái được chọn: nền cam đỏ sáng với border trắng dày, hiển thị dấu tích
+            button.setBackgroundResource(R.drawable.bg_seat_selected);
+            button.setText(""); // Xóa text số
+            // Thêm icon checkmark
+            Drawable checkIcon = getResources().getDrawable(R.drawable.ic_check_seat, null);
+            if (checkIcon != null) {
+                checkIcon.setBounds(0, 0, checkIcon.getIntrinsicWidth(), checkIcon.getIntrinsicHeight());
+                button.setCompoundDrawables(checkIcon, null, null, null);
+            }
+            button.setCompoundDrawablePadding(0);
+            // Đảm bảo button được refresh
+            button.invalidate();
         } else {
-            // Trạng thái chưa chọn: theo loại ghế
-            switch (info.type) {
-                case STANDARD:
-                    button.setBackgroundColor(0xFF0EB378);
+            // Trạng thái chưa chọn: tất cả ghế đều xanh lá, hiển thị số ghế
+            button.setBackgroundResource(R.drawable.bg_seat_available);
+            // Khôi phục text số từ mã ghế (ví dụ "A1" -> "1", "B10" -> "10")
+            String seatNumber = extractSeatNumber(info.code);
+            button.setText(seatNumber);
                     button.setTextColor(Color.WHITE);
-                    break;
-                case VIP:
-                    button.setBackgroundColor(0xFFF2C94C);
-                    button.setTextColor(0xFF1A1A1A);
-                    break;
-                case COUPLE:
-                    button.setBackgroundColor(0xFFEB5757);
-                    button.setTextColor(Color.WHITE);
-                    break;
+            // Xóa icon checkmark
+            button.setCompoundDrawables(null, null, null, null);
+            // Đảm bảo button được refresh
+            button.invalidate();
+        }
+    }
+    
+    /**
+     * Trích xuất số ghế từ mã ghế (ví dụ "A1" -> "1", "B10" -> "10", "K1-K2" -> "1-2")
+     */
+    private String extractSeatNumber(String seatCode) {
+        if (seatCode == null || seatCode.isEmpty()) return "";
+        // Nếu có dấu gạch ngang (ghế đôi), giữ nguyên
+        if (seatCode.contains("-")) {
+            // "K1-K2" -> "1-2"
+            String[] parts = seatCode.split("-");
+            if (parts.length >= 2) {
+                String num1 = parts[0].replaceAll("[A-Z]", "");
+                String num2 = parts[1].replaceAll("[A-Z]", "");
+                return num1 + "-" + num2;
             }
         }
+        // Loại bỏ chữ cái, chỉ giữ số
+        return seatCode.replaceAll("[A-Z]", "");
     }
 
     private void updateSummaryAndButtonState() {

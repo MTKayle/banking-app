@@ -85,7 +85,7 @@
                         android:layout_marginEnd="8dp"
                         android:orientation="vertical"
                         android:gravity="center"
-                        android:background="#0EB378">
+                        android:background="@drawable/bg_movie_date_active">
 
                         <TextView
                             android:id="@+id/tv_date_18_number"
@@ -113,7 +113,7 @@
                         android:layout_marginEnd="8dp"
                         android:orientation="vertical"
                         android:gravity="center"
-                        android:background="#181D22">
+                        android:background="@drawable/bg_movie_date_inactive">
 
                         <TextView
                             android:id="@+id/tv_date_19_number"
@@ -140,7 +140,7 @@
                         android:layout_marginEnd="8dp"
                         android:orientation="vertical"
                         android:gravity="center"
-                        android:background="#181D22">
+                        android:background="@drawable/bg_movie_date_inactive">
 
                         <TextView
                             android:id="@+id/tv_date_20_number"
@@ -167,7 +167,7 @@
                         android:layout_marginEnd="8dp"
                         android:orientation="vertical"
                         android:gravity="center"
-                        android:background="#181D22">
+                        android:background="@drawable/bg_movie_date_inactive">
 
                         <TextView
                             android:id="@+id/tv_date_21_number"
@@ -194,7 +194,7 @@
                         android:layout_marginEnd="8dp"
                         android:orientation="vertical"
                         android:gravity="center"
-                        android:background="#181D22">
+                        android:background="@drawable/bg_movie_date_inactive">
 
                         <TextView
                             android:id="@+id/tv_date_22_number"
@@ -210,6 +210,60 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="T2"
+                            android:textColor="#9EA7B3"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/date_item_23"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:layout_marginEnd="8dp"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:background="@drawable/bg_movie_date_inactive">
+
+                        <TextView
+                            android:id="@+id/tv_date_23_number"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="23"
+                            android:textColor="#E2E7F0"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_date_23_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="T3"
+                            android:textColor="#9EA7B3"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/date_item_24"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:layout_marginEnd="8dp"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:background="@drawable/bg_movie_date_inactive">
+
+                        <TextView
+                            android:id="@+id/tv_date_24_number"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="24"
+                            android:textColor="#E2E7F0"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_date_24_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="T4"
                             android:textColor="#9EA7B3"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -243,7 +297,7 @@
                     android:layout_height="72dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="6dp"
-                    android:background="#181D22"
+                    android:background="@drawable/bg_movie_brand_card"
                     android:gravity="center"
                     android:orientation="vertical">
 
@@ -271,7 +325,7 @@
                     android:layout_height="72dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="6dp"
-                    android:background="#181D22"
+                    android:background="@drawable/bg_movie_brand_card"
                     android:gravity="center"
                     android:orientation="vertical">
 
@@ -280,7 +334,7 @@
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:scaleType="centerInside"
-                        android:src="@drawable/ic_ticket" />
+                        android:src="@drawable/ic_cgv" />
 
                     <TextView
                         android:id="@+id/tv_brand_cgv"
@@ -299,7 +353,7 @@
                     android:layout_height="72dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="6dp"
-                    android:background="#181D22"
+                    android:background="@drawable/bg_movie_brand_card"
                     android:gravity="center"
                     android:orientation="vertical">
 
@@ -308,7 +362,7 @@
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:scaleType="centerInside"
-                        android:src="@drawable/ic_ticket" />
+                        android:src="@drawable/ic_lotte" />
 
                     <TextView
                         android:id="@+id/tv_brand_lotte"
@@ -326,7 +380,7 @@
                     android:layout_width="0dp"
                     android:layout_height="72dp"
                     android:layout_weight="1"
-                    android:background="#181D22"
+                    android:background="@drawable/bg_movie_brand_card"
                     android:gravity="center"
                     android:orientation="vertical">
 
@@ -335,7 +389,7 @@
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:scaleType="centerInside"
-                        android:src="@drawable/ic_ticket" />
+                        android:src="@drawable/ic_beta" />
 
                     <TextView
                         android:id="@+id/tv_brand_beta"
@@ -368,7 +422,7 @@
                 android:layout_marginTop="10dp"
                 android:padding="12dp"
                 android:orientation="vertical"
-                android:background="#181D22">
+                android:background="@color/card_background">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -382,7 +436,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="CGV Sư Vạn Hạnh"
-                        android:textColor="@android:color/white"
+                        android:textColor="@color/bidv_text_primary"
                         android:textSize="14sp"
                         android:textStyle="bold" />
 
@@ -391,7 +445,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="7.81 km"
-                        android:textColor="#9EA7B3"
+                        android:textColor="@color/bidv_text_secondary"
                         android:textSize="12sp" />
                 </LinearLayout>
 
@@ -401,7 +455,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:text="Tầng 6, Vạn Hạnh Mall, 11 Sư Vạn Hạnh, Phường 12, Quận 10"
-                    android:textColor="#B0BAC5"
+                    android:textColor="@color/bidv_text_secondary"
                     android:textSize="12sp" />
 
                 <TextView
@@ -410,7 +464,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="2D – Phụ đề"
-                    android:textColor="#E2E7F0"
+                    android:textColor="@color/bidv_text_primary"
                     android:textSize="12sp"
                     android:textStyle="bold" />
 
@@ -426,20 +480,20 @@
                         android:layout_width="wrap_content"
                         android:layout_height="32dp"
                         android:layout_marginEnd="8dp"
-                        android:background="#26313A"
+                        android:background="@drawable/bg_movie_showtime"
                         android:text="23:20"
                         android:textAllCaps="false"
-                        android:textColor="#E2E7F0"
+                        android:textColor="@color/bidv_text_primary"
                         android:textSize="12sp" />
 
                     <Button
                         android:id="@+id/btn_showtime_1_2130"
                         android:layout_width="wrap_content"
                         android:layout_height="32dp"
-                        android:background="#26313A"
+                        android:background="@drawable/bg_movie_showtime"
                         android:text="21:30"
                         android:textAllCaps="false"
-                        android:textColor="#E2E7F0"
+                        android:textColor="@color/bidv_text_primary"
                         android:textSize="12sp" />
                 </LinearLayout>
             </LinearLayout>
@@ -452,7 +506,7 @@
                 android:layout_marginTop="10dp"
                 android:padding="12dp"
                 android:orientation="vertical"
-                android:background="#181D22">
+                android:background="@color/card_background">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -466,7 +520,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Lotte Gò Vấp"
-                        android:textColor="@android:color/white"
+                        android:textColor="@color/bidv_text_primary"
                         android:textSize="14sp"
                         android:textStyle="bold" />
 
@@ -475,7 +529,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="15.22 km"
-                        android:textColor="#9EA7B3"
+                        android:textColor="@color/bidv_text_secondary"
                         android:textSize="12sp" />
                 </LinearLayout>
 
@@ -485,7 +539,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:text="Tầng 3, TTTM Lotte Mart Gò Vấp, 242 Nguyễn Văn Lượng"
-                    android:textColor="#B0BAC5"
+                    android:textColor="@color/bidv_text_secondary"
                     android:textSize="12sp" />
 
                 <TextView
@@ -494,7 +548,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="2D – Thuyết minh"
-                    android:textColor="#E2E7F0"
+                    android:textColor="@color/bidv_text_primary"
                     android:textSize="12sp"
                     android:textStyle="bold" />
 
@@ -510,10 +564,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="32dp"
                         android:layout_marginEnd="8dp"
-                        android:background="#26313A"
+                        android:background="@drawable/bg_movie_showtime"
                         android:text="13:50"
                         android:textAllCaps="false"
-                        android:textColor="#E2E7F0"
+                        android:textColor="@color/bidv_text_primary"
                         android:textSize="12sp" />
 
                     <Button
@@ -521,20 +575,356 @@
                         android:layout_width="wrap_content"
                         android:layout_height="32dp"
                         android:layout_marginEnd="8dp"
-                        android:background="#26313A"
+                        android:background="@drawable/bg_movie_showtime"
                         android:text="18:00"
                         android:textAllCaps="false"
-                        android:textColor="#E2E7F0"
+                        android:textColor="@color/bidv_text_primary"
                         android:textSize="12sp" />
 
                     <Button
                         android:id="@+id/btn_showtime_2_2220"
                         android:layout_width="wrap_content"
                         android:layout_height="32dp"
-                        android:background="#26313A"
+                        android:background="@drawable/bg_movie_showtime"
                         android:text="22:20"
                         android:textAllCaps="false"
-                        android:textColor="#E2E7F0"
+                        android:textColor="@color/bidv_text_primary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- CINEMA ITEM 3 -->
+            <LinearLayout
+                android:id="@+id/item_cinema_bhd_bitexco"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:padding="12dp"
+                android:orientation="vertical"
+                android:background="@color/card_background">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tv_cinema_name_3"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="BHD Star Bitexco"
+                        android:textColor="@color/bidv_text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_cinema_distance_3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="5.40 km"
+                        android:textColor="@color/bidv_text_secondary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_cinema_address_3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Tầng 3, Tháp Tài Chính Bitexco, Quận 1"
+                    android:textColor="@color/bidv_text_secondary"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tv_format_3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="2D – Phụ đề"
+                    android:textColor="@color/bidv_text_primary"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:id="@+id/layout_showtimes_3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btn_showtime_3_1930"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/bg_movie_showtime"
+                        android:text="19:30"
+                        android:textAllCaps="false"
+                        android:textColor="@color/bidv_text_primary"
+                        android:textSize="12sp" />
+
+                    <Button
+                        android:id="@+id/btn_showtime_3_2100"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:background="@drawable/bg_movie_showtime"
+                        android:text="21:00"
+                        android:textAllCaps="false"
+                        android:textColor="@color/bidv_text_primary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- CINEMA ITEM 4 -->
+            <LinearLayout
+                android:id="@+id/item_cinema_galaxy_nguyen_du"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:padding="12dp"
+                android:orientation="vertical"
+                android:background="@color/card_background">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tv_cinema_name_4"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Galaxy Nguyễn Du"
+                        android:textColor="@color/bidv_text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_cinema_distance_4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="3.20 km"
+                        android:textColor="@color/bidv_text_secondary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_cinema_address_4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="116 Nguyễn Du, Quận 1"
+                    android:textColor="@color/bidv_text_secondary"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tv_format_4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="2D – Lồng tiếng"
+                    android:textColor="@color/bidv_text_primary"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:id="@+id/layout_showtimes_4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btn_showtime_4_1400"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/bg_movie_showtime"
+                        android:text="14:00"
+                        android:textAllCaps="false"
+                        android:textColor="@color/bidv_text_primary"
+                        android:textSize="12sp" />
+
+                    <Button
+                        android:id="@+id/btn_showtime_4_2030"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:background="@drawable/bg_movie_showtime"
+                        android:text="20:30"
+                        android:textAllCaps="false"
+                        android:textColor="@color/bidv_text_primary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- CINEMA ITEM 5 -->
+            <LinearLayout
+                android:id="@+id/item_cinema_beta_quan7"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:padding="12dp"
+                android:orientation="vertical"
+                android:background="@color/card_background">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tv_cinema_name_5"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Beta Quận 7"
+                        android:textColor="@color/bidv_text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_cinema_distance_5"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="9.80 km"
+                        android:textColor="@color/bidv_text_secondary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_cinema_address_5"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Tầng 3, SC VivoCity, Quận 7"
+                    android:textColor="@color/bidv_text_secondary"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tv_format_5"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="2D – Phụ đề"
+                    android:textColor="@color/bidv_text_primary"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:id="@+id/layout_showtimes_5"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btn_showtime_5_1600"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/bg_movie_showtime"
+                        android:text="16:00"
+                        android:textAllCaps="false"
+                        android:textColor="@color/bidv_text_primary"
+                        android:textSize="12sp" />
+
+                    <Button
+                        android:id="@+id/btn_showtime_5_1900"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:background="@drawable/bg_movie_showtime"
+                        android:text="19:00"
+                        android:textAllCaps="false"
+                        android:textColor="@color/bidv_text_primary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- CINEMA ITEM 6 -->
+            <LinearLayout
+                android:id="@+id/item_cinema_cinestar_quocthanh"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:padding="12dp"
+                android:orientation="vertical"
+                android:background="@color/card_background">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tv_cinema_name_6"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Cinestar Quốc Thanh"
+                        android:textColor="@color/bidv_text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_cinema_distance_6"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="4.10 km"
+                        android:textColor="@color/bidv_text_secondary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_cinema_address_6"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="271 Nguyễn Trãi, Quận 1"
+                    android:textColor="@color/bidv_text_secondary"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tv_format_6"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="2D – Phụ đề"
+                    android:textColor="@color/bidv_text_primary"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:id="@+id/layout_showtimes_6"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btn_showtime_6_1700"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/bg_movie_showtime"
+                        android:text="17:00"
+                        android:textAllCaps="false"
+                        android:textColor="@color/bidv_text_primary"
+                        android:textSize="12sp" />
+
+                    <Button
+                        android:id="@+id/btn_showtime_6_2130"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:background="@drawable/bg_movie_showtime"
+                        android:text="21:30"
+                        android:textAllCaps="false"
+                        android:textColor="@color/bidv_text_primary"
                         android:textSize="12sp" />
                 </LinearLayout>
             </LinearLayout>
