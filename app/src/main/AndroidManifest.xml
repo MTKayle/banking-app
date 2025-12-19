@@ -134,9 +134,25 @@
             android:name="com.example.mobilebanking.activities.TransactionConfirmationActivity"
             android:parentActivityName="com.example.mobilebanking.activities.TransferActivity" />
 
+        <activity
+            android:name="com.example.mobilebanking.activities.TransferSuccessActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.CustomerDashboardActivity" />
+
+        <activity
+            android:name="com.example.mobilebanking.activities.TransactionHistoryActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.CustomerDashboardActivity" />
+
         <!-- Utility Services Activities -->
         <activity
             android:name="com.example.mobilebanking.activities.BillPaymentActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.CustomerDashboardActivity" />
+
+        <activity
+            android:name="com.example.mobilebanking.activities.BillPaymentSuccessActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.CustomerDashboardActivity" />
+
+        <activity
+            android:name="com.example.mobilebanking.activities.MoviePaymentActivity"
             android:parentActivityName="com.example.mobilebanking.activities.CustomerDashboardActivity" />
 
         <activity

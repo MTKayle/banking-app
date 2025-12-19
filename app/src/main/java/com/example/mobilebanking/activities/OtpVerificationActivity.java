@@ -81,7 +81,9 @@ public class OtpVerificationActivity extends AppCompatActivity {
             progressBar.setVisibility(android.view.View.GONE);
         }
 
-        tvPhone.setText("Đã gửi đến " + phoneNumber);
+        if (tvPhone != null && phoneNumber != null) {
+            tvPhone.setText("Đã gửi đến " + phoneNumber);
+        }
     }
     
     private void showApiKeyConfigDialog() {
@@ -136,8 +138,7 @@ public class OtpVerificationActivity extends AppCompatActivity {
             progressBar.setVisibility(android.view.View.VISIBLE);
         }
         btnResend.setEnabled(false);
-        tvPhone.setText("Đang gửi OTP đến " + phoneNumber + "...");
-        
+
         smsService.sendOtp(phoneNumber, new SmsService.SmsCallback() {
             @Override
             public void onSuccess(String otpCode, String smsId) {
@@ -145,8 +146,7 @@ public class OtpVerificationActivity extends AppCompatActivity {
                     if (progressBar != null) {
                         progressBar.setVisibility(android.view.View.GONE);
                     }
-                    tvPhone.setText("Đã gửi OTP đến " + phoneNumber);
-                    
+
                     // For testing: show OTP in log (remove in production)
                     if (esmsConfig.isUseSandbox()) {
                         Log.d(TAG, "OTP Code (for testing): " + otpCode);
@@ -165,8 +165,7 @@ public class OtpVerificationActivity extends AppCompatActivity {
                     if (progressBar != null) {
                         progressBar.setVisibility(android.view.View.GONE);
                     }
-                    tvPhone.setText("Lỗi gửi OTP đến " + phoneNumber);
-                    
+
                     // Show error dialog
                     new AlertDialog.Builder(OtpVerificationActivity.this)
                             .setTitle("Lỗi gửi OTP")
@@ -226,16 +225,16 @@ public class OtpVerificationActivity extends AppCompatActivity {
             return;
         }
 
-        // Verify OTP
+        // Verify OTP - Fake OTP is 123456
         boolean isValid = false;
         
-        if (esmsConfig.isConfigured() && smsService != null) {
-            // Verify with saved OTP
-            isValid = smsService.verifyOtp(phoneNumber, otp);
-        } else {
-            // Fallback: accept any 6-digit code in test mode
+        // Check if OTP is 123456 (fake OTP for testing)
+        if ("123456".equals(otp)) {
             isValid = true;
-            Log.d(TAG, "Test mode: Accepting OTP without verification");
+            Log.d(TAG, "OTP verification successful with fake OTP: 123456");
+        } else if (esmsConfig.isConfigured() && smsService != null) {
+            // Verify with saved OTP from SMS service
+            isValid = smsService.verifyOtp(phoneNumber, otp);
         }
 
         if (isValid) {
@@ -246,8 +245,29 @@ public class OtpVerificationActivity extends AppCompatActivity {
                 Intent intent = new Intent(OtpVerificationActivity.this, LoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
+                finish();
+            } else if ("transaction".equals(fromActivity)) {
+                // Transaction verification, go to success screen
+                Intent successIntent = new Intent(OtpVerificationActivity.this, TransferSuccessActivity.class);
+
+                // Pass transaction data from previous intent
+                Intent originalIntent = getIntent();
+                successIntent.putExtra("amount", originalIntent.getDoubleExtra("amount", 0));
+                successIntent.putExtra("to_account", originalIntent.getStringExtra("to_account"));
+                successIntent.putExtra("note", originalIntent.getStringExtra("note"));
+                successIntent.putExtra("from_account", originalIntent.getStringExtra("from_account"));
+                successIntent.putExtra("bank", originalIntent.getStringExtra("bank"));
+
+                // Add flag to indicate we need to clear the transaction stack
+                successIntent.putExtra("clear_transaction_stack", true);
+
+                // Start success activity
+                startActivity(successIntent);
+
+                // Finish this OTP activity
+                finish();
             } else {
-                // Transaction verification, return to previous activity
+                // Other cases, return to previous activity
                 setResult(RESULT_OK);
                 finish();
             }

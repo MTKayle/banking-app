@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="80dp"
+    android:height="32dp"
+    android:viewportWidth="80"
+    android:viewportHeight="32">
+
+    <!-- MB Logo simplified -->
+    <group>
+        <!-- Red Star -->
+        <path
+            android:fillColor="#E31E24"
+            android:pathData="M20,8 L22,14 L28,14 L23,18 L25,24 L20,20 L15,24 L17,18 L12,14 L18,14 Z"/>
+
+        <!-- MB Text -->
+        <path
+            android:fillColor="#003DA5"
+            android:pathData="M35,12 L35,24 L39,24 L39,20 L41,20 L43,24 L47,24 L45,19.5 C46,19 47,18 47,16 C47,14 45.5,12 43,12 Z M39,15 L42,15 C43,15 43.5,15.5 43.5,16.5 C43.5,17.5 43,18 42,18 L39,18 Z"/>
+
+        <path
+            android:fillColor="#003DA5"
+            android:pathData="M52,12 L52,24 L60,24 C62,24 64,22 64,20 L64,16 C64,14 62,12 60,12 Z M56,15 L59,15 C60,15 60.5,15.5 60.5,16.5 L60.5,19.5 C60.5,20.5 60,21 59,21 L56,21 Z"/>
+    </group>
+</vector>
+
