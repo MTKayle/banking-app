@@ -38,7 +38,7 @@ import java.util.Locale;
  * Customer Dashboard Activity - Main screen for customers
  * Modern BIDV-style design
  */
-public class CustomerDashboardActivity extends AppCompatActivity {
+public class CustomerDashboardActivity extends BaseActivity {
     private TextView tvWelcome, tvUserNameHeader, tvTotalBalance;
     private RecyclerView rvAccounts;
     private CardView cvTransfer, cvBillPay, cvMore, cvSavings, cvTopup, cvLocations, cvQr;

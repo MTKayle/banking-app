@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * Transfer Activity - Money transfer functionality
  */
-public class TransferActivity extends AppCompatActivity {
+public class TransferActivity extends BaseActivity {
     private EditText etRecipientAccount, etAmount, etNote;
     private Button btnContinue;
     private DataManager dataManager;

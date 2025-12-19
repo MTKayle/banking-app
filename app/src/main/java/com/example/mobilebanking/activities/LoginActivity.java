@@ -22,6 +22,7 @@ import com.example.mobilebanking.api.dto.FeatureStatusResponse;
 import com.example.mobilebanking.models.User;
 import com.example.mobilebanking.utils.BiometricAuthManager;
 import com.example.mobilebanking.utils.DataManager;
+import com.example.mobilebanking.utils.SessionManager;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -33,7 +34,7 @@ import retrofit2.Response;
 /**
  * Login Activity for user authentication
  */
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends BaseActivity {
     private EditText etUsername, etPassword;
     private Button btnLogin;
     private TextView tvRegister, tvForgotPassword, tvUserName, tvOtherAccount;
@@ -44,6 +45,7 @@ public class LoginActivity extends AppCompatActivity {
     private ImageView ivFingerprint;
     private DataManager dataManager;
     private BiometricAuthManager biometricManager;
+    private SessionManager sessionManager;
     private boolean isQuickLoginMode = false; // Flag to determine which layout is used
 
     @Override
@@ -55,12 +57,10 @@ public class LoginActivity extends AppCompatActivity {
 
         dataManager = DataManager.getInstance(this);
         biometricManager = new BiometricAuthManager(this);
+        sessionManager = SessionManager.getInstance(this);
 
-        // Check if already logged in
-        if (dataManager.isLoggedIn()) {
-            navigateToDashboard();
-            return;
-        }
+        // KHÔNG check isLoggedIn nữa vì session đã hết hạn khi mở app lại
+        // Session sẽ được kiểm tra bởi SessionManager
 
         // Kiểm tra xem đã có lần đăng nhập nào trước đó chưa
         String lastUsername = dataManager.getLastUsername();
@@ -358,6 +358,9 @@ public class LoginActivity extends AppCompatActivity {
                             saveRefreshTokenWithoutAuth(refreshToken, finalPhone);
                         }
                     }
+                    
+                    // Reset session khi đăng nhập thành công
+                    sessionManager.onLoginSuccess();
 
                     Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
                     navigateToDashboard();
@@ -524,6 +527,9 @@ public class LoginActivity extends AppCompatActivity {
 
                             // Lưu lại refresh token mới vào temp storage (không yêu cầu quét vân tay)
                             saveRefreshTokenWithoutAuth(authResponse.getRefreshToken(), username);
+                            
+                            // Reset session khi đăng nhập thành công
+                            sessionManager.onLoginSuccess();
 
                             runOnUiThread(() -> {
                                 Toast.makeText(LoginActivity.this, "Đăng nhập bằng vân tay thành công!", Toast.LENGTH_SHORT).show();
@@ -602,6 +608,14 @@ public class LoginActivity extends AppCompatActivity {
         
         // Nếu có refresh token cũ trong Keystore, giữ nguyên
         // Nếu chưa có, sẽ lưu vào Keystore khi đăng nhập bằng vân tay lần sau
+    }
+    
+    /**
+     * LoginActivity không cần kiểm tra session
+     */
+    @Override
+    protected boolean shouldCheckSession() {
+        return false;
     }
 }
 
