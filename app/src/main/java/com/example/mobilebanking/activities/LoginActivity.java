@@ -49,7 +49,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         // Khởi tạo ApiClient
         ApiClient.init(this);
 
@@ -320,6 +320,27 @@ public class LoginActivity extends AppCompatActivity {
                     // Lưu tên đầy đủ (fullName) của người dùng để hiển thị lần sau
                     if (authResponse.getFullName() != null && !authResponse.getFullName().isEmpty()) {
                         dataManager.saveLastFullName(authResponse.getFullName());
+                    }
+                    
+                    // Lưu đầy đủ thông tin từ AuthResponse
+                    // Lưu userId
+                    if (authResponse.getUserId() != null) {
+                        dataManager.saveUserId(authResponse.getUserId());
+                    }
+                    
+                    // Lưu phone từ AuthResponse (khác với lastUsername dùng cho auto-fill)
+                    if (authResponse.getPhone() != null && !authResponse.getPhone().isEmpty()) {
+                        dataManager.saveUserPhone(authResponse.getPhone());
+                    }
+                    
+                    // Lưu fullName từ AuthResponse (khác với lastFullName dùng cho login screen)
+                    if (authResponse.getFullName() != null && !authResponse.getFullName().isEmpty()) {
+                        dataManager.saveUserFullName(authResponse.getFullName());
+                    }
+                    
+                    // Lưu email từ AuthResponse
+                    if (authResponse.getEmail() != null && !authResponse.getEmail().isEmpty()) {
+                        dataManager.saveUserEmail(authResponse.getEmail());
                     }
                     
                     // Lưu token từ API response (access token + refresh token)

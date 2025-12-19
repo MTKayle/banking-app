@@ -1,0 +1,751 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Movie Payment - Light Mode (theo hình mẫu)
+  UX: Thông tin phim + thông tin nhận vé + mã giảm giá + lưu ý + thanh toán
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_movie_payment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/movie_background_gray">
+
+    <!-- TOP BAR -->
+    <LinearLayout
+        android:id="@+id/layout_header"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="12dp"
+        android:background="@color/white">
+
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@android:color/transparent"
+            android:padding="4dp"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@color/movie_text_primary" />
+
+        <TextView
+            android:id="@+id/tv_header_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="Thanh toán vé xem phim"
+            android:textColor="@color/movie_text_primary"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- SCROLLABLE CONTENT -->
+    <ScrollView
+        android:id="@+id/scroll_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/layout_header"
+        android:layout_above="@+id/layout_bottom_bar"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:id="@+id/container_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- SECTION: THÔNG TIN PHIM (Collapsible) -->
+            <LinearLayout
+                android:id="@+id/layout_movie_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@color/white"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:id="@+id/layout_movie_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="THÔNG TIN PHIM"
+                        android:textColor="@color/movie_text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:id="@+id/iv_movie_expand"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_expand_arrow"
+                        android:rotation="180" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layout_movie_details"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="vertical">
+
+                    <!-- Tên phim -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="100dp"
+                            android:layout_height="wrap_content"
+                            android:text="Tên phim"
+                            android:textColor="@color/movie_text_secondary"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:id="@+id/tv_movie_title_value"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:text="VUA CỦA CÁC VUA (T13)"
+                            android:textColor="@color/movie_text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Thời lượng -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="100dp"
+                            android:layout_height="wrap_content"
+                            android:text="Thời lượng"
+                            android:textColor="@color/movie_text_secondary"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:id="@+id/tv_duration_value"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:text="101 phút"
+                            android:textColor="@color/movie_text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Suất chiếu -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="100dp"
+                            android:layout_height="wrap_content"
+                            android:text="Suất chiếu"
+                            android:textColor="@color/movie_text_secondary"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:id="@+id/tv_showtime_value"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:text="23:20 18/12/2025"
+                            android:textColor="@color/movie_text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Phòng chiếu -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="100dp"
+                            android:layout_height="wrap_content"
+                            android:text="Phòng chiếu"
+                            android:textColor="@color/movie_text_secondary"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:id="@+id/tv_room_value"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:text="Cinema 9"
+                            android:textColor="@color/movie_text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Số ghế -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="100dp"
+                            android:layout_height="wrap_content"
+                            android:text="Số ghế"
+                            android:textColor="@color/movie_text_secondary"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:id="@+id/tv_seats_value"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:text="H12"
+                            android:textColor="@color/movie_text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Rạp chiếu -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="100dp"
+                            android:layout_height="wrap_content"
+                            android:text="Rạp chiếu"
+                            android:textColor="@color/movie_text_secondary"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:id="@+id/tv_cinema_value"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:text="CGV Sư Vạn Hạnh"
+                            android:textColor="@color/movie_text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Địa chỉ -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="100dp"
+                            android:layout_height="wrap_content"
+                            android:text="Địa chỉ"
+                            android:textColor="@color/movie_text_secondary"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:id="@+id/tv_address_value"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:text="Tầng 6, Vạn Hạnh Mall, 11 Sư Vạn Hạnh, Phường 12, Quận 10"
+                            android:textColor="@color/movie_text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textAlignment="textEnd" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:background="@color/movie_background_gray" />
+
+            <!-- SECTION: THÔNG TIN NHẬN VÉ -->
+            <LinearLayout
+                android:id="@+id/layout_receiver_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@color/white"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="THÔNG TIN NHẬN VÉ"
+                        android:textColor="@color/movie_text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:id="@+id/iv_receiver_expand"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_expand_arrow"
+                        android:rotation="180" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Thông tin vé sẽ được gửi tới email; mục &quot;Thông báo&quot; trên ứng dụng hoặc mục &quot;Vé của tôi&quot; trong dịch vụ Đặt vé xem phim."
+                    android:textColor="@color/movie_text_secondary"
+                    android:textSize="12sp"
+                    android:lineSpacingExtra="4dp" />
+
+                <!-- Họ và Tên -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Họ và Tên *"
+                    android:textColor="@color/movie_text_secondary"
+                    android:textSize="12sp" />
+
+                <EditText
+                    android:id="@+id/et_customer_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_movie_showtime_light"
+                    android:paddingHorizontal="12dp"
+                    android:hint="Nhập họ và tên"
+                    android:textColor="@color/movie_text_primary"
+                    android:textColorHint="@color/movie_text_hint"
+                    android:textSize="14sp"
+                    android:inputType="textPersonName" />
+
+                <!-- Số điện thoại -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Số điện thoại *"
+                    android:textColor="@color/movie_text_secondary"
+                    android:textSize="12sp" />
+
+                <EditText
+                    android:id="@+id/et_customer_phone"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_movie_showtime_light"
+                    android:paddingHorizontal="12dp"
+                    android:hint="Nhập số điện thoại"
+                    android:textColor="@color/movie_text_primary"
+                    android:textColorHint="@color/movie_text_hint"
+                    android:textSize="14sp"
+                    android:inputType="phone" />
+
+                <!-- Email -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="E-mail"
+                    android:textColor="@color/movie_text_secondary"
+                    android:textSize="12sp" />
+
+                <EditText
+                    android:id="@+id/et_customer_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_movie_showtime_light"
+                    android:paddingHorizontal="12dp"
+                    android:hint="Nhập email"
+                    android:textColor="@color/movie_text_primary"
+                    android:textColorHint="@color/movie_text_hint"
+                    android:textSize="14sp"
+                    android:inputType="textEmailAddress" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:background="@color/movie_background_gray" />
+
+            <!-- SECTION: THANH TOÁN -->
+            <LinearLayout
+                android:id="@+id/layout_payment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@color/white"
+                android:padding="16dp">
+
+                <!-- Ticket Amount -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tv_ticket_label"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Vé xem phim (1)"
+                        android:textColor="@color/movie_text_primary"
+                        android:textSize="14sp" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/tv_ticket_amount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="110,500 VND"
+                            android:textColor="@color/movie_text_primary"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_marginStart="4dp"
+                            android:src="@drawable/ic_expand_arrow" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginVertical="12dp"
+                    android:background="@color/movie_divider" />
+
+                <!-- Tổng tiền -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Tổng tiền"
+                        android:textColor="@color/movie_text_secondary"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tv_subtotal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="110,500 VND"
+                        android:textColor="@color/movie_text_primary"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <!-- Tổng tiền thanh toán -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Tổng tiền thanh toán"
+                        android:textColor="@color/movie_text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_total_amount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="110,500 VND"
+                        android:textColor="@color/movie_primary_green"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="end"
+                    android:text="Đã bao gồm VAT"
+                    android:textColor="@color/movie_text_hint"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:background="@color/movie_background_gray" />
+
+            <!-- SECTION: MÃ GIẢM GIÁ -->
+            <LinearLayout
+                android:id="@+id/layout_promo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@color/white"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="MÃ GIẢM GIÁ"
+                        android:textColor="@color/movie_text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:id="@+id/layout_enter_promo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_movie_showtime_light"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="8dp">
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_ticket"
+                            app:tint="@color/movie_text_hint" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:text="Nhập hoặc chọn mã"
+                            android:textColor="@color/movie_text_hint"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Promo Cards -->
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:scrollbars="none">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <!-- Promo Card 1 -->
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="12dp"
+                            android:orientation="vertical"
+                            android:background="@drawable/bg_promo_card"
+                            android:padding="12dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Vé CGV chỉ 95K &amp; My Combo 64K từ Thứ 2 đến Thứ 5"
+                                android:textColor="@color/movie_text_primary"
+                                android:textSize="12sp"
+                                android:textStyle="bold"
+                                android:maxLines="2"
+                                android:ellipsize="end" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="HSD: 31/12/2025"
+                                android:textColor="@color/movie_text_secondary"
+                                android:textSize="11sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="Áp dụng"
+                                android:textColor="@color/movie_primary_green"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <!-- Promo Card 2 -->
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:background="@drawable/bg_promo_card"
+                            android:padding="12dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="VNPAY tối đa 30K"
+                                android:textColor="@color/movie_text_primary"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="Chưa thỏa điều kiện"
+                                android:textColor="@color/error_color"
+                                android:textSize="11sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="HSD: 31/12/2025"
+                                android:textColor="@color/movie_text_secondary"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </HorizontalScrollView>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:background="@color/movie_background_gray" />
+
+            <!-- SECTION: LƯU Ý -->
+            <LinearLayout
+                android:id="@+id/layout_notes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@color/white"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="* Lưu ý:"
+                    android:textColor="@color/error_color"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="• Phim cho khách hàng từ 13 tuổi trở lên.\n• Vé đã mua không thể đổi hoặc trả lại.\n• Nếu không nhận được mã vé sau 30 phút kể từ thời điểm hoàn tất thanh toán, vui lòng liên hệ tổng đài CSKH *6789 để được hỗ trợ.\n• Rạp phim không được phép phục vụ khách hàng dưới 13 tuổi cho các suất chiếu kết thúc sau 22:00 và 16 tuổi cho các suất chiếu kết thúc sau 23:00.\n• Khách hàng có nhu cầu xuất hóa đơn vé xem phim, vui lòng liên hệ và cung cấp thông tin cho VNPAY trong ngày nhận được mã vé."
+                    android:textColor="@color/movie_text_secondary"
+                    android:textSize="12sp"
+                    android:lineSpacingExtra="4dp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:background="@color/movie_background_gray" />
+
+            <!-- SECTION: ĐIỀU KHOẢN -->
+            <LinearLayout
+                android:id="@+id/layout_terms"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="top"
+                android:background="@color/white"
+                android:padding="16dp">
+
+                <CheckBox
+                    android:id="@+id/cb_confirm"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:buttonTint="@color/movie_primary_green" />
+
+                <TextView
+                    android:id="@+id/tv_terms_text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:text="Tôi xác nhận các thông tin trên đã chính xác và đồng ý với các điều khoản &amp; chính sách"
+                    android:textColor="@color/movie_text_primary"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="16dp"
+                android:background="@color/movie_background_gray" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- STICKY BOTTOM BUTTON -->
+    <LinearLayout
+        android:id="@+id/layout_bottom_bar"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp"
+        android:background="@color/white"
+        android:elevation="8dp">
+
+        <Button
+            android:id="@+id/btn_confirm_payment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_movie_tab_light_active"
+            android:enabled="false"
+            android:text="Đặt vé"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</RelativeLayout>
+

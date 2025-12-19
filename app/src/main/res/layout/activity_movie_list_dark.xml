@@ -131,23 +131,19 @@
         android:textSize="12sp"
         android:letterSpacing="0.08" />
 
-    <!-- MOVIE LIST SCROLL AREA -->
-    <ScrollView
-        android:id="@+id/scroll_movie_list"
+    <!-- MOVIE LIST RECYCLERVIEW -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_movies"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="4dp"
         android:layout_weight="1"
-        android:fillViewport="true">
+        android:paddingBottom="12dp"
+        android:clipToPadding="false" />
 
-        <LinearLayout
-            android:id="@+id/container_movies"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="12dp">
-
-            <!-- MOVIE ITEM 1: VUA CỦA CÁC VUA -->
+    <!-- OLD FIXED ITEMS - REMOVED, NOW USING RECYCLERVIEW -->
+    <!--
+            MOVIE ITEM 1: VUA CỦA CÁC VUA
             <LinearLayout
             android:id="@+id/item_movie_king_of_kings"
             android:layout_width="match_parent"
@@ -243,7 +239,7 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- MOVIE ITEM 2: AVATAR 3 -->
+            MOVIE ITEM 2: AVATAR 3
             <LinearLayout
                 android:id="@+id/item_movie_avatar3"
                 android:layout_width="match_parent"
@@ -339,7 +335,7 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- MOVIE ITEM 3: TOTORO -->
+            MOVIE ITEM 3: TOTORO
             <LinearLayout
                 android:id="@+id/item_movie_totoro"
                 android:layout_width="match_parent"
@@ -435,7 +431,7 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- MOVIE ITEM 4: DOWNLOAD_1 -->
+            MOVIE ITEM 4: DOWNLOAD_1
             <LinearLayout
                 android:id="@+id/item_movie_extra_download"
                 android:layout_width="match_parent"
@@ -531,7 +527,7 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- MOVIE ITEM 5: IMAGES_1 -->
+            MOVIE ITEM 5: IMAGES_1
             <LinearLayout
                 android:id="@+id/item_movie_extra_images"
                 android:layout_width="match_parent"
@@ -626,8 +622,7 @@
                     android:textSize="14sp"
                     android:textStyle="bold" />
             </LinearLayout>
-
-        </LinearLayout>
-    </ScrollView>
+        -->
+    <!-- END OF OLD FIXED ITEMS -->
 
 </LinearLayout>

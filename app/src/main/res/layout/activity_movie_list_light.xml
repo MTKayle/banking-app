@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Movie List - Light Mode (theo hình mẫu)
+  UX: Banner carousel + tabs + danh sách phim với nút Đặt vé
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_movie_list"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/movie_background">
+
+    <!-- TOP APP BAR -->
+    <LinearLayout
+        android:id="@+id/layout_app_bar"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="12dp"
+        android:background="@color/white">
+
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@android:color/transparent"
+            android:padding="4dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@color/movie_text_primary" />
+
+        <!-- SEARCH BAR -->
+        <LinearLayout
+            android:id="@+id/layout_search"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="12dp"
+            android:background="@drawable/bg_movie_showtime_light">
+
+            <ImageView
+                android:id="@+id/iv_search_icon"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@android:drawable/ic_menu_search"
+                app:tint="@color/movie_text_hint" />
+
+            <EditText
+                android:id="@+id/et_search"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:hint="Tìm kiếm phim hoặc rạp chiếu"
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:maxLines="1"
+                android:paddingVertical="4dp"
+                android:textColor="@color/movie_text_primary"
+                android:textColorHint="@color/movie_text_hint"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- BANNER CAROUSEL -->
+            <FrameLayout
+                android:id="@+id/layout_banner"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:background="@color/movie_background_gray">
+
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/vp_banner"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <!-- Banner Info Overlay -->
+                <LinearLayout
+                    android:id="@+id/layout_banner_info"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:background="@drawable/bg_banner_gradient_overlay">
+
+                    <TextView
+                        android:id="@+id/tv_banner_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="VUA CỦA CÁC VUA (T13)"
+                        android:textColor="@android:color/white"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/tv_banner_duration"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="4dp"
+                            android:background="@drawable/bg_movie_showtime_light"
+                            android:text="101 phút"
+                            android:textColor="@color/movie_text_primary"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/tv_banner_age"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="4dp"
+                            android:background="@color/age_rating_t13"
+                            android:text="T13"
+                            android:textColor="@color/movie_text_primary"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn_banner_book"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/bg_movie_tab_light_active"
+                        android:text="Đặt vé"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- Collapse Indicator -->
+                <ImageView
+                    android:id="@+id/iv_collapse"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|center_horizontal"
+                    android:layout_marginBottom="4dp"
+                    android:src="@drawable/ic_expand_arrow"
+                    app:tint="@android:color/white" />
+            </FrameLayout>
+
+            <!-- SECTION HEADER -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:paddingHorizontal="16dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tv_movie_list_header"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="DANH SÁCH PHIM"
+                    android:textColor="@color/movie_text_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_movie_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Danh sách 39 phim từ 181 rạp chiếu"
+                    android:textColor="@color/movie_text_secondary"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- TAB FILTER: Đang chiếu / Sắp chiếu -->
+            <LinearLayout
+                android:id="@+id/layout_tab_filter"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginHorizontal="16dp"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:padding="4dp"
+                android:background="@drawable/bg_movie_tab_light_inactive">
+
+                <TextView
+                    android:id="@+id/tab_now_showing"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="Đang chiếu"
+                    android:textAllCaps="false"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:background="@drawable/bg_movie_tab_light_active" />
+
+                <TextView
+                    android:id="@+id/tab_coming_soon"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="Sắp chiếu"
+                    android:textAllCaps="false"
+                    android:textColor="@color/movie_text_secondary"
+                    android:textSize="14sp"
+                    android:background="@android:color/transparent" />
+            </LinearLayout>
+
+            <!-- MOVIE LIST -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_movies"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:paddingHorizontal="16dp"
+                android:paddingBottom="80dp"
+                android:clipToPadding="false"
+                android:nestedScrollingEnabled="false" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- BOTTOM NAVIGATION (theo hình mẫu) -->
+    <LinearLayout
+        android:id="@+id/layout_bottom_nav"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:background="@color/white"
+        android:elevation="8dp"
+        android:gravity="center_vertical">
+
+        <LinearLayout
+            android:id="@+id/nav_home"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_ticket"
+                app:tint="@color/movie_text_secondary" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Trang chủ"
+                android:textColor="@color/movie_text_secondary"
+                android:textSize="10sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/nav_cinemas"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_home"
+                app:tint="@color/movie_primary_green" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rạp chiếu"
+                android:textColor="@color/movie_primary_green"
+                android:textSize="10sp" />
+
+            <!-- Active indicator line -->
+            <View
+                android:layout_width="40dp"
+                android:layout_height="2dp"
+                android:layout_marginTop="2dp"
+                android:background="@color/movie_primary_green" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/nav_tickets"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_ticket"
+                app:tint="@color/movie_text_secondary" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Vé của tôi"
+                android:textColor="@color/movie_text_secondary"
+                android:textSize="10sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/nav_promotions"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_gift"
+                    app:tint="@color/movie_text_secondary" />
+
+                <!-- HOT badge -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|end"
+                    android:layout_marginTop="-4dp"
+                    android:layout_marginEnd="-8dp"
+                    android:paddingHorizontal="4dp"
+                    android:paddingVertical="1dp"
+                    android:background="@color/error_color"
+                    android:text="HOT"
+                    android:textColor="@android:color/white"
+                    android:textSize="7sp"
+                    android:textStyle="bold" />
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Khuyến mại"
+                android:textColor="@color/movie_text_secondary"
+                android:textSize="10sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>
+

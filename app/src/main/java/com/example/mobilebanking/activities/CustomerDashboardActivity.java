@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -49,6 +50,12 @@ public class CustomerDashboardActivity extends AppCompatActivity {
     private CarouselAdapter carouselAdapter;
     private Handler carouselHandler;
     private Runnable carouselRunnable;
+    private Handler resumeCarouselHandler; // Handler để delay resume auto-scroll
+    private Runnable resumeCarouselRunnable;
+    private int currentCarouselPage = 0;
+    private List<Integer> originalCarouselImages; // 4 banners gốc
+    private static final long AUTO_SCROLL_DELAY_MS = 3000; // 3 giây giữa các banner
+    private static final long RESUME_SCROLL_DELAY_MS = 5000; // 5 giây sau khi user thả tay mới tiếp tục auto-scroll
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,31 +110,111 @@ public class CustomerDashboardActivity extends AppCompatActivity {
     }
     
     private void setupCarousel() {
-        // Create list of carousel images (4 ảnh trong drawable)
-        List<Integer> carouselImages = Arrays.asList(
+        // Create list of original carousel images (4 ảnh trong drawable)
+        originalCarouselImages = Arrays.asList(
             R.drawable.home_banner_1,
             R.drawable.home_banner_2,
             R.drawable.home_banner_3,
             R.drawable.home_banner_4
         );
         
-        carouselAdapter = new CarouselAdapter(carouselImages);
+        // Tạo looped list: [banner4, banner1, banner2, banner3, banner4, banner1]
+        // Fake đầu = banner4 (cuối), Fake cuối = banner1 (đầu)
+        List<Integer> loopedCarouselImages = new ArrayList<>();
+        loopedCarouselImages.add(originalCarouselImages.get(originalCarouselImages.size() - 1)); // fake first = banner4
+        loopedCarouselImages.addAll(originalCarouselImages); // real banners: 1, 2, 3, 4
+        loopedCarouselImages.add(originalCarouselImages.get(0)); // fake last = banner1
+        
+        carouselAdapter = new CarouselAdapter(loopedCarouselImages);
         viewPagerCarousel.setAdapter(carouselAdapter);
         
-        // Setup dots indicator
-        setupDotsIndicator(carouselAdapter.getItemCount());
+        // Bắt đầu ở banner đầu tiên thật (index 1)
+        currentCarouselPage = 1;
+        viewPagerCarousel.setCurrentItem(currentCarouselPage, false);
         
-        // Auto-scroll carousel (ping-pong: tiến tới cuối rồi lùi lại)
-        carouselHandler = new Handler(Looper.getMainLooper());
-        startAutoScroll();
+        // Setup dots indicator với số lượng banners thật (4)
+        setupDotsIndicator(originalCarouselImages.size());
         
-        // Update dots when page changes
+        // Update dots when page changes - sử dụng logical position
         viewPagerCarousel.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
-                updateDotsIndicator(position);
+                super.onPageSelected(position);
+                currentCarouselPage = position;
+                // Cập nhật dots dựa trên logical position
+                int logicalPosition = getLogicalCarouselPosition(position);
+                updateDotsIndicator(logicalPosition);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                super.onPageScrollStateChanged(state);
+                
+                // Dừng auto-scroll khi người dùng đang swipe banner
+                if (state == ViewPager2.SCROLL_STATE_DRAGGING) {
+                    // Người dùng đang kéo/swipe -> dừng auto-scroll ngay
+                    stopAutoScroll();
+                    cancelResumeAutoScroll();
+                } else if (state == ViewPager2.SCROLL_STATE_IDLE) {
+                    // Xử lý loop khi scroll xong
+                    int lastIndex = carouselAdapter.getItemCount() - 1;
+                    if (currentCarouselPage == 0) {
+                        // Swiped left từ banner1 -> jump đến banner4 (last real)
+                        viewPagerCarousel.setCurrentItem(lastIndex - 1, false);
+                    } else if (currentCarouselPage == lastIndex) {
+                        // Swiped right từ banner4 -> jump đến banner1 (first real)
+                        viewPagerCarousel.setCurrentItem(1, false);
+                    }
+                    
+                    // Sau khi scroll xong, đợi một khoảng thời gian rồi mới tiếp tục auto-scroll
+                    scheduleResumeAutoScroll();
+                }
             }
         });
+        
+        // Setup touch listener để tạm dừng auto-scroll khi user chạm/giữ banner
+        viewPagerCarousel.setOnTouchListener((v, event) -> {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    // Người dùng chạm vào banner -> dừng auto-scroll ngay lập tức
+                    stopAutoScroll();
+                    cancelResumeAutoScroll();
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    // Người dùng đang giữ/kéo -> tiếp tục dừng
+                    stopAutoScroll();
+                    cancelResumeAutoScroll();
+                    break;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    // Người dùng thả tay -> đợi một khoảng thời gian rồi mới tiếp tục auto-scroll
+                    // Không restart ngay để người dùng có thời gian đọc nội dung
+                    scheduleResumeAutoScroll();
+                    break;
+            }
+            return false; // Vẫn cho ViewPager xử lý swipe
+        });
+        
+        // Auto-scroll carousel với loop vô hạn
+        carouselHandler = new Handler(Looper.getMainLooper());
+        resumeCarouselHandler = new Handler(Looper.getMainLooper());
+        startAutoScroll();
+    }
+    
+    /**
+     * Chuyển đổi physical position (có fake items) sang logical position (0-3)
+     */
+    private int getLogicalCarouselPosition(int physicalPosition) {
+        if (physicalPosition == 0) {
+            // Fake first -> logical last (banner 4)
+            return originalCarouselImages.size() - 1;
+        } else if (physicalPosition == carouselAdapter.getItemCount() - 1) {
+            // Fake last -> logical first (banner 1)
+            return 0;
+        } else {
+            // Real banners: shift by 1 (vì có fake item ở đầu)
+            return physicalPosition - 1;
+        }
     }
     
     private void setupDotsIndicator(int count) {
@@ -179,19 +266,49 @@ public class CustomerDashboardActivity extends AppCompatActivity {
                     return;
                 }
 
-                int currentItem = viewPagerCarousel.getCurrentItem();
-                int nextItem = (currentItem + 1) % totalItems; // luôn tiến 1 ảnh, loop vòng tròn
-
+                int nextItem = viewPagerCarousel.getCurrentItem() + 1;
                 viewPagerCarousel.setCurrentItem(nextItem, true);
-                carouselHandler.postDelayed(this, 3000); // 3s mỗi ảnh
+
+                carouselHandler.postDelayed(this, AUTO_SCROLL_DELAY_MS);
             }
         };
-        carouselHandler.postDelayed(carouselRunnable, 3000);
+        carouselHandler.postDelayed(carouselRunnable, AUTO_SCROLL_DELAY_MS);
     }
     
     private void stopAutoScroll() {
         if (carouselHandler != null && carouselRunnable != null) {
             carouselHandler.removeCallbacks(carouselRunnable);
+        }
+    }
+    
+    /**
+     * Lên lịch tiếp tục auto-scroll sau một khoảng thời gian
+     * Được gọi khi người dùng thả tay khỏi banner
+     */
+    private void scheduleResumeAutoScroll() {
+        if (resumeCarouselHandler == null) {
+            resumeCarouselHandler = new Handler(Looper.getMainLooper());
+        }
+        if (resumeCarouselRunnable == null) {
+            resumeCarouselRunnable = () -> {
+                // Sau khi đợi một khoảng thời gian, tiếp tục auto-scroll
+                startAutoScroll();
+            };
+        }
+        
+        // Hủy bỏ callback cũ nếu có
+        resumeCarouselHandler.removeCallbacks(resumeCarouselRunnable);
+        // Lên lịch resume sau RESUME_SCROLL_DELAY_MS (5 giây)
+        resumeCarouselHandler.postDelayed(resumeCarouselRunnable, RESUME_SCROLL_DELAY_MS);
+    }
+    
+    /**
+     * Hủy bỏ lịch tiếp tục auto-scroll
+     * Được gọi khi người dùng lại chạm vào banner
+     */
+    private void cancelResumeAutoScroll() {
+        if (resumeCarouselHandler != null && resumeCarouselRunnable != null) {
+            resumeCarouselHandler.removeCallbacks(resumeCarouselRunnable);
         }
     }
 
@@ -227,7 +344,7 @@ public class CustomerDashboardActivity extends AppCompatActivity {
         
         if (ivAvatar != null) {
             ivAvatar.setOnClickListener(v -> {
-                startActivity(new Intent(this, ProfileActivity.class));
+                startActivity(new Intent(this, SettingsActivity.class));
             });
         }
         
@@ -300,17 +417,20 @@ public class CustomerDashboardActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         stopAutoScroll();
+        cancelResumeAutoScroll();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        startAutoScroll();
+        // Chỉ start auto-scroll nếu không có tương tác gần đây
+        scheduleResumeAutoScroll();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         stopAutoScroll();
+        cancelResumeAutoScroll();
     }
 }

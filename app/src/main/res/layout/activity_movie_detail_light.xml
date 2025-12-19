@@ -1,0 +1,476 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Movie Detail - Light Mode (theo hình mẫu)
+  UX: Poster + thông tin cơ bản + nút xem trailer + thông tin chi tiết
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_movie_detail"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/movie_background">
+
+    <!-- MAIN CONTENT SCROLL -->
+    <ScrollView
+        android:id="@+id/scroll_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/layout_bottom_bar"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:id="@+id/container_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- HEADER: back + title -->
+            <LinearLayout
+                android:id="@+id/layout_header_top"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp"
+                android:background="@color/white">
+
+                <ImageButton
+                    android:id="@+id/btn_back"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="@android:color/transparent"
+                    android:padding="4dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_arrow_back"
+                    app:tint="@color/movie_text_primary" />
+
+                <TextView
+                    android:id="@+id/tv_header_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:text="Chi tiết phim"
+                    android:textColor="@color/movie_text_primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- POSTER + BASIC INFO -->
+            <LinearLayout
+                android:id="@+id/layout_poster_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:orientation="horizontal"
+                android:background="@color/white">
+
+                <!-- Poster -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="120dp"
+                    android:layout_height="170dp"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="4dp">
+
+                    <ImageView
+                        android:id="@+id/iv_movie_poster"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/home_banner_1" />
+                </androidx.cardview.widget.CardView>
+
+                <!-- Basic Info -->
+                <LinearLayout
+                    android:id="@+id/layout_basic_info"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tv_movie_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="VUA CỦA CÁC VUA (T13)"
+                        android:textColor="@color/movie_text_primary"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:maxLines="2"
+                        android:ellipsize="end" />
+
+                    <TextView
+                        android:id="@+id/tv_movie_original_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="VUA CUA CAC VUA"
+                        android:textColor="@color/movie_text_secondary"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tv_movie_genre"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Gia đình"
+                        android:textColor="@color/movie_text_secondary"
+                        android:textSize="13sp" />
+
+                    <!-- Duration + Age + Format -->
+                    <LinearLayout
+                        android:id="@+id/layout_meta_row"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/tv_duration"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="4dp"
+                            android:background="@drawable/bg_movie_showtime_light"
+                            android:text="101 phút"
+                            android:textColor="@color/movie_text_primary"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/chip_format_2d"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="4dp"
+                            android:background="@drawable/bg_movie_showtime_light"
+                            android:text="2D"
+                            android:textColor="@color/movie_text_primary"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/chip_format_3d"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="4dp"
+                            android:background="@drawable/bg_movie_showtime_light"
+                            android:text="3D"
+                            android:textColor="@color/movie_text_primary"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <!-- Watch Trailer Button -->
+                    <LinearLayout
+                        android:id="@+id/btn_watch_trailer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_play_circle"
+                            app:tint="@color/movie_text_primary" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="Xem trailer"
+                            android:textColor="@color/movie_text_primary"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:background="@color/movie_background_gray" />
+
+            <!-- DESCRIPTION -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:background="@color/white">
+
+                <TextView
+                    android:id="@+id/tv_section_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="NỘI DUNG"
+                    android:textAllCaps="true"
+                    android:textColor="@color/movie_text_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_movie_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Khi một bộ phim hoạt hình Hàn Quốc viết lại lịch sử phòng vé toàn cầu bằng câu chuyện từ Kinh Thánh. The King of Kings - Vua của Các Vua trở thành bộ phim ho..."
+                    android:textColor="@color/movie_text_secondary"
+                    android:textSize="13sp"
+                    android:lineSpacingExtra="4dp"
+                    android:maxLines="4"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/tv_read_more"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Đọc thêm"
+                    android:textColor="@color/movie_primary_green"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:background="@color/movie_background_gray" />
+
+            <!-- DIRECTOR & CAST -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:background="@color/white">
+
+                <TextView
+                    android:id="@+id/tv_section_director"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="ĐẠO DIỄN"
+                    android:textAllCaps="true"
+                    android:textColor="@color/movie_text_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_director"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Seong-ho Jang"
+                    android:textColor="@color/movie_text_secondary"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tv_section_actors"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="DIỄN VIÊN"
+                    android:textAllCaps="true"
+                    android:textColor="@color/movie_text_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_actors"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Mark Hamill, Pierce Brosnan, Roman Griffin Davis"
+                    android:textColor="@color/movie_text_secondary"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:background="@color/movie_background_gray" />
+
+            <!-- TECHNICAL INFO -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:background="@color/white">
+
+                <TextView
+                    android:id="@+id/tv_section_info"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="THÔNG TIN THÊM"
+                    android:textAllCaps="true"
+                    android:textColor="@color/movie_text_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <!-- Kiểm duyệt -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="120dp"
+                        android:layout_height="wrap_content"
+                        android:text="Kiểm duyệt"
+                        android:textColor="@color/movie_text_secondary"
+                        android:textSize="13sp" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="horizontal"
+                        android:gravity="end|center_vertical">
+
+                        <TextView
+                            android:id="@+id/tv_age_rating"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="4dp"
+                            android:background="@color/age_rating_t13"
+                            android:text="T13"
+                            android:textColor="@color/movie_text_primary"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_age_rating_desc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="end"
+                    android:text="Phim được phổ biến đến người xem\ntừ đủ 13 tuổi trở lên"
+                    android:textColor="@color/movie_text_hint"
+                    android:textSize="11sp"
+                    android:textAlignment="textEnd" />
+
+                <!-- Khởi chiếu -->
+                <LinearLayout
+                    android:id="@+id/layout_release_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="120dp"
+                        android:layout_height="wrap_content"
+                        android:text="Khởi chiếu"
+                        android:textColor="@color/movie_text_secondary"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tv_release_date"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="end"
+                        android:text="12/12/2025"
+                        android:textColor="@color/movie_text_primary"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <!-- Ngôn ngữ -->
+                <LinearLayout
+                    android:id="@+id/layout_language"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="120dp"
+                        android:layout_height="wrap_content"
+                        android:text="Ngôn ngữ"
+                        android:textColor="@color/movie_text_secondary"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tv_language"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="end"
+                        android:text="Tiếng Anh - Phụ đề Tiếng Việt,\nLồng tiếng Việt"
+                        android:textColor="@color/movie_text_primary"
+                        android:textSize="13sp"
+                        android:textAlignment="textEnd" />
+                </LinearLayout>
+
+                <!-- Quốc gia sản xuất -->
+                <LinearLayout
+                    android:id="@+id/layout_country"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="120dp"
+                        android:layout_height="wrap_content"
+                        android:text="Quốc gia sản xuất"
+                        android:textColor="@color/movie_text_secondary"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tv_country"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="end"
+                        android:text=""
+                        android:textColor="@color/movie_text_primary"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Bottom padding -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="16dp"
+                android:background="@color/movie_background_gray" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- STICKY BOTTOM ACTION -->
+    <LinearLayout
+        android:id="@+id/layout_bottom_bar"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp"
+        android:background="@color/white"
+        android:elevation="8dp">
+
+        <Button
+            android:id="@+id/btn_book_now"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_movie_tab_light_active"
+            android:text="Đặt vé"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</RelativeLayout>
+

@@ -17,5 +17,11 @@
         <item name="hintTextColor">@android:color/white</item>
     </style>
 
+    <!-- Hình tròn cho ShapeableImageView (avatar) -->
+    <style name="CircleImage">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
 
 </resources>
