@@ -43,16 +43,11 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="YOUR_GOOGLE_MAPS_API_KEY_HERE" />
 
-        <!-- Login Activity (Launcher) -->
+        <!-- Login Activity -->
         <activity
             android:name="com.example.mobilebanking.activities.LoginActivity"
-            android:exported="true"
-            android:theme="@style/Theme.MobileBanking">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:exported="false"
+            android:theme="@style/Theme.MobileBanking" />
 
         <!-- Authentication Activities -->
         <activity
@@ -111,11 +106,16 @@
         <activity
             android:name="com.example.mobilebanking.activities.CustomerDashboardActivity" />
 
-        <!-- New BIDV-style Home UI Activity (frontend-only) -->
+        <!-- New BIDV-style Home UI Activity (Launcher) -->
         <activity
             android:name="com.example.mobilebanking.ui_home.UiHomeActivity"
-            android:exported="false"
-            android:theme="@style/Theme.MobileBanking" />
+            android:exported="true"
+            android:theme="@style/Theme.MobileBanking">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name="com.example.mobilebanking.activities.OfficerDashboardActivity" />
@@ -134,14 +134,6 @@
             android:name="com.example.mobilebanking.activities.TransactionConfirmationActivity"
             android:parentActivityName="com.example.mobilebanking.activities.TransferActivity" />
 
-        <activity
-            android:name="com.example.mobilebanking.activities.TransferSuccessActivity"
-            android:parentActivityName="com.example.mobilebanking.activities.CustomerDashboardActivity" />
-
-        <activity
-            android:name="com.example.mobilebanking.activities.TransactionHistoryActivity"
-            android:parentActivityName="com.example.mobilebanking.activities.CustomerDashboardActivity" />
-
         <!-- Utility Services Activities -->
         <activity
             android:name="com.example.mobilebanking.activities.BillPaymentActivity"
@@ -149,11 +141,11 @@
 
         <activity
             android:name="com.example.mobilebanking.activities.BillPaymentSuccessActivity"
-            android:parentActivityName="com.example.mobilebanking.activities.CustomerDashboardActivity" />
+            android:parentActivityName="com.example.mobilebanking.activities.BillPaymentActivity" />
 
         <activity
-            android:name="com.example.mobilebanking.activities.MoviePaymentActivity"
-            android:parentActivityName="com.example.mobilebanking.activities.CustomerDashboardActivity" />
+            android:name="com.example.mobilebanking.activities.BillHistoryActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.BillPaymentActivity" />
 
         <activity
             android:name="com.example.mobilebanking.activities.MobileTopUpActivity"
@@ -171,6 +163,31 @@
             android:name="com.example.mobilebanking.activities.ServicesActivity"
             android:parentActivityName="com.example.mobilebanking.activities.CustomerDashboardActivity" />
 
+        <!-- Movie ticket booking flow inside super app (frontend-only demo) -->
+        <activity
+            android:name="com.example.mobilebanking.activities.MovieListActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.ServicesActivity" />
+
+        <activity
+            android:name="com.example.mobilebanking.activities.MovieDetailActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.MovieListActivity" />
+
+        <activity
+            android:name="com.example.mobilebanking.activities.SelectShowtimeActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.MovieDetailActivity" />
+
+        <activity
+            android:name="com.example.mobilebanking.activities.SeatSelectionActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.SelectShowtimeActivity" />
+
+        <activity
+            android:name="com.example.mobilebanking.activities.MoviePaymentActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.SeatSelectionActivity" />
+
+        <activity
+            android:name="com.example.mobilebanking.activities.MovieTicketSuccessActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.MoviePaymentActivity" />
+
         <!-- Map Activity -->
         <activity
             android:name="com.example.mobilebanking.activities.BranchLocatorActivity"
@@ -180,6 +197,16 @@
         <activity
             android:name="com.example.mobilebanking.activities.ProfileActivity"
             android:parentActivityName="com.example.mobilebanking.activities.CustomerDashboardActivity" />
+
+        <!-- Settings Activity -->
+        <activity
+            android:name="com.example.mobilebanking.activities.SettingsActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.ProfileActivity" />
+
+        <!-- Transaction History Activity -->
+        <activity
+            android:name="com.example.mobilebanking.activities.TransactionHistoryActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.ProfileActivity" />
 
         <!-- Welcome Banner Activity (Zalo-like intro screen) -->
         <activity

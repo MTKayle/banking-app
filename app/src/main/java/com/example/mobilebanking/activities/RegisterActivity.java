@@ -422,8 +422,32 @@ public class RegisterActivity extends AppCompatActivity {
                     dataManager.saveLoggedInUser(phone, role);
                     dataManager.saveLastUsername(phone);
                     
+                    // Lưu đầy đủ thông tin từ AuthResponse
+                    // Lưu userId
+                    if (authResponse.getUserId() != null) {
+                        dataManager.saveUserId(authResponse.getUserId());
+                    }
+                    
+                    // Lưu phone từ AuthResponse
+                    if (authResponse.getPhone() != null && !authResponse.getPhone().isEmpty()) {
+                        dataManager.saveUserPhone(authResponse.getPhone());
+                    }
+                    
+                    // Lưu fullName từ AuthResponse
+                    if (authResponse.getFullName() != null && !authResponse.getFullName().isEmpty()) {
+                        dataManager.saveLastFullName(authResponse.getFullName());
+                        dataManager.saveUserFullName(authResponse.getFullName());
+                    }
+                    
+                    // Lưu email từ AuthResponse
+                    if (authResponse.getEmail() != null && !authResponse.getEmail().isEmpty()) {
+                        dataManager.saveUserEmail(authResponse.getEmail());
+                    }
+                    
                     // Lưu token
-                    if (authResponse.getToken() != null) {
+                    if (authResponse.getToken() != null && authResponse.getRefreshToken() != null) {
+                        dataManager.saveTokens(authResponse.getToken(), authResponse.getRefreshToken());
+                    } else if (authResponse.getToken() != null) {
                         dataManager.saveTokens(authResponse.getToken(), authResponse.getToken());
                     }
 

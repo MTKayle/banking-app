@@ -45,7 +45,7 @@ public class ApiClient {
     private static final String BASE_URL_DEVICE = "http://" + IP_MÁY_TÍNH_CỦA_BẠN + ":8089/api/";
     private static final String BASE_URL_USB = "http://localhost:8089/api/"; // Dùng khi kết nối USB + adb reverse
     // Ngrok tunnel (HTTPS) do user cung cấp
-    private static final String BASE_URL_NGROK = "https://unbuffed-unindicatively-nada.ngrok-free.dev/api/";
+    private static final String BASE_URL_NGROK = " https://unconsonant-alycia-pawkily.ngrok-free.dev/api/";
     
     // Chọn phương thức kết nối:
     // - "USB": Dùng USB + adb reverse (ổn định nhất, không cần IP) - KHUYẾN NGHỊ!
@@ -83,6 +83,7 @@ public class ApiClient {
     private static PaymentApiService paymentApiService;
     private static BiometricApiService biometricApiService;
     private static ESmsApiService esmsApiService;
+    private static MovieApiService movieApiService;
     
     private static Context applicationContext;
     
@@ -214,6 +215,16 @@ public class ApiClient {
     }
     
     /**
+     * Lấy MovieApiService instance
+     */
+    public static MovieApiService getMovieApiService() {
+        if (movieApiService == null) {
+            movieApiService = getRetrofitInstance().create(MovieApiService.class);
+        }
+        return movieApiService;
+    }
+    
+    /**
      * Reset Retrofit instance (dùng khi cần thay đổi BASE_URL)
      */
     public static void reset() {
@@ -222,6 +233,7 @@ public class ApiClient {
         accountApiService = null;
         paymentApiService = null;
         biometricApiService = null;
+        movieApiService = null;
     }
 }
 

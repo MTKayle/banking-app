@@ -25,6 +25,12 @@ public class DataManager {
     private static final String KEY_REFRESH_TOKEN = "refresh_token";
     private static final String KEY_LAST_USERNAME = "last_username";
     private static final String KEY_LAST_FULL_NAME = "last_full_name";
+    private static final String KEY_USER_ID = "user_id";
+    private static final String KEY_CHECKING_ID = "checking_id";
+    private static final String KEY_ACCOUNT_NUMBER = "account_number";
+    private static final String KEY_USER_PHONE = "user_phone";
+    private static final String KEY_USER_FULL_NAME = "user_full_name";
+    private static final String KEY_USER_EMAIL = "user_email";
 
     private DataManager(Context context) {
         sharedPreferences = context.getApplicationContext()
@@ -173,6 +179,12 @@ public class DataManager {
         editor.remove(KEY_USER_ROLE);
         editor.remove(KEY_ACCESS_TOKEN);
         editor.remove(KEY_REFRESH_TOKEN);
+        editor.remove(KEY_USER_ID);
+        editor.remove(KEY_CHECKING_ID);
+        editor.remove(KEY_ACCOUNT_NUMBER);
+        editor.remove(KEY_USER_PHONE);
+        editor.remove(KEY_USER_FULL_NAME);
+        editor.remove(KEY_USER_EMAIL);
         
         // Lưu lại username và fullName cuối cùng (nếu có)
         if (lastUsername != null) {
@@ -284,6 +296,120 @@ public class DataManager {
         editor.remove(KEY_ACCESS_TOKEN);
         editor.remove(KEY_REFRESH_TOKEN);
         editor.apply();
+    }
+    
+    /**
+     * Lưu userId sau khi đăng nhập thành công
+     */
+    public void saveUserId(Long userId) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        if (userId != null) {
+            editor.putLong(KEY_USER_ID, userId);
+        } else {
+            editor.remove(KEY_USER_ID);
+        }
+        editor.apply();
+    }
+    
+    /**
+     * Lấy userId hiện tại
+     */
+    public Long getUserId() {
+        long userId = sharedPreferences.getLong(KEY_USER_ID, -1);
+        return userId != -1 ? userId : null;
+    }
+    
+    /**
+     * Lưu thông tin checking account (checkingId và accountNumber)
+     */
+    public void saveCheckingAccountInfo(Long checkingId, String accountNumber) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        if (checkingId != null) {
+            editor.putLong(KEY_CHECKING_ID, checkingId);
+        } else {
+            editor.remove(KEY_CHECKING_ID);
+        }
+        if (accountNumber != null && !accountNumber.isEmpty()) {
+            editor.putString(KEY_ACCOUNT_NUMBER, accountNumber);
+        } else {
+            editor.remove(KEY_ACCOUNT_NUMBER);
+        }
+        editor.apply();
+    }
+    
+    /**
+     * Lấy checkingId đã lưu
+     */
+    public Long getCheckingId() {
+        long checkingId = sharedPreferences.getLong(KEY_CHECKING_ID, -1);
+        return checkingId != -1 ? checkingId : null;
+    }
+    
+    /**
+     * Lấy accountNumber đã lưu
+     */
+    public String getAccountNumber() {
+        return sharedPreferences.getString(KEY_ACCOUNT_NUMBER, null);
+    }
+    
+    /**
+     * Lưu số điện thoại từ AuthResponse
+     */
+    public void saveUserPhone(String phone) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        if (phone != null && !phone.isEmpty()) {
+            editor.putString(KEY_USER_PHONE, phone);
+        } else {
+            editor.remove(KEY_USER_PHONE);
+        }
+        editor.apply();
+    }
+    
+    /**
+     * Lấy số điện thoại đã lưu từ AuthResponse
+     */
+    public String getUserPhone() {
+        return sharedPreferences.getString(KEY_USER_PHONE, null);
+    }
+    
+    /**
+     * Lưu tên đầy đủ từ AuthResponse (khác với lastFullName dùng cho login screen)
+     */
+    public void saveUserFullName(String fullName) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        if (fullName != null && !fullName.isEmpty()) {
+            editor.putString(KEY_USER_FULL_NAME, fullName);
+        } else {
+            editor.remove(KEY_USER_FULL_NAME);
+        }
+        editor.apply();
+    }
+    
+    /**
+     * Lấy tên đầy đủ đã lưu từ AuthResponse
+     */
+    public String getUserFullName() {
+        return sharedPreferences.getString(KEY_USER_FULL_NAME, null);
+    }
+    
+    /**
+     * Lưu email từ AuthResponse
+     */
+    public void saveUserEmail(String email) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        if (email != null && !email.isEmpty()) {
+            editor.putString(KEY_USER_EMAIL, email);
+        } else {
+            editor.remove(KEY_USER_EMAIL);
+        }
+        editor.apply();
+    }
+    
+    /**
+     * Lấy email đã lưu từ AuthResponse
+     */
+    public String getUserEmail() {
+        return sharedPreferences.getString(KEY_USER_EMAIL, null);
     }
 }
 

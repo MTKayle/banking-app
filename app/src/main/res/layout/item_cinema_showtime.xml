@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Cinema Showtime Item - Light Mode
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="12dp"
+    android:padding="12dp"
+    android:orientation="vertical"
+    android:background="@drawable/bg_movie_cinema_card"
+    android:elevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <!-- Favorite Icon -->
+        <ImageView
+            android:id="@+id/iv_favorite"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_heart_outline"
+            app:tint="@color/movie_text_hint" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_cinema_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CGV Sư Vạn Hạnh"
+                android:textColor="@color/movie_text_primary"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_cinema_address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Tầng 6, Vạn Hạnh Mall, 11 Sư Vạn Hạnh, Ph..."
+                android:textColor="@color/movie_text_secondary"
+                android:textSize="12sp"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_cinema_distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="7.81km"
+            android:textColor="@color/movie_primary_green"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Format Title -->
+    <TextView
+        android:id="@+id/tv_format"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="2D - Phụ đề"
+        android:textColor="@color/movie_text_primary"
+        android:textSize="13sp"
+        android:textStyle="bold" />
+
+    <!-- Showtimes Row -->
+    <LinearLayout
+        android:id="@+id/layout_showtimes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_showtime_1"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:layout_marginEnd="8dp"
+            android:paddingHorizontal="16dp"
+            android:background="@drawable/bg_movie_showtime_light"
+            android:text="23:20"
+            android:textAllCaps="false"
+            android:textColor="@color/movie_text_primary"
+            android:textSize="13sp" />
+
+        <Button
+            android:id="@+id/btn_showtime_2"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:layout_marginEnd="8dp"
+            android:paddingHorizontal="16dp"
+            android:background="@drawable/bg_movie_showtime_light"
+            android:text="21:30"
+            android:textAllCaps="false"
+            android:textColor="@color/movie_text_primary"
+            android:textSize="13sp"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/btn_showtime_3"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:paddingHorizontal="16dp"
+            android:background="@drawable/bg_movie_showtime_light"
+            android:text="19:00"
+            android:textAllCaps="false"
+            android:textColor="@color/movie_text_primary"
+            android:textSize="13sp"
+            android:visibility="gone" />
+    </LinearLayout>
+
+</LinearLayout>
+

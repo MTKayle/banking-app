@@ -63,4 +63,34 @@
     <!-- Nền card xanh nhạt hơn nền, vẫn tách lớp -->
     <color name="uihome_card_bg">#E6F0FF</color>
     <color name="uihome_shadow">#33000000</color>
+    
+    <!-- Movie Booking Light Theme Colors -->
+    <color name="movie_background">#FFFFFF</color>
+    <color name="movie_background_gray">#F5F5F5</color>
+    <color name="movie_card_background">#FFFFFF</color>
+    <color name="movie_text_primary">#1A1A1A</color>
+    <color name="movie_text_secondary">#666666</color>
+    <color name="movie_text_hint">#999999</color>
+    <color name="movie_primary_green">#0EB378</color>
+    <color name="movie_primary_green_dark">#0A8F5F</color>
+    <color name="movie_divider">#E5E5E5</color>
+    <color name="movie_tab_active_bg">#0EB378</color>
+    <color name="movie_tab_inactive_bg">#F0F0F0</color>
+    <color name="movie_date_active_bg">#0EB378</color>
+    <color name="movie_date_inactive_bg">#F0F0F0</color>
+    <color name="movie_showtime_bg">#F5F5F5</color>
+    <color name="movie_showtime_border">#E0E0E0</color>
+    
+    <!-- Seat Colors -->
+    <color name="seat_available">#4CAF50</color>
+    <color name="seat_vip">#FFC107</color>
+    <color name="seat_couple">#FF5252</color>
+    <color name="seat_booked">#9E9E9E</color>
+    <color name="seat_selected">#FF7043</color>
+    
+    <!-- Age Rating Colors -->
+    <color name="age_rating_p">#4CAF50</color>
+    <color name="age_rating_t13">#FFC107</color>
+    <color name="age_rating_t16">#FF9800</color>
+    <color name="age_rating_t18">#F44336</color>
 </resources>
