@@ -322,6 +322,27 @@ public class LoginActivity extends AppCompatActivity {
                         dataManager.saveLastFullName(authResponse.getFullName());
                     }
                     
+                    // Lưu đầy đủ thông tin từ AuthResponse
+                    // Lưu userId
+                    if (authResponse.getUserId() != null) {
+                        dataManager.saveUserId(authResponse.getUserId());
+                    }
+                    
+                    // Lưu phone từ AuthResponse (khác với lastUsername dùng cho auto-fill)
+                    if (authResponse.getPhone() != null && !authResponse.getPhone().isEmpty()) {
+                        dataManager.saveUserPhone(authResponse.getPhone());
+                    }
+                    
+                    // Lưu fullName từ AuthResponse (khác với lastFullName dùng cho login screen)
+                    if (authResponse.getFullName() != null && !authResponse.getFullName().isEmpty()) {
+                        dataManager.saveUserFullName(authResponse.getFullName());
+                    }
+                    
+                    // Lưu email từ AuthResponse
+                    if (authResponse.getEmail() != null && !authResponse.getEmail().isEmpty()) {
+                        dataManager.saveUserEmail(authResponse.getEmail());
+                    }
+                    
                     // Lưu token từ API response (access token + refresh token)
                     if (authResponse.getToken() != null && authResponse.getRefreshToken() != null) {
                         dataManager.saveTokens(authResponse.getToken(), authResponse.getRefreshToken());

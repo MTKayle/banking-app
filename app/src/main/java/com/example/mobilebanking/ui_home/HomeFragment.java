@@ -31,13 +31,22 @@ import com.example.mobilebanking.activities.TicketBookingActivity;
 import com.example.mobilebanking.activities.TransferActivity;
 import com.example.mobilebanking.activities.LoginActivity;
 import com.example.mobilebanking.activities.ProfileActivity;
+import com.example.mobilebanking.activities.SettingsActivity;
 import com.example.mobilebanking.utils.DataManager;
+import com.example.mobilebanking.api.AccountApiService;
+import com.example.mobilebanking.api.ApiClient;
+import com.example.mobilebanking.api.dto.CheckingAccountInfoResponse;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.math.BigDecimal;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import com.example.mobilebanking.models.Account;
 
@@ -90,15 +99,22 @@ public class HomeFragment extends Fragment {
         if (tvMaskedBalance != null && ivToggleMask != null) {
             applyMask(balanceText);
             ivToggleMask.setOnClickListener(v -> {
-                masked = !masked;
-                applyMask(balanceText);
+                if (masked) {
+                    // Đang ẩn, khi click sẽ hiện -> gọi API để lấy số dư
+                    masked = false;
+                    fetchCheckingAccountBalance();
+                } else {
+                    // Đang hiện, khi click sẽ ẩn -> chỉ toggle mask
+                    masked = true;
+                    applyMask(balanceText);
+                }
             });
         }
 
-        // Avatar click -> Profile
+        // Avatar click -> Settings (combined Profile + Settings)
         if (ivAvatar != null) {
             ivAvatar.setOnClickListener(v -> {
-                startActivity(new Intent(requireContext(), ProfileActivity.class));
+                startActivity(new Intent(requireContext(), SettingsActivity.class));
             });
         }
 
@@ -117,7 +133,7 @@ public class HomeFragment extends Fragment {
 
         if (ivMenu != null) {
             ivMenu.setOnClickListener(v -> {
-                startActivity(new Intent(requireContext(), ProfileActivity.class));
+                startActivity(new Intent(requireContext(), SettingsActivity.class));
             });
         }
 
@@ -159,7 +175,7 @@ public class HomeFragment extends Fragment {
         }
         if (navMore != null) {
             navMore.setOnClickListener(v ->
-                    startActivity(new Intent(requireContext(), ProfileActivity.class)));
+                    startActivity(new Intent(requireContext(), SettingsActivity.class)));
         }
 
         // Setup banner ViewPager2 với 4 banners có thể swipe
@@ -528,6 +544,126 @@ public class HomeFragment extends Fragment {
             // Use default Android drawable for eye icon
             // ivToggleMask.setImageResource(masked ? android.R.drawable.ic_lock_lock : android.R.drawable.ic_menu_view);
         }
+    }
+    
+    /**
+     * Gọi API để lấy thông tin checking account (số dư, checkingId, accountNumber)
+     */
+    private void fetchCheckingAccountBalance() {
+        DataManager dm = DataManager.getInstance(requireContext());
+        Long userId = dm.getUserId();
+        
+        if (userId == null) {
+            Toast.makeText(requireContext(), "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.", Toast.LENGTH_SHORT).show();
+            masked = true;
+            // Fallback to mock balance
+            List<com.example.mobilebanking.models.Account> accounts = dm.getMockAccounts("U001");
+            double total = accounts.stream()
+                    .filter(a -> a.getType() != com.example.mobilebanking.models.Account.AccountType.MORTGAGE)
+                    .mapToDouble(com.example.mobilebanking.models.Account::getBalance)
+                    .sum();
+            String balanceText = NumberFormat.getCurrencyInstance(new Locale("vi","VN")).format(total);
+            applyMask(balanceText);
+            return;
+        }
+        
+        // Disable eye icon while loading
+        if (ivToggleMask != null) {
+            ivToggleMask.setEnabled(false);
+        }
+        
+        AccountApiService accountApiService = ApiClient.getAccountApiService();
+        Call<CheckingAccountInfoResponse> call = accountApiService.getCheckingAccountInfo(userId);
+        
+        call.enqueue(new Callback<CheckingAccountInfoResponse>() {
+            @Override
+            public void onResponse(Call<CheckingAccountInfoResponse> call, Response<CheckingAccountInfoResponse> response) {
+                // Re-enable eye icon
+                if (ivToggleMask != null) {
+                    ivToggleMask.setEnabled(true);
+                }
+                
+                if (response.isSuccessful() && response.body() != null) {
+                    CheckingAccountInfoResponse accountInfo = response.body();
+                    
+                    // Lưu checkingId và accountNumber
+                    dm.saveCheckingAccountInfo(accountInfo.getCheckingId(), accountInfo.getAccountNumber());
+                    
+                    // Hiển thị số dư
+                    BigDecimal balance = accountInfo.getBalance();
+                    if (balance != null) {
+                        String balanceText = NumberFormat.getCurrencyInstance(new Locale("vi","VN")).format(balance.doubleValue());
+                        applyMask(balanceText);
+                    } else {
+                        Toast.makeText(requireContext(), "Không thể lấy số dư", Toast.LENGTH_SHORT).show();
+                        masked = true;
+                        // Fallback to mock balance
+                        List<com.example.mobilebanking.models.Account> accounts = dm.getMockAccounts("U001");
+                        double total = accounts.stream()
+                                .filter(a -> a.getType() != com.example.mobilebanking.models.Account.AccountType.MORTGAGE)
+                                .mapToDouble(com.example.mobilebanking.models.Account::getBalance)
+                                .sum();
+                        String fallbackBalance = NumberFormat.getCurrencyInstance(new Locale("vi","VN")).format(total);
+                        applyMask(fallbackBalance);
+                    }
+                } else {
+                    // API error
+                    String errorMessage = "Không thể lấy thông tin tài khoản";
+                    try {
+                        if (response.errorBody() != null) {
+                            String errorBody = response.errorBody().string();
+                            if (errorBody.contains("message")) {
+                                // Try to parse error message if available
+                                errorMessage = "Lỗi: " + errorBody;
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show();
+                    masked = true;
+                    // Fallback to mock balance
+                    List<com.example.mobilebanking.models.Account> accounts = dm.getMockAccounts("U001");
+                    double total = accounts.stream()
+                            .filter(a -> a.getType() != com.example.mobilebanking.models.Account.AccountType.MORTGAGE)
+                            .mapToDouble(com.example.mobilebanking.models.Account::getBalance)
+                            .sum();
+                    String fallbackBalance = NumberFormat.getCurrencyInstance(new Locale("vi","VN")).format(total);
+                    applyMask(fallbackBalance);
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<CheckingAccountInfoResponse> call, Throwable t) {
+                // Re-enable eye icon
+                if (ivToggleMask != null) {
+                    ivToggleMask.setEnabled(true);
+                }
+                
+                String errorMessage = "Không thể kết nối đến server";
+                if (t.getMessage() != null) {
+                    if (t.getMessage().contains("Failed to connect")) {
+                        errorMessage = "Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng.";
+                    } else {
+                        errorMessage = "Lỗi: " + t.getMessage();
+                    }
+                }
+                
+                Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show();
+                masked = true;
+                // Fallback to mock balance
+                DataManager dm = DataManager.getInstance(requireContext());
+                List<com.example.mobilebanking.models.Account> accounts = dm.getMockAccounts("U001");
+                double total = accounts.stream()
+                        .filter(a -> a.getType() != com.example.mobilebanking.models.Account.AccountType.MORTGAGE)
+                        .mapToDouble(com.example.mobilebanking.models.Account::getBalance)
+                        .sum();
+                String fallbackBalance = NumberFormat.getCurrencyInstance(new Locale("vi","VN")).format(total);
+                applyMask(fallbackBalance);
+                t.printStackTrace();
+            }
+        });
     }
     
     @Override

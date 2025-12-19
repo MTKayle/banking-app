@@ -77,6 +77,9 @@ dependencies {
     // ML Kit Face Detection (for extracting portrait from CCCD)
     implementation("com.google.mlkit:face-detection:16.1.5")
 
+    // Glide for image loading
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+
     // CameraX
     val cameraxVersion = "1.3.1"
     implementation("androidx.camera:camera-core:$cameraxVersion")

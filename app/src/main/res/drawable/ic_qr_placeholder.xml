@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+    
+    <!-- Background -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M0,0h120v120h-120z"/>
+    
+    <!-- QR Pattern - Top Left -->
+    <path
+        android:fillColor="#1A1A2E"
+        android:pathData="M10,10h30v30h-30zM15,15h20v20h-20zM20,20h10v10h-10z"/>
+    
+    <!-- QR Pattern - Top Right -->
+    <path
+        android:fillColor="#1A1A2E"
+        android:pathData="M80,10h30v30h-30zM85,15h20v20h-20zM90,20h10v10h-10z"/>
+    
+    <!-- QR Pattern - Bottom Left -->
+    <path
+        android:fillColor="#1A1A2E"
+        android:pathData="M10,80h30v30h-30zM15,85h20v20h-20zM20,90h10v10h-10z"/>
+    
+    <!-- Random pattern -->
+    <path
+        android:fillColor="#1A1A2E"
+        android:pathData="M50,10h10v10h-10zM60,20h10v10h-10zM50,30h10v10h-10z"/>
+    <path
+        android:fillColor="#1A1A2E"
+        android:pathData="M10,50h10v10h-10zM20,60h10v10h-10zM30,50h10v10h-10z"/>
+    <path
+        android:fillColor="#1A1A2E"
+        android:pathData="M50,50h20v20h-20z"/>
+    <path
+        android:fillColor="#1A1A2E"
+        android:pathData="M80,50h10v10h-10zM90,60h10v10h-10zM100,50h10v10h-10z"/>
+    <path
+        android:fillColor="#1A1A2E"
+        android:pathData="M50,80h10v10h-10zM60,90h10v10h-10zM80,80h10v10h-10zM90,90h10v10h-10z"/>
+</vector>
+

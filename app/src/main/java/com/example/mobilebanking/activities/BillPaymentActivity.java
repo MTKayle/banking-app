@@ -1,12 +1,16 @@
 package com.example.mobilebanking.activities;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,275 +27,258 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Bill Payment Activity - Pay utility bills (Electricity & Water)
- * MB Bank style with dark mode and green theme
+ * Bill Payment Activity - Light theme
+ * Redesigned based on user requirements
  */
 public class BillPaymentActivity extends AppCompatActivity {
     
-    // Bill type constants
-    private static final int BILL_TYPE_NONE = 0;
-    private static final int BILL_TYPE_ELECTRICITY = 1;
-    private static final int BILL_TYPE_WATER = 2;
+    // Views - Header
+    private ImageButton btnBack, btnHome;
     
-    // Views
-    private LinearLayout llBillElectricity, llBillWater;
-    private EditText etCustomerCode;
-    private LinearLayout llBillDetails;
-    private TextView tvProviderName, tvBillingPeriod, tvAmountDue, tvDueDate, tvBillStatus;
-    private TextView tvAccountNumber, tvAvailableBalance;
-    private Button btnCheckBill, btnPayNow, btnCancel;
+    // Views - Account section
+    private LinearLayout layoutAccountHeader, layoutAccountDetails;
+    private ImageView ivAccountExpand;
+    private TextView tvAccountNumberHeader, tvBalanceHeader;
+    private boolean isAccountExpanded = false;
     
-    private int selectedBillType = BILL_TYPE_NONE;
+    // Views - Bill Type dropdown
+    private LinearLayout layoutBillTypeHeader, layoutBillTypeOptions;
+    private LinearLayout optionElectricity, optionWater;
+    private TextView tvBillTypeSelected;
+    private ImageView ivBillTypeIcon, ivBillTypeExpand;
+    private boolean isBillTypeExpanded = false;
+    private String selectedBillType = "electricity"; // "electricity" or "water"
+    
+    // Views - Payment Info
+    private EditText etBillCode, etReferralCode;
+    private CheckBox cbRecurringPayment;
+    private Button btnContinue;
+    
     private DataManager dataManager;
+    private String accountNumber = "";
+    private double availableBalance = 0;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pay_bill_dark);
-
+        setContentView(R.layout.activity_bill_payment_light);
+        
         dataManager = DataManager.getInstance(this);
         
         initializeViews();
         loadAccountData();
         setupClickListeners();
     }
-
+    
     private void initializeViews() {
-        // Header actions (MB Bank style)
-        View backButton = findViewById(R.id.btn_bill_back);
-        View historyButton = findViewById(R.id.btn_bill_history);
-        if (backButton != null) {
-            backButton.setOnClickListener(v -> onBackPressed());
-        }
-        if (historyButton != null) {
-            historyButton.setOnClickListener(v ->
-                    startActivity(new Intent(this, BillHistoryActivity.class)));
-        }
+        // Header
+        btnBack = findViewById(R.id.btn_back);
+        btnHome = findViewById(R.id.btn_home);
         
-        // Bill type selection
-        llBillElectricity = findViewById(R.id.ll_bill_electricity);
-        llBillWater = findViewById(R.id.ll_bill_water);
+        // Account section
+        layoutAccountHeader = findViewById(R.id.layout_account_header);
+        layoutAccountDetails = findViewById(R.id.layout_account_details);
+        ivAccountExpand = findViewById(R.id.iv_account_expand);
+        tvAccountNumberHeader = findViewById(R.id.tv_account_number_header);
+        tvBalanceHeader = findViewById(R.id.tv_balance_header);
         
-        // Customer input
-        etCustomerCode = findViewById(R.id.et_customer_code);
+        // Bill Type dropdown
+        layoutBillTypeHeader = findViewById(R.id.layout_bill_type_header);
+        layoutBillTypeOptions = findViewById(R.id.layout_bill_type_options);
+        optionElectricity = findViewById(R.id.option_electricity);
+        optionWater = findViewById(R.id.option_water);
+        tvBillTypeSelected = findViewById(R.id.tv_bill_type_selected);
+        ivBillTypeIcon = findViewById(R.id.iv_bill_type_icon);
+        ivBillTypeExpand = findViewById(R.id.iv_bill_type_expand);
         
-        // Bill details
-        llBillDetails = findViewById(R.id.ll_bill_details);
-        tvProviderName = findViewById(R.id.tv_provider_name);
-        tvBillingPeriod = findViewById(R.id.tv_billing_period);
-        tvAmountDue = findViewById(R.id.tv_amount_due);
-        tvDueDate = findViewById(R.id.tv_due_date);
-        tvBillStatus = findViewById(R.id.tv_bill_status);
-        
-        // Account info
-        tvAccountNumber = findViewById(R.id.tv_account_number);
-        tvAvailableBalance = findViewById(R.id.tv_available_balance);
-        
-        // Buttons
-        btnCheckBill = findViewById(R.id.btn_check_bill);
-        btnPayNow = findViewById(R.id.btn_pay_now);
-        btnCancel = findViewById(R.id.btn_cancel);
+        // Payment info
+        etBillCode = findViewById(R.id.et_bill_code);
+        etReferralCode = findViewById(R.id.et_referral_code);
+        cbRecurringPayment = findViewById(R.id.cb_recurring_payment);
+        btnContinue = findViewById(R.id.btn_continue);
     }
     
     private void loadAccountData() {
         // Load checking account data
         List<Account> accounts = dataManager.getMockAccounts("U001");
-        NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+        NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
         
         for (Account account : accounts) {
             if (account.getType() == Account.AccountType.CHECKING) {
-                String maskedAccount = maskAccountNumber(account.getAccountNumber());
-                tvAccountNumber.setText(maskedAccount);
-                tvAvailableBalance.setText(formatter.format(account.getBalance()));
+                accountNumber = account.getAccountNumber();
+                availableBalance = account.getBalance();
+                
+                // Display in header
+                tvAccountNumberHeader.setText("TK người: " + accountNumber);
+                tvBalanceHeader.setText("Số dư: " + formatter.format(availableBalance) + " VND");
                 break;
             }
         }
     }
     
     private void setupClickListeners() {
-        // Bill type selection
-        if (llBillElectricity != null) {
-            llBillElectricity.setOnClickListener(v -> selectBillType(BILL_TYPE_ELECTRICITY));
-        }
+        // Header buttons
+        btnBack.setOnClickListener(v -> onBackPressed());
+        btnHome.setOnClickListener(v -> {
+            Intent intent = new Intent(this, com.example.mobilebanking.ui_home.UiHomeActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
+        });
         
-        if (llBillWater != null) {
-            llBillWater.setOnClickListener(v -> selectBillType(BILL_TYPE_WATER));
-        }
+        // Account section collapse/expand
+        layoutAccountHeader.setOnClickListener(v -> toggleAccountSection());
         
-        // Check Bill button
-        if (btnCheckBill != null) {
-            btnCheckBill.setOnClickListener(v -> handleCheckBill());
-        }
+        // Bill Type dropdown toggle
+        layoutBillTypeHeader.setOnClickListener(v -> toggleBillTypeDropdown());
         
-        // Pay Now button
-        if (btnPayNow != null) {
-            btnPayNow.setOnClickListener(v -> handlePayNow());
-        }
+        // Bill Type options
+        optionElectricity.setOnClickListener(v -> selectBillType("electricity"));
+        optionWater.setOnClickListener(v -> selectBillType("water"));
         
-        // Cancel button
-        if (btnCancel != null) {
-            btnCancel.setOnClickListener(v -> finish());
+        // Continue button
+        btnContinue.setOnClickListener(v -> handleContinue());
+    }
+    
+    /**
+     * Toggle bill type dropdown
+     */
+    private void toggleBillTypeDropdown() {
+        isBillTypeExpanded = !isBillTypeExpanded;
+        
+        if (isBillTypeExpanded) {
+            layoutBillTypeOptions.setVisibility(View.VISIBLE);
+            rotateIcon(ivBillTypeExpand, 0, 180);
+        } else {
+            layoutBillTypeOptions.setVisibility(View.GONE);
+            rotateIcon(ivBillTypeExpand, 180, 0);
         }
     }
     
     /**
      * Select bill type and update UI
      */
-    private void selectBillType(int billType) {
-        selectedBillType = billType;
+    private void selectBillType(String type) {
+        selectedBillType = type;
         
-        // Reset all bill type cards về trạng thái mặc định (bo tròn)
-        resetBillTypeStyles();
-        
-        // Highlight card được chọn nhưng vẫn giữ bo tròn
-        if (billType == BILL_TYPE_ELECTRICITY && llBillElectricity != null) {
-            llBillElectricity.setBackgroundResource(R.drawable.bg_bill_type_pill_selected);
-        } else if (billType == BILL_TYPE_WATER && llBillWater != null) {
-            llBillWater.setBackgroundResource(R.drawable.bg_bill_type_pill_selected);
+        // Update header display
+        if (type.equals("electricity")) {
+            tvBillTypeSelected.setText("Tiền điện");
+            ivBillTypeIcon.setImageResource(R.drawable.ic_lightbulb);
+            ivBillTypeIcon.setColorFilter(0xFFFFA726); // Orange
+        } else {
+            tvBillTypeSelected.setText("Tiền nước");
+            ivBillTypeIcon.setImageResource(R.drawable.ic_water_drop);
+            ivBillTypeIcon.setColorFilter(0xFF2196F3); // Blue
         }
+        
+        // Collapse dropdown
+        isBillTypeExpanded = false;
+        layoutBillTypeOptions.setVisibility(View.GONE);
+        rotateIcon(ivBillTypeExpand, 180, 0);
     }
     
     /**
-     * Reset bill type card styles
+     * Toggle account section expand/collapse
      */
-    private void resetBillTypeStyles() {
-        if (llBillElectricity != null) {
-            llBillElectricity.setBackgroundResource(R.drawable.bg_bill_type_pill);
-        }
-        if (llBillWater != null) {
-            llBillWater.setBackgroundResource(R.drawable.bg_bill_type_pill);
+    private void toggleAccountSection() {
+        isAccountExpanded = !isAccountExpanded;
+        
+        if (isAccountExpanded) {
+            layoutAccountDetails.setVisibility(View.VISIBLE);
+            rotateIcon(ivAccountExpand, 0, 180);
+        } else {
+            layoutAccountDetails.setVisibility(View.GONE);
+            rotateIcon(ivAccountExpand, 180, 0);
         }
     }
     
+    
     /**
-     * Handle check bill action
+     * Rotate icon animation
      */
-    private void handleCheckBill() {
-        // Validate bill type selected
-        if (selectedBillType == BILL_TYPE_NONE) {
+    private void rotateIcon(ImageView imageView, float fromDegrees, float toDegrees) {
+        RotateAnimation rotate = new RotateAnimation(
+            fromDegrees, toDegrees,
+            Animation.RELATIVE_TO_SELF, 0.5f,
+            Animation.RELATIVE_TO_SELF, 0.5f
+        );
+        rotate.setDuration(300);
+        rotate.setFillAfter(true);
+        imageView.startAnimation(rotate);
+    }
+    
+    /**
+     * Handle continue button click
+     */
+    private void handleContinue() {
+        // Validate bill type
+        if (TextUtils.isEmpty(selectedBillType)) {
             Toast.makeText(this, "Vui lòng chọn loại hóa đơn", Toast.LENGTH_SHORT).show();
             return;
         }
         
-        // Validate customer code
-        String customerCode = etCustomerCode.getText().toString().trim();
-        if (TextUtils.isEmpty(customerCode)) {
-            Toast.makeText(this, "Vui lòng nhập mã khách hàng", Toast.LENGTH_SHORT).show();
+        // Validate bill code
+        String billCode = etBillCode.getText().toString().trim();
+        if (TextUtils.isEmpty(billCode)) {
+            Toast.makeText(this, "Vui lòng nhập mã hóa đơn", Toast.LENGTH_SHORT).show();
+            etBillCode.requestFocus();
             return;
         }
         
-        // Show bill details (mock data)
-        showBillDetails(customerCode);
+        // Get other info
+        String referralCode = etReferralCode.getText().toString().trim();
+        boolean isRecurring = cbRecurringPayment.isChecked();
+        
+        // Navigate to confirmation screen (no dialog)
+        navigateToConfirmationScreen(billCode, referralCode, isRecurring);
     }
     
     /**
-     * Show bill details with mock data
+     * Navigate to confirmation screen
      */
-    private void showBillDetails(String customerCode) {
-        // Set provider name based on bill type
-        if (selectedBillType == BILL_TYPE_ELECTRICITY) {
-            tvProviderName.setText("EVN Hà Nội");
-        } else if (selectedBillType == BILL_TYPE_WATER) {
-            tvProviderName.setText("Công ty Cấp nước Hà Nội");
+    private void navigateToConfirmationScreen(String billCode, String referralCode, boolean isRecurring) {
+        // Mock bill data based on type
+        String providerName;
+        String billTypeName;
+        
+        if (selectedBillType.equals("electricity")) {
+            providerName = "Công ty Điện lực Duy Tân";
+            billTypeName = "Tiền điện";
+        } else {
+            providerName = "Công ty Cấp nước Sài Gòn";
+            billTypeName = "Tiền nước";
         }
         
-        // Set mock bill data
-        tvBillingPeriod.setText("12/2024");
-        tvAmountDue.setText("2.500.000 ₫");
-        tvDueDate.setText("25/12/2024");
-        tvBillStatus.setText("Chưa thanh toán");
-        tvBillStatus.setTextColor(Color.parseColor("#FF9800")); // Orange
+        String billingPeriod = "12/2024";
+        String amount = "2500000"; // Without formatting for easier parsing
         
-        // Show bill details section
-        llBillDetails.setVisibility(View.VISIBLE);
-        
-        // Show Pay Now button
-        btnPayNow.setVisibility(View.VISIBLE);
-        
-        // Hide Check Bill button
-        btnCheckBill.setVisibility(View.GONE);
-        
-        Toast.makeText(this, "Đã tìm thấy hóa đơn", Toast.LENGTH_SHORT).show();
-    }
-    
-    /**
-     * Handle pay now action
-     */
-    private void handlePayNow() {
-        if (selectedBillType == BILL_TYPE_NONE) {
-            Toast.makeText(this, "Vui lòng chọn loại hóa đơn", Toast.LENGTH_SHORT).show();
-            return;
+        // Get current user name from DataManager
+        String userName = dataManager.getUserFullName();
+        if (TextUtils.isEmpty(userName)) {
+            userName = "Khách hàng";
         }
         
-        String customerCode = etCustomerCode.getText().toString().trim();
-        if (TextUtils.isEmpty(customerCode)) {
-            Toast.makeText(this, "Vui lòng nhập mã khách hàng", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        // Navigate to confirmation screen
+        Intent intent = new Intent(this, BillPaymentConfirmationActivity.class);
         
-        // Show confirmation dialog
-        String billTypeName = selectedBillType == BILL_TYPE_ELECTRICITY ? "Điện" : "Nước";
-        String amount = tvAmountDue.getText().toString();
-        
-        new AlertDialog.Builder(this)
-            .setTitle("Xác nhận thanh toán")
-            .setMessage("Bạn có chắc chắn muốn thanh toán hóa đơn " + billTypeName + "?\n\n" +
-                       "Mã khách hàng: " + customerCode + "\n" +
-                       "Số tiền: " + amount)
-            .setPositiveButton("Xác nhận", (dialog, which) -> {
-                // Navigate to success screen
-                navigateToSuccessScreen(billTypeName, customerCode, amount);
-            })
-            .setNegativeButton("Hủy", null)
-            .show();
-    }
-    
-    /**
-     * Navigate to success screen with payment data
-     */
-    private void navigateToSuccessScreen(String billTypeName, String customerCode, String amount) {
-        Intent intent = new Intent(this, BillPaymentSuccessActivity.class);
-        
-        // Get provider name
-        String providerName = selectedBillType == BILL_TYPE_ELECTRICITY ? "EVN Hà Nội" : "Công ty Cấp nước Hà Nội";
-        
-        // Get account info
-        List<Account> accounts = dataManager.getMockAccounts("U001");
-        String accountNumber = "";
-        double balanceBefore = 0;
-        
-        for (Account account : accounts) {
-            if (account.getType() == Account.AccountType.CHECKING) {
-                accountNumber = maskAccountNumber(account.getAccountNumber());
-                balanceBefore = account.getBalance();
-                break;
-            }
-        }
-        
-        // Pass data to success screen
-        intent.putExtra("provider_name", providerName);
-        intent.putExtra("bill_type", billTypeName);
-        intent.putExtra("customer_code", customerCode);
-        intent.putExtra("billing_period", tvBillingPeriod.getText().toString());
-        intent.putExtra("amount", amount);
-        intent.putExtra("account_number", accountNumber);
-        intent.putExtra("balance_before", balanceBefore);
+        // Pass data
+        intent.putExtra(BillPaymentConfirmationActivity.EXTRA_PROVIDER_NAME, providerName);
+        intent.putExtra(BillPaymentConfirmationActivity.EXTRA_BILL_TYPE, billTypeName);
+        intent.putExtra(BillPaymentConfirmationActivity.EXTRA_BILL_CODE, billCode);
+        intent.putExtra(BillPaymentConfirmationActivity.EXTRA_BILLING_PERIOD, billingPeriod);
+        intent.putExtra(BillPaymentConfirmationActivity.EXTRA_AMOUNT, amount);
+        intent.putExtra(BillPaymentConfirmationActivity.EXTRA_ACCOUNT_NUMBER, accountNumber);
+        intent.putExtra(BillPaymentConfirmationActivity.EXTRA_USER_NAME, userName);
+        intent.putExtra(BillPaymentConfirmationActivity.EXTRA_IS_RECURRING, isRecurring);
+        intent.putExtra(BillPaymentConfirmationActivity.EXTRA_REFERRAL_CODE, referralCode);
         
         startActivity(intent);
-        finish();
     }
     
-    /**
-     * Mask account number
-     */
-    private String maskAccountNumber(String accountNumber) {
-        if (accountNumber == null || accountNumber.length() < 4) return accountNumber;
-        return "****" + accountNumber.substring(accountNumber.length() - 4);
-    }
-
+    
     @Override
     public void onBackPressed() {
         super.onBackPressed();
     }
 }
-

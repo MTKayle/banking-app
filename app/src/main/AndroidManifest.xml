@@ -134,26 +134,18 @@
             android:name="com.example.mobilebanking.activities.TransactionConfirmationActivity"
             android:parentActivityName="com.example.mobilebanking.activities.TransferActivity" />
 
-        <activity
-            android:name="com.example.mobilebanking.activities.TransferSuccessActivity"
-            android:parentActivityName="com.example.mobilebanking.activities.CustomerDashboardActivity" />
-
-        <activity
-            android:name="com.example.mobilebanking.activities.TransactionHistoryActivity"
-            android:parentActivityName="com.example.mobilebanking.activities.CustomerDashboardActivity" />
-
         <!-- Utility Services Activities -->
         <activity
             android:name="com.example.mobilebanking.activities.BillPaymentActivity"
             android:parentActivityName="com.example.mobilebanking.activities.CustomerDashboardActivity" />
 
         <activity
-            android:name="com.example.mobilebanking.activities.BillPaymentSuccessActivity"
-            android:parentActivityName="com.example.mobilebanking.activities.CustomerDashboardActivity" />
+            android:name="com.example.mobilebanking.activities.BillPaymentConfirmationActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.BillPaymentActivity" />
 
         <activity
-            android:name="com.example.mobilebanking.activities.MoviePaymentActivity"
-            android:parentActivityName="com.example.mobilebanking.activities.CustomerDashboardActivity" />
+            android:name="com.example.mobilebanking.activities.BillPaymentSuccessActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.BillPaymentConfirmationActivity" />
 
         <activity
             android:name="com.example.mobilebanking.activities.MobileTopUpActivity"
@@ -180,6 +172,49 @@
         <activity
             android:name="com.example.mobilebanking.activities.ProfileActivity"
             android:parentActivityName="com.example.mobilebanking.activities.CustomerDashboardActivity" />
+
+        <!-- Settings Activity (Combined Profile + Settings) -->
+        <activity
+            android:name="com.example.mobilebanking.activities.SettingsActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.CustomerDashboardActivity" />
+
+        <!-- Transaction History Activity -->
+        <activity
+            android:name="com.example.mobilebanking.activities.TransactionHistoryActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.CustomerDashboardActivity" />
+
+        <!-- Movie Ticket Booking Activities -->
+        <activity
+            android:name="com.example.mobilebanking.activities.MovieListActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.ServicesActivity" />
+
+        <activity
+            android:name="com.example.mobilebanking.activities.MovieDetailActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.MovieListActivity" />
+
+        <activity
+            android:name="com.example.mobilebanking.activities.SelectShowtimeActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.MovieDetailActivity" />
+
+        <activity
+            android:name="com.example.mobilebanking.activities.SeatSelectionActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.SelectShowtimeActivity" />
+
+        <activity
+            android:name="com.example.mobilebanking.activities.MoviePaymentActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.SeatSelectionActivity" />
+
+        <activity
+            android:name="com.example.mobilebanking.activities.MovieTicketSuccessActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.MoviePaymentActivity" />
+
+        <activity
+            android:name="com.example.mobilebanking.activities.MyTicketsActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.MovieTicketSuccessActivity" />
+
+        <activity
+            android:name="com.example.mobilebanking.activities.TicketDetailActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.MyTicketsActivity" />
 
         <!-- Welcome Banner Activity (Zalo-like intro screen) -->
         <activity

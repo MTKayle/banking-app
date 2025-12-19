@@ -344,7 +344,7 @@ public class CustomerDashboardActivity extends AppCompatActivity {
         
         if (ivAvatar != null) {
             ivAvatar.setOnClickListener(v -> {
-                startActivity(new Intent(this, ProfileActivity.class));
+                startActivity(new Intent(this, SettingsActivity.class));
             });
         }
         

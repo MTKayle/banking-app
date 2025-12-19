@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Seat Selection - Light Mode (theo hình mẫu)
+  UX: Legend giá + màn hình + sơ đồ ghế mở rộng (A-K) + bottom bar
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_seat_selection"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/movie_background">
+
+    <!-- TOP BAR -->
+    <LinearLayout
+        android:id="@+id/layout_header"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="12dp"
+        android:background="@color/white">
+
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@android:color/transparent"
+            android:padding="4dp"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@color/movie_text_primary" />
+
+        <TextView
+            android:id="@+id/tv_header_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="VUA CỦA CÁC VUA (T13)"
+            android:textColor="@color/movie_text_primary"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:ellipsize="end" />
+    </LinearLayout>
+
+    <!-- LEGEND BAR -->
+    <LinearLayout
+        android:id="@+id/layout_legend"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/layout_header"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:background="@color/white"
+        android:gravity="center">
+
+        <!-- Thường -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <View
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:background="@drawable/bg_seat_legend_standard" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Thường"
+                android:textColor="@color/movie_text_primary"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/tv_price_standard"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="105,000"
+                android:textColor="@color/movie_primary_green"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- VIP -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <View
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:background="@drawable/bg_seat_legend_vip" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="VIP"
+                android:textColor="@color/movie_text_primary"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/tv_price_vip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="110,500"
+                android:textColor="@color/movie_primary_green"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Ghế đôi -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <View
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:background="@drawable/bg_seat_legend_couple" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Ghế đôi"
+                android:textColor="@color/movie_text_primary"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/tv_price_couple"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="270,000"
+                android:textColor="@color/movie_primary_green"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- SCREENING INFO -->
+    <LinearLayout
+        android:id="@+id/layout_screening_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/layout_legend"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
+        android:background="@color/movie_background_gray">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rạp chiếu:"
+                android:textColor="@color/movie_text_secondary"
+                android:textSize="12sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Suất chiếu:"
+                android:textColor="@color/movie_text_secondary"
+                android:textSize="12sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Phòng chiếu:"
+                android:textColor="@color/movie_text_secondary"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.5"
+            android:orientation="vertical"
+            android:gravity="end">
+
+            <TextView
+                android:id="@+id/tv_cinema_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CGV Sư Vạn Hạnh"
+                android:textColor="@color/movie_text_primary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_showtime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="23:20 ~01:01 | 18/12/2025"
+                android:textColor="@color/movie_text_primary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_room"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Cinema 9"
+                android:textColor="@color/movie_text_primary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- MAIN CONTENT (SCREEN + SEAT MAP) -->
+    <ScrollView
+        android:id="@+id/scroll_seat_area"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/layout_screening_info"
+        android:layout_above="@+id/layout_bottom_bar"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:id="@+id/container_seat_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="8dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="24dp"
+            android:background="@color/white">
+
+            <!-- SCREEN INDICATOR -->
+            <LinearLayout
+                android:id="@+id/layout_screen"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <View
+                    android:id="@+id/view_screen_arc"
+                    android:layout_width="280dp"
+                    android:layout_height="8dp"
+                    android:background="@drawable/bg_screen_arc" />
+            </LinearLayout>
+
+            <!-- SEAT MAP - Dynamic rows A-K -->
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/layout_seat_map"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal"
+                    android:paddingHorizontal="8dp">
+
+                    <!-- Seat rows will be generated dynamically in Activity -->
+
+                </LinearLayout>
+            </HorizontalScrollView>
+
+            <!-- Couple Seats (K row) will be generated dynamically in setupSeatMap() -->
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- BOTTOM BAR -->
+    <LinearLayout
+        android:id="@+id/layout_bottom_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:background="@color/white"
+        android:elevation="8dp"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/tv_seat_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Quý khách vui lòng chọn vị trí ghế ngồi để tiếp tục"
+            android:textColor="@color/movie_text_secondary"
+            android:textSize="12sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <LinearLayout
+                android:id="@+id/layout_selection_info"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_selected_seats"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ghế đã chọn: Chưa có"
+                    android:textColor="@color/movie_text_primary"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tv_total_price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Tổng tiền: 0đ"
+                    android:textColor="@color/movie_primary_green"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btn_continue"
+                android:layout_width="120dp"
+                android:layout_height="44dp"
+                android:background="@drawable/bg_movie_tab_light_inactive"
+                android:enabled="false"
+                android:text="Tiếp tục"
+                android:textAllCaps="false"
+                android:textColor="@color/movie_text_hint"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>
+

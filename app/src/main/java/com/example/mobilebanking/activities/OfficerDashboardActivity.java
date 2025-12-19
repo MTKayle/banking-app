@@ -77,7 +77,7 @@ public class OfficerDashboardActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_profile) {
-            startActivity(new Intent(this, ProfileActivity.class));
+            startActivity(new Intent(this, SettingsActivity.class));
             return true;
         } else if (id == R.id.action_logout) {
             dataManager.logout();
