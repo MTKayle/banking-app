@@ -45,7 +45,7 @@ public class ApiClient {
     private static final String BASE_URL_DEVICE = "http://" + IP_MÁY_TÍNH_CỦA_BẠN + ":8089/api/";
     private static final String BASE_URL_USB = "http://localhost:8089/api/"; // Dùng khi kết nối USB + adb reverse
     // Ngrok tunnel (HTTPS) do user cung cấp
-    private static final String BASE_URL_NGROK = " https://unconsonant-alycia-pawkily.ngrok-free.dev/api/";
+    private static final String BASE_URL_NGROK = " https://unbuffed-unindicatively-nada.ngrok-free.dev/api/";
     
     // Chọn phương thức kết nối:
     // - "USB": Dùng USB + adb reverse (ổn định nhất, không cần IP) - KHUYẾN NGHỊ!

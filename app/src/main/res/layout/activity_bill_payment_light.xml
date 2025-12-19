@@ -302,51 +302,6 @@
                 android:textColorHint="#999999"
                 android:textSize="15sp" />
 
-            <!-- Recurring Payment Checkbox -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <CheckBox
-                    android:id="@+id/cb_recurring_payment"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:buttonTint="#00695C" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="Đăng ký thanh toán định kỳ"
-                    android:textColor="#333333"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <!-- Referral Code Input -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Mã căn bộ giới thiệu"
-                android:textColor="#666666"
-                android:textSize="14sp" />
-
-            <EditText
-                android:id="@+id/et_referral_code"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:background="@drawable/bg_input_light_rounded"
-                android:hint="Nhập mã căn bộ giới thiệu"
-                android:inputType="text"
-                android:minHeight="50dp"
-                android:padding="12dp"
-                android:textColor="#333333"
-                android:textColorHint="#999999"
-                android:textSize="15sp" />
 
             <!-- Continue Button -->
             <Button

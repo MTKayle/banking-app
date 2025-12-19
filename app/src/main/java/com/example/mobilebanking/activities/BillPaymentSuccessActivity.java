@@ -27,7 +27,6 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Random;
 
 /**
  * Bill Payment Success Activity - Light theme
@@ -38,7 +37,7 @@ public class BillPaymentSuccessActivity extends AppCompatActivity {
     // Views
     private ImageButton btnBack, btnHome;
     private TextView tvTransactionId, tvTransactionTime, tvAccountNumber, tvAvailableBalance;
-    private TextView tvServiceType, tvBillCode, tvCustomerName, tvReferenceNumber, tvAmount;
+    private TextView tvServiceType, tvBillCode, tvCustomerName, tvAmount;
     private LinearLayout layoutAccountHeader, layoutAccountDetails;
     private ImageView ivAccountExpand;
     private Button btnShare, btnSave;
@@ -75,7 +74,6 @@ public class BillPaymentSuccessActivity extends AppCompatActivity {
         tvServiceType = findViewById(R.id.tv_service_type);
         tvBillCode = findViewById(R.id.tv_bill_code);
         tvCustomerName = findViewById(R.id.tv_customer_name);
-        tvReferenceNumber = findViewById(R.id.tv_reference_number);
         tvAmount = findViewById(R.id.tv_amount);
         
         // Action buttons
@@ -119,10 +117,6 @@ public class BillPaymentSuccessActivity extends AppCompatActivity {
         if (userName != null) {
             tvCustomerName.setText(userName.toUpperCase());
         }
-        
-        // Generate reference number
-        String referenceNumber = generateReferenceNumber();
-        tvReferenceNumber.setText(referenceNumber);
         
         // Format and display amount
         if (amount != null) {
@@ -188,15 +182,7 @@ public class BillPaymentSuccessActivity extends AppCompatActivity {
         return "FT" + timestamp;
     }
     
-    /**
-     * Generate reference number
-     */
-    private String generateReferenceNumber() {
-        Random random = new Random();
-        long number = 100000000000L + (long)(random.nextDouble() * 900000000000L);
-        return "REF" + number;
-    }
-    
+
     /**
      * Get current time formatted
      */
