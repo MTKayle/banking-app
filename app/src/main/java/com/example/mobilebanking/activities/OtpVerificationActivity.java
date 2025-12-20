@@ -920,6 +920,7 @@ public class OtpVerificationActivity extends AppCompatActivity {
         successIntent.putExtra("to_name", originalIntent.getStringExtra("to_name"));
         successIntent.putExtra("note", originalIntent.getStringExtra("note"));
         successIntent.putExtra("bank", originalIntent.getStringExtra("bank"));
+        successIntent.putExtra("transaction_code", originalIntent.getStringExtra("transaction_code"));
 
         // Add flag to indicate we need to clear the transaction stack
         successIntent.putExtra("clear_transaction_stack", true);
