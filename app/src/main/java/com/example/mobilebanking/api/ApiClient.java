@@ -86,6 +86,8 @@ public class ApiClient {
     private static MovieApiService movieApiService;
     private static TransactionApiService transactionApiService;
     private static UserApiService userApiService;
+    private static BankApiService bankApiService;
+    private static ExternalAccountApiService externalAccountApiService;
 
     private static Context applicationContext;
 
@@ -247,6 +249,26 @@ public class ApiClient {
     }
 
     /**
+     * Lấy BankApiService instance
+     */
+    public static BankApiService getBankApiService() {
+        if (bankApiService == null) {
+            bankApiService = getRetrofitInstance().create(BankApiService.class);
+        }
+        return bankApiService;
+    }
+
+    /**
+     * Lấy ExternalAccountApiService instance
+     */
+    public static ExternalAccountApiService getExternalAccountApiService() {
+        if (externalAccountApiService == null) {
+            externalAccountApiService = getRetrofitInstance().create(ExternalAccountApiService.class);
+        }
+        return externalAccountApiService;
+    }
+
+    /**
      * Reset Retrofit instance (dùng khi cần thay đổi BASE_URL)
      */
     public static void reset() {
@@ -258,5 +280,6 @@ public class ApiClient {
         movieApiService = null;
         transactionApiService = null;
         userApiService = null;
+        externalAccountApiService = null;
     }
 }

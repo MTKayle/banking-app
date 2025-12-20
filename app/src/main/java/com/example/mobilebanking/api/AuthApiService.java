@@ -101,6 +101,13 @@ public interface AuthApiService {
      */
     @GET("auth/check-phone-exists")
     Call<PhoneExistsResponse> checkPhoneExists(@Query("phone") String phone);
+    
+    /**
+     * Kiểm tra số CCCD đã tồn tại chưa
+     * Dùng trong registration để validate CCCD sau khi quét QR
+     */
+    @GET("auth/check-cccd-exists")
+    Call<PhoneExistsResponse> checkCccdExists(@Query("cccd") String cccd);
 }
 
 
