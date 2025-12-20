@@ -791,6 +791,7 @@ public class TransferActivity extends BaseActivity {
         intent.putExtra("amount", amount);
         intent.putExtra("note", note);
         intent.putExtra("bank", selectedBank); // Bank code (e.g., "HATBANK")
+        intent.putExtra("bank_bin", selectedBankBin); // Bank BIN for external transfer
         startActivity(intent);
     }
 

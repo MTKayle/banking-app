@@ -16,7 +16,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.mobilebanking.R;
 import com.example.mobilebanking.api.AccountApiService;
 import com.example.mobilebanking.api.ApiClient;
+import com.example.mobilebanking.api.TransferApiService;
 import com.example.mobilebanking.api.dto.CheckingAccountInfoResponse;
+import com.example.mobilebanking.api.dto.ExternalTransferInitiateResponse;
+import com.example.mobilebanking.api.dto.ExternalTransferRequest;
+import com.example.mobilebanking.api.dto.InternalTransferRequest;
+import com.example.mobilebanking.api.dto.TransferInitiateResponse;
 import com.example.mobilebanking.utils.DataManager;
 
 import java.math.BigDecimal;
@@ -39,7 +44,11 @@ public class TransactionConfirmationActivity extends AppCompatActivity {
     private TextView tvToName, tvToAccount, tvToBank, tvNote, tvFee, tvTransferType;
     private Button btnConfirm, btnCancel;
     private ImageView ivBack;
+    private android.widget.ProgressBar progressBar;
     private DataManager dataManager;
+    
+    private String senderAccountNumber;
+    private String transactionCode; // Store transaction code from initiate API
 
     private BroadcastReceiver finishReceiver = new BroadcastReceiver() {
         @Override
@@ -93,6 +102,11 @@ public class TransactionConfirmationActivity extends AppCompatActivity {
         tvTransferType = findViewById(R.id.tv_transfer_type);
         btnConfirm = findViewById(R.id.btn_confirm);
         btnCancel = findViewById(R.id.btn_cancel);
+        progressBar = findViewById(R.id.progress_bar);
+        
+        if (progressBar != null) {
+            progressBar.setVisibility(android.view.View.GONE);
+        }
     }
 
     private void loadTransactionDetails() {
@@ -170,6 +184,7 @@ public class TransactionConfirmationActivity extends AppCompatActivity {
                     String accountNumber = accountInfo.getAccountNumber();
                     if (accountNumber != null) {
                         tvFromAccount.setText(accountNumber);
+                        senderAccountNumber = accountNumber; // Store for transfer API
                     }
                     
                     // Set bank name (HAT Bank)
@@ -230,21 +245,167 @@ public class TransactionConfirmationActivity extends AppCompatActivity {
         btnCancel.setOnClickListener(v -> finish());
 
         btnConfirm.setOnClickListener(v -> {
-            // Get transaction amount
-            Intent originalIntent = getIntent();
-            double amount = originalIntent.getDoubleExtra("amount", 0);
-            
-            // Check if face verification is required (>= 10 million)
-            if (amount >= MIN_AMOUNT_FOR_FACE_VERIFICATION) {
-                // Navigate to face verification first
-                Intent faceIntent = new Intent(TransactionConfirmationActivity.this, 
-                        FaceVerificationTransactionActivity.class);
-                startActivityForResult(faceIntent, REQUEST_FACE_VERIFICATION);
-            } else {
-                // Proceed directly to OTP
-                proceedToOTP();
-            }
+            // Initiate transfer first
+            initiateTransfer();
         });
+    }
+    
+    /**
+     * Initiate transfer by calling appropriate API
+     */
+    private void initiateTransfer() {
+        Intent originalIntent = getIntent();
+        String toAccount = originalIntent.getStringExtra("to_account");
+        String toName = originalIntent.getStringExtra("to_name");
+        double amount = originalIntent.getDoubleExtra("amount", 0);
+        String note = originalIntent.getStringExtra("note");
+        String bankCode = originalIntent.getStringExtra("bank");
+        
+        if (senderAccountNumber == null || senderAccountNumber.isEmpty()) {
+            Toast.makeText(this, "Không tìm thấy số tài khoản người gửi", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        // Show loading
+        if (progressBar != null) {
+            progressBar.setVisibility(android.view.View.VISIBLE);
+        }
+        btnConfirm.setEnabled(false);
+        
+        TransferApiService transferApiService = ApiClient.getTransferApiService();
+        
+        // Check if internal or external transfer
+        if ("HATBANK".equals(bankCode)) {
+            // Internal transfer (HAT to HAT)
+            InternalTransferRequest request = new InternalTransferRequest(
+                    senderAccountNumber,
+                    toAccount,
+                    amount,
+                    note
+            );
+            
+            Call<TransferInitiateResponse> call = transferApiService.initiateInternalTransfer(request);
+            call.enqueue(new Callback<TransferInitiateResponse>() {
+                @Override
+                public void onResponse(Call<TransferInitiateResponse> call, Response<TransferInitiateResponse> response) {
+                    if (progressBar != null) {
+                        progressBar.setVisibility(android.view.View.GONE);
+                    }
+                    btnConfirm.setEnabled(true);
+                    
+                    if (response.isSuccessful() && response.body() != null) {
+                        TransferInitiateResponse initiateResponse = response.body();
+                        transactionCode = initiateResponse.getTransactionCode();
+                        
+                        Log.d(TAG, "Internal transfer initiated: " + transactionCode);
+                        Toast.makeText(TransactionConfirmationActivity.this, 
+                                initiateResponse.getMessage(), Toast.LENGTH_SHORT).show();
+                        
+                        // Proceed to face verification or OTP
+                        proceedToVerification();
+                    } else {
+                        Log.e(TAG, "Failed to initiate internal transfer: " + response.code());
+                        Toast.makeText(TransactionConfirmationActivity.this, 
+                                "Không thể khởi tạo giao dịch", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                
+                @Override
+                public void onFailure(Call<TransferInitiateResponse> call, Throwable t) {
+                    if (progressBar != null) {
+                        progressBar.setVisibility(android.view.View.GONE);
+                    }
+                    btnConfirm.setEnabled(true);
+                    
+                    Log.e(TAG, "Error initiating internal transfer", t);
+                    Toast.makeText(TransactionConfirmationActivity.this, 
+                            "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            // External transfer (HAT to Other Bank)
+            // Get bankBin from intent
+            String bankBin = originalIntent.getStringExtra("bank_bin");
+            
+            if (bankBin == null || bankBin.isEmpty()) {
+                Toast.makeText(this, "Không tìm thấy thông tin ngân hàng", Toast.LENGTH_SHORT).show();
+                btnConfirm.setEnabled(true);
+                return;
+            }
+            
+            ExternalTransferRequest request = new ExternalTransferRequest(
+                    senderAccountNumber,
+                    bankBin,
+                    toAccount,
+                    toName,
+                    amount,
+                    note
+            );
+            
+            Call<ExternalTransferInitiateResponse> call = transferApiService.initiateExternalTransfer(request);
+            call.enqueue(new Callback<ExternalTransferInitiateResponse>() {
+                @Override
+                public void onResponse(Call<ExternalTransferInitiateResponse> call, Response<ExternalTransferInitiateResponse> response) {
+                    if (progressBar != null) {
+                        progressBar.setVisibility(android.view.View.GONE);
+                    }
+                    btnConfirm.setEnabled(true);
+                    
+                    if (response.isSuccessful() && response.body() != null) {
+                        ExternalTransferInitiateResponse initiateResponse = response.body();
+                        
+                        if (initiateResponse.isSuccess() && initiateResponse.getData() != null) {
+                            transactionCode = initiateResponse.getData().getTransactionCode();
+                            
+                            Log.d(TAG, "External transfer initiated: " + transactionCode);
+                            Toast.makeText(TransactionConfirmationActivity.this, 
+                                    initiateResponse.getMessage(), Toast.LENGTH_SHORT).show();
+                            
+                            // Proceed to face verification or OTP
+                            proceedToVerification();
+                        } else {
+                            Toast.makeText(TransactionConfirmationActivity.this, 
+                                    initiateResponse.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Log.e(TAG, "Failed to initiate external transfer: " + response.code());
+                        Toast.makeText(TransactionConfirmationActivity.this, 
+                                "Không thể khởi tạo giao dịch", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                
+                @Override
+                public void onFailure(Call<ExternalTransferInitiateResponse> call, Throwable t) {
+                    if (progressBar != null) {
+                        progressBar.setVisibility(android.view.View.GONE);
+                    }
+                    btnConfirm.setEnabled(true);
+                    
+                    Log.e(TAG, "Error initiating external transfer", t);
+                    Toast.makeText(TransactionConfirmationActivity.this, 
+                            "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+    
+    /**
+     * Proceed to face verification or OTP after successful initiate
+     */
+    private void proceedToVerification() {
+        Intent originalIntent = getIntent();
+        double amount = originalIntent.getDoubleExtra("amount", 0);
+        
+        // Check if face verification is required (>= 10 million)
+        if (amount >= MIN_AMOUNT_FOR_FACE_VERIFICATION) {
+            // Navigate to face verification first
+            Intent faceIntent = new Intent(TransactionConfirmationActivity.this, 
+                    FaceVerificationTransactionActivity.class);
+            startActivityForResult(faceIntent, REQUEST_FACE_VERIFICATION);
+        } else {
+            // Proceed directly to OTP
+            proceedToOTP();
+        }
     }
     
     /**
@@ -262,6 +423,7 @@ public class TransactionConfirmationActivity extends AppCompatActivity {
         intent.putExtra("to_name", originalIntent.getStringExtra("to_name"));
         intent.putExtra("note", originalIntent.getStringExtra("note"));
         intent.putExtra("bank", originalIntent.getStringExtra("bank"));
+        intent.putExtra("transaction_code", transactionCode); // Pass transaction code
 
         startActivity(intent);
     }

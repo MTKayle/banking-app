@@ -88,6 +88,7 @@ public class ApiClient {
     private static UserApiService userApiService;
     private static BankApiService bankApiService;
     private static ExternalAccountApiService externalAccountApiService;
+    private static TransferApiService transferApiService;
 
     private static Context applicationContext;
 
@@ -266,6 +267,16 @@ public class ApiClient {
             externalAccountApiService = getRetrofitInstance().create(ExternalAccountApiService.class);
         }
         return externalAccountApiService;
+    }
+
+    /**
+     * Lấy TransferApiService instance
+     */
+    public static TransferApiService getTransferApiService() {
+        if (transferApiService == null) {
+            transferApiService = getRetrofitInstance().create(TransferApiService.class);
+        }
+        return transferApiService;
     }
 
     /**
