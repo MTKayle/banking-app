@@ -1,6 +1,8 @@
 package com.example.mobilebanking.api;
 
 import com.example.mobilebanking.api.dto.AuthResponse;
+import com.example.mobilebanking.api.dto.ChangePasswordRequest;
+import com.example.mobilebanking.api.dto.ChangePasswordResponse;
 import com.example.mobilebanking.api.dto.LoginRequest;
 import com.example.mobilebanking.api.dto.RegisterRequest;
 import com.example.mobilebanking.api.dto.RefreshTokenRequest;
@@ -84,6 +86,13 @@ public interface AuthApiService {
      */
     @GET("auth/check-fingerprint-enabled")
     Call<FeatureStatusResponse> checkFingerprintEnabled(@Query("phone") String phone);
+
+    /**
+     * Đổi mật khẩu (dùng cho Forgot Password flow)
+     * Không cần authentication
+     */
+    @POST("password/change")
+    Call<ChangePasswordResponse> changePassword(@Body ChangePasswordRequest request);
 }
 
 

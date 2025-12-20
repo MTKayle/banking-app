@@ -93,4 +93,19 @@
     <color name="age_rating_t13">#FFC107</color>
     <color name="age_rating_t16">#FF9800</color>
     <color name="age_rating_t18">#F44336</color>
+    
+    <!-- BIDV Account Screen Colors -->
+    <color name="bidv_primary">#006837</color>
+    <color name="bidv_primary_dark">#004d27</color>
+    <color name="bidv_accent">#FFB900</color>
+    <color name="bidv_bg_light">#F5F5F5</color>
+    <color name="bidv_text_dark">#212121</color>
+    <color name="bidv_text_gray">#757575</color>
+    <color name="red_negative">#D32F2F</color>
+    <color name="green_positive">#388E3C</color>
+    <color name="bidv_teal_start">#00695C</color>
+    <color name="bidv_teal_end">#00897B</color>
+    <color name="bidv_yellow_start">#FFC107</color>
+    <color name="bidv_yellow_end">#FFD54F</color>
+    <color name="white_transparent">#80FFFFFF</color>
 </resources>

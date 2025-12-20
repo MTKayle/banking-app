@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/bidv_bg_light">
+
+    <TextView
+        android:id="@+id/tv_date_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="17/12/2025"
+        android:textColor="@color/bidv_text_dark"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:padding="16dp"
+        android:paddingTop="20dp" />
+
+</LinearLayout>
+

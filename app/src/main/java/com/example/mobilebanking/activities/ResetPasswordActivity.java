@@ -12,12 +12,20 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mobilebanking.R;
+import com.example.mobilebanking.api.ApiClient;
+import com.example.mobilebanking.api.AuthApiService;
+import com.example.mobilebanking.api.dto.ChangePasswordRequest;
+import com.example.mobilebanking.api.dto.ChangePasswordResponse;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 /**
  * Reset Password screen for Forgot Password flow.
- * Hiện tại chỉ xử lý validation & UI, chưa gọi backend thật.
+ * Gọi API /api/password/change để đổi mật khẩu.
  */
 public class ResetPasswordActivity extends AppCompatActivity {
 
@@ -65,7 +73,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
             }
 
             hideError();
-            performMockReset();
+            performPasswordReset(newPassword);
         });
     }
 
@@ -88,22 +96,56 @@ public class ResetPasswordActivity extends AppCompatActivity {
         return true;
     }
 
-    private void performMockReset() {
+    private void performPasswordReset(String newPassword) {
+        if (TextUtils.isEmpty(phone)) {
+            showError("Thiếu số điện thoại");
+            return;
+        }
+
         setLoading(true);
 
-        // Hiện tại chỉ mock: delay nhẹ rồi báo thành công và quay về Login
-        progressBar.postDelayed(() -> {
-            setLoading(false);
+        ChangePasswordRequest request = new ChangePasswordRequest(phone, newPassword);
+        AuthApiService apiService = ApiClient.getAuthApiService();
+        
+        apiService.changePassword(request).enqueue(new Callback<ChangePasswordResponse>() {
+            @Override
+            public void onResponse(Call<ChangePasswordResponse> call, Response<ChangePasswordResponse> response) {
+                setLoading(false);
 
-            Toast.makeText(ResetPasswordActivity.this,
-                    getString(R.string.password_reset_success),
-                    Toast.LENGTH_SHORT).show();
+                if (response.isSuccessful() && response.body() != null) {
+                    ChangePasswordResponse result = response.body();
+                    if (result.isSuccess()) {
+                        Toast.makeText(ResetPasswordActivity.this,
+                                "Đổi mật khẩu thành công! Vui lòng đăng nhập lại.",
+                                Toast.LENGTH_LONG).show();
 
-            Intent intent = new Intent(ResetPasswordActivity.this, LoginActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            finish();
-        }, 800);
+                        // Chuyển về màn hình Login
+                        Intent intent = new Intent(ResetPasswordActivity.this, LoginActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        showError(result.getMessage() != null ? result.getMessage() : "Đổi mật khẩu thất bại");
+                    }
+                } else {
+                    String errorMsg = "Đổi mật khẩu thất bại";
+                    try {
+                        if (response.errorBody() != null) {
+                            errorMsg = response.errorBody().string();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    showError(errorMsg);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ChangePasswordResponse> call, Throwable t) {
+                setLoading(false);
+                showError("Lỗi kết nối: " + t.getMessage());
+            }
+        });
     }
 
     private void setLoading(boolean loading) {
@@ -121,5 +163,3 @@ public class ResetPasswordActivity extends AppCompatActivity {
         tvError.setVisibility(View.GONE);
     }
 }
-
-

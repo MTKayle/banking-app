@@ -2,128 +2,105 @@ package com.example.mobilebanking.activities;
 
 import android.os.Bundle;
 import android.widget.TextView;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import android.widget.Toast;
 
 import com.example.mobilebanking.R;
-import com.example.mobilebanking.adapters.TransactionAdapter;
-import com.example.mobilebanking.models.Account;
-import com.example.mobilebanking.models.Transaction;
-import com.example.mobilebanking.utils.DataManager;
+import com.example.mobilebanking.api.AccountApiService;
+import com.example.mobilebanking.api.ApiClient;
+import com.example.mobilebanking.api.dto.AccountInfoResponse;
+import com.google.android.material.appbar.MaterialToolbar;
 
-import java.text.NumberFormat;
-import java.util.List;
-import java.util.Locale;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
- * Account Detail Activity - Shows detailed information about a specific account
+ * Account Detail Activity
+ * Hiển thị chi tiết thông tin tài khoản
  */
-public class AccountDetailActivity extends AppCompatActivity {
-    private TextView tvAccountType, tvAccountNumber, tvBalance, tvInterestRate, tvMonthlyProfit;
-    private TextView tvLoanAmount, tvMonthlyPayment, tvRemainingMonths;
-    private RecyclerView rvTransactions;
-    private DataManager dataManager;
-    private TransactionAdapter transactionAdapter;
-
+public class AccountDetailActivity extends BaseActivity {
+    
+    private MaterialToolbar toolbar;
+    private TextView tvAccountNumber, tvAccountHolderName, tvAccountType, tvBankName;
+    
+    private String accountNumber;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account_detail);
-
-        dataManager = DataManager.getInstance(this);
-
+        
+        accountNumber = getIntent().getStringExtra("accountNumber");
+        
+        initViews();
         setupToolbar();
-        initializeViews();
-        loadAccountData();
+        fetchAccountInfo();
     }
-
+    
+    private void initViews() {
+        toolbar = findViewById(R.id.toolbar);
+        tvAccountNumber = findViewById(R.id.tv_account_number);
+        tvAccountHolderName = findViewById(R.id.tv_account_holder_name);
+        tvAccountType = findViewById(R.id.tv_account_type);
+        tvBankName = findViewById(R.id.tv_bank_name);
+    }
+    
     private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Account Details");
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
-    }
-
-    private void initializeViews() {
-        tvAccountType = findViewById(R.id.tv_account_type);
-        tvAccountNumber = findViewById(R.id.tv_account_number);
-        tvBalance = findViewById(R.id.tv_balance);
-        tvInterestRate = findViewById(R.id.tv_interest_rate);
-        tvMonthlyProfit = findViewById(R.id.tv_monthly_profit);
-        tvLoanAmount = findViewById(R.id.tv_loan_amount);
-        tvMonthlyPayment = findViewById(R.id.tv_monthly_payment);
-        tvRemainingMonths = findViewById(R.id.tv_remaining_months);
-        rvTransactions = findViewById(R.id.rv_transactions);
-
-        rvTransactions.setLayoutManager(new LinearLayoutManager(this));
-    }
-
-    private void loadAccountData() {
-        String accountType = getIntent().getStringExtra("account_type");
         
-        // Get mock account data
-        List<Account> accounts = dataManager.getMockAccounts("U001");
-        Account account = null;
+        toolbar.setNavigationOnClickListener(v -> onBackPressed());
+    }
+    
+    private void fetchAccountInfo() {
+        if (accountNumber == null || accountNumber.isEmpty()) {
+            Toast.makeText(this, "Không có thông tin tài khoản", Toast.LENGTH_SHORT).show();
+            return;
+        }
         
-        for (Account acc : accounts) {
-            if (acc.getType().name().equals(accountType)) {
-                account = acc;
-                break;
+        AccountApiService service = ApiClient.getAccountApiService();
+        service.getAccountInfo(accountNumber).enqueue(new Callback<AccountInfoResponse>() {
+            @Override
+            public void onResponse(Call<AccountInfoResponse> call, Response<AccountInfoResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    AccountInfoResponse accountInfo = response.body();
+                    updateUI(accountInfo);
+                } else {
+                    Toast.makeText(AccountDetailActivity.this, 
+                            "Không thể tải thông tin tài khoản", 
+                            Toast.LENGTH_SHORT).show();
+                }
             }
-        }
-
-        if (account != null) {
-            displayAccountInfo(account);
-            loadTransactions(account.getAccountNumber());
-        }
+            
+            @Override
+            public void onFailure(Call<AccountInfoResponse> call, Throwable t) {
+                Toast.makeText(AccountDetailActivity.this, 
+                        "Lỗi kết nối: " + t.getMessage(), 
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
     }
-
-    private void displayAccountInfo(Account account) {
-        NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-        
-        tvAccountType.setText(getAccountTypeName(account.getType()));
-        tvAccountNumber.setText(account.getAccountNumber());
-        tvBalance.setText(formatter.format(Math.abs(account.getBalance())));
-
-        // Show specific fields based on account type
-        if (account.getType() == Account.AccountType.SAVINGS) {
-            tvInterestRate.setText(account.getInterestRate() + "% per year");
-            tvMonthlyProfit.setText(formatter.format(account.getMonthlyProfit()));
-        } else if (account.getType() == Account.AccountType.MORTGAGE) {
-            tvLoanAmount.setText(formatter.format(account.getLoanAmount()));
-            tvMonthlyPayment.setText(formatter.format(account.getMonthlyPayment()));
-            tvRemainingMonths.setText(account.getRemainingMonths() + " months");
-        }
+    
+    private void updateUI(AccountInfoResponse accountInfo) {
+        tvAccountNumber.setText(accountInfo.getAccountNumber());
+        tvAccountHolderName.setText(accountInfo.getAccountHolderName());
+        tvAccountType.setText(formatAccountType(accountInfo.getAccountType()));
+        tvBankName.setText(accountInfo.getBankName());
     }
-
-    private void loadTransactions(String accountNumber) {
-        List<Transaction> transactions = dataManager.getMockTransactions(accountNumber);
-        transactionAdapter = new TransactionAdapter(transactions);
-        rvTransactions.setAdapter(transactionAdapter);
-    }
-
-    private String getAccountTypeName(Account.AccountType type) {
+    
+    private String formatAccountType(String type) {
         switch (type) {
-            case CHECKING:
-                return "Checking Account";
-            case SAVINGS:
-                return "Savings Account";
-            case MORTGAGE:
-                return "Mortgage Account";
+            case "checking":
+                return "Thanh toán";
+            case "saving":
+                return "Tiết kiệm";
+            case "mortgage":
+                return "Vay thế chấp";
             default:
-                return "Account";
+                return type;
         }
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
     }
 }
-
