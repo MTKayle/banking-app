@@ -5,22 +5,36 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mobilebanking.R;
+import com.example.mobilebanking.api.AccountApiService;
+import com.example.mobilebanking.api.ApiClient;
+import com.example.mobilebanking.api.dto.CheckingAccountInfoResponse;
 import com.example.mobilebanking.utils.DataManager;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Transaction Confirmation Activity - Confirms transaction details before processing
  */
 public class TransactionConfirmationActivity extends AppCompatActivity {
+    private static final String TAG = "TransactionConfirm";
+    private static final int REQUEST_FACE_VERIFICATION = 1001;
+    private static final double MIN_AMOUNT_FOR_FACE_VERIFICATION = 10000000; // 10 million VND
+    
     private TextView tvAmount, tvAmountInWords, tvFromName, tvFromAccount, tvFromBank;
     private TextView tvToName, tvToAccount, tvToBank, tvNote, tvFee, tvTransferType;
     private Button btnConfirm, btnCancel;
@@ -83,8 +97,8 @@ public class TransactionConfirmationActivity extends AppCompatActivity {
 
     private void loadTransactionDetails() {
         Intent intent = getIntent();
-        String fromAccount = intent.getStringExtra("from_account");
         String toAccount = intent.getStringExtra("to_account");
+        String toName = intent.getStringExtra("to_name");
         double amount = intent.getDoubleExtra("amount", 0);
         String note = intent.getStringExtra("note");
         String bank = intent.getStringExtra("bank");
@@ -97,27 +111,18 @@ public class TransactionConfirmationActivity extends AppCompatActivity {
         String amountInWords = numberToVietnameseWords((long)amount) + " đồng";
         tvAmountInWords.setText(amountInWords);
 
-        // Get user info
-        String fullName = dataManager.getLastFullName();
-        if (fullName == null || fullName.isEmpty()) {
-            fullName = "NGƯỜI DÙNG";
-        }
-
-        // From account info
-        tvFromName.setText(fullName.toUpperCase());
-        tvFromAccount.setText(fromAccount);
-        tvFromBank.setText("Ngân hàng TMCP Quân đội");
+        // Load sender account info from API
+        loadSenderAccountInfo();
 
         // To account info
-        String toName = findNameByAccount(toAccount);
         if (toName != null && !toName.isEmpty()) {
-            tvToName.setText(toName.toUpperCase());
+            tvToName.setText(toName);
         } else {
             tvToName.setText("NGƯỜI NHẬN");
         }
         tvToAccount.setText(toAccount);
 
-        // Set bank name
+        // Set bank name from bank code
         String bankFullName = getBankFullName(bank);
         tvToBank.setText(bankFullName);
 
@@ -128,52 +133,95 @@ public class TransactionConfirmationActivity extends AppCompatActivity {
             tvNote.setText("Không có nội dung");
         }
 
-        // Fee - Free for same bank
-        if (bank != null && bank.equals("Cùng Ngân Hàng")) {
-            tvFee.setText("Miễn phí");
-        } else {
-            tvFee.setText("Miễn phí");
-        }
+        // Fee - Free for all transfers
+        tvFee.setText("Miễn phí");
 
         // Transfer type
         tvTransferType.setText("Chuyển nhanh");
     }
 
+    /**
+     * Load sender account info from API
+     */
+    private void loadSenderAccountInfo() {
+        Long userId = dataManager.getUserId();
+        if (userId == null) {
+            Toast.makeText(this, "Không tìm thấy thông tin người dùng", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        AccountApiService accountApiService = ApiClient.getAccountApiService();
+        Call<CheckingAccountInfoResponse> call = accountApiService.getCheckingAccountInfo(userId);
+
+        call.enqueue(new Callback<CheckingAccountInfoResponse>() {
+            @Override
+            public void onResponse(Call<CheckingAccountInfoResponse> call, Response<CheckingAccountInfoResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    CheckingAccountInfoResponse accountInfo = response.body();
+                    
+                    // Get user full name
+                    String fullName = dataManager.getUserFullName();
+                    if (fullName == null || fullName.isEmpty()) {
+                        fullName = "NGƯỜI DÙNG";
+                    }
+                    tvFromName.setText(fullName.toUpperCase());
+                    
+                    // Set account number
+                    String accountNumber = accountInfo.getAccountNumber();
+                    if (accountNumber != null) {
+                        tvFromAccount.setText(accountNumber);
+                    }
+                    
+                    // Set bank name (HAT Bank)
+                    tvFromBank.setText("Ngân hàng công nghệ HAT");
+                    
+                    Log.d(TAG, "Loaded sender account: " + accountNumber);
+                } else {
+                    Log.e(TAG, "Failed to load sender account: " + response.code());
+                    Toast.makeText(TransactionConfirmationActivity.this, 
+                        "Không thể tải thông tin tài khoản", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CheckingAccountInfoResponse> call, Throwable t) {
+                Log.e(TAG, "Error loading sender account", t);
+                Toast.makeText(TransactionConfirmationActivity.this, 
+                    "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     private String getBankFullName(String bankCode) {
         if (bankCode == null) return "Ngân hàng";
+        
+        // Map bank codes to full names
         switch (bankCode) {
-            case "Cùng Ngân Hàng":
-                return "Ngân hàng TMCP Quân đội";
-            case "VietcomBank":
+            case "HATBANK":
+                return "Ngân hàng công nghệ HAT";
+            case "AGRIBANK":
+                return "Ngân hàng Nông nghiệp và Phát triển Nông thôn Việt Nam";
+            case "VIETCOMBANK":
                 return "Ngân hàng TMCP Ngoại thương Việt Nam";
             case "BIDV":
                 return "Ngân hàng TMCP Đầu tư và Phát triển Việt Nam";
-            case "Techcombank":
+            case "TECHCOMBANK":
                 return "Ngân hàng TMCP Kỹ thương Việt Nam";
-            case "VietinBank":
+            case "VIETINBANK":
                 return "Ngân hàng TMCP Công thương Việt Nam";
             case "ACB":
                 return "Ngân hàng TMCP Á Châu";
+            case "MB":
+                return "Ngân hàng TMCP Quân đội";
+            case "VPB":
+                return "Ngân hàng TMCP Việt Nam Thịnh Vượng";
+            case "TPB":
+                return "Ngân hàng TMCP Tiên Phong";
+            case "SACOMBANK":
+                return "Ngân hàng TMCP Sài Gòn Thương Tín";
             default:
                 return bankCode;
         }
-    }
-
-    private String findNameByAccount(String accountNumber) {
-        List<com.example.mobilebanking.models.User> users = dataManager.getMockUsers();
-        if (users == null) return null;
-        for (com.example.mobilebanking.models.User user : users) {
-            if (user == null) continue;
-            List<com.example.mobilebanking.models.Account> userAccounts =
-                dataManager.getMockAccounts(user.getUserId());
-            if (userAccounts == null) continue;
-            for (com.example.mobilebanking.models.Account a : userAccounts) {
-                if (a != null && accountNumber.equals(a.getAccountNumber())) {
-                    return user.getFullName();
-                }
-            }
-        }
-        return null;
     }
 
     private void setupListeners() {
@@ -182,22 +230,55 @@ public class TransactionConfirmationActivity extends AppCompatActivity {
         btnCancel.setOnClickListener(v -> finish());
 
         btnConfirm.setOnClickListener(v -> {
-            // Navigate to OTP verification with transaction data
-            Intent intent = new Intent(TransactionConfirmationActivity.this, OtpVerificationActivity.class);
-            intent.putExtra("phone", "0901234567");
-            intent.putExtra("from", "transaction");
-
-            // Pass all transaction data to OTP activity
+            // Get transaction amount
             Intent originalIntent = getIntent();
-            intent.putExtra("amount", originalIntent.getDoubleExtra("amount", 0));
-            intent.putExtra("to_account", originalIntent.getStringExtra("to_account"));
-            intent.putExtra("note", originalIntent.getStringExtra("note"));
-            intent.putExtra("from_account", originalIntent.getStringExtra("from_account"));
-            intent.putExtra("bank", originalIntent.getStringExtra("bank"));
-
-            startActivity(intent);
-            // Removed finish() - Don't finish Confirmation so OTP can finish properly
+            double amount = originalIntent.getDoubleExtra("amount", 0);
+            
+            // Check if face verification is required (>= 10 million)
+            if (amount >= MIN_AMOUNT_FOR_FACE_VERIFICATION) {
+                // Navigate to face verification first
+                Intent faceIntent = new Intent(TransactionConfirmationActivity.this, 
+                        FaceVerificationTransactionActivity.class);
+                startActivityForResult(faceIntent, REQUEST_FACE_VERIFICATION);
+            } else {
+                // Proceed directly to OTP
+                proceedToOTP();
+            }
         });
+    }
+    
+    /**
+     * Proceed to OTP verification
+     */
+    private void proceedToOTP() {
+        Intent intent = new Intent(TransactionConfirmationActivity.this, OtpVerificationActivity.class);
+        intent.putExtra("phone", "0901234567");
+        intent.putExtra("from", "transaction");
+
+        // Pass all transaction data to OTP activity
+        Intent originalIntent = getIntent();
+        intent.putExtra("amount", originalIntent.getDoubleExtra("amount", 0));
+        intent.putExtra("to_account", originalIntent.getStringExtra("to_account"));
+        intent.putExtra("to_name", originalIntent.getStringExtra("to_name"));
+        intent.putExtra("note", originalIntent.getStringExtra("note"));
+        intent.putExtra("bank", originalIntent.getStringExtra("bank"));
+
+        startActivity(intent);
+    }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @androidx.annotation.Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        
+        if (requestCode == REQUEST_FACE_VERIFICATION) {
+            if (resultCode == RESULT_OK) {
+                // Face verification successful, proceed to OTP
+                proceedToOTP();
+            } else {
+                // Face verification failed or cancelled
+                Toast.makeText(this, "Xác thực khuôn mặt thất bại", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     // Helper: insert dots as thousand separators

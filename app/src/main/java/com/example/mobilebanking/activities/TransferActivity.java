@@ -70,6 +70,8 @@ public class TransferActivity extends BaseActivity {
     private String selectedBankCode = null; // Store bank code (e.g., "HATBANK")
     private String selectedBankBin = null; // Store bank BIN for API calls
     private List<BankResponse> bankList = new ArrayList<>(); // Store banks from API
+    private BigDecimal currentBalance = BigDecimal.ZERO; // Store current account balance
+    private static final long MAX_TRANSFER_AMOUNT = 500000000L; // 500 million VND
 
     private BroadcastReceiver finishReceiver = new BroadcastReceiver() {
         @Override
@@ -170,6 +172,9 @@ public class TransferActivity extends BaseActivity {
                     BigDecimal balance = accountInfo.getBalance();
                     
                     if (accountNumber != null && balance != null) {
+                        // Store balance for validation
+                        currentBalance = balance;
+                        
                         tvAccountType.setText("TÀI KHOẢN THANH TOÁN - " + accountNumber);
                         
                         // Format balance - convert BigDecimal to long
@@ -604,6 +609,10 @@ public class TransferActivity extends BaseActivity {
                     double amount = Double.parseDouble(cleaned);
                     if (amount <= 0) {
                         showAmountError("Số tiền phải lớn hơn 0");
+                    } else if (amount > MAX_TRANSFER_AMOUNT) {
+                        showAmountError("Số tiền chuyển tối đa 500.000.000 VNĐ");
+                    } else if (BigDecimal.valueOf(amount).compareTo(currentBalance) > 0) {
+                        showAmountError("Số dư không đủ để thực hiện giao dịch");
                     } else {
                         clearAmountError();
                     }
@@ -739,6 +748,12 @@ public class TransferActivity extends BaseActivity {
                 if (amount <= 0) {
                     showAmountError("Số tiền phải lớn hơn 0");
                     hasError = true;
+                } else if (amount > MAX_TRANSFER_AMOUNT) {
+                    showAmountError("Số tiền chuyển tối đa 500.000.000 VNĐ");
+                    hasError = true;
+                } else if (BigDecimal.valueOf(amount).compareTo(currentBalance) > 0) {
+                    showAmountError("Số dư không đủ để thực hiện giao dịch");
+                    hasError = true;
                 } else {
                     clearAmountError();
                 }
@@ -766,13 +781,16 @@ public class TransferActivity extends BaseActivity {
         // Navigate to confirmation screen
         Intent intent = new Intent(this, TransactionConfirmationActivity.class);
         intent.putExtra("type", "TRANSFER");
-        String fromAccountText = selectedAccount != null ? 
-            selectedAccount.getAccountNumber() : "N/A";
-        intent.putExtra("from_account", fromAccountText);
+        
+        // Get recipient name from TextView (already looked up)
+        String recipientName = tvRecipientName.getVisibility() == View.VISIBLE ? 
+            tvRecipientName.getText().toString() : "";
+        
         intent.putExtra("to_account", recipientAccount);
+        intent.putExtra("to_name", recipientName);
         intent.putExtra("amount", amount);
         intent.putExtra("note", note);
-        intent.putExtra("bank", selectedBank);
+        intent.putExtra("bank", selectedBank); // Bank code (e.g., "HATBANK")
         startActivity(intent);
     }
 
