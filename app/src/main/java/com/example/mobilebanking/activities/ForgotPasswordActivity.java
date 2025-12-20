@@ -18,6 +18,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mobilebanking.R;
+import com.example.mobilebanking.api.ApiClient;
+import com.example.mobilebanking.api.AuthApiService;
+import com.example.mobilebanking.api.dto.PhoneExistsResponse;
 import com.example.mobilebanking.utils.OtpApiService;
 import com.example.mobilebanking.utils.OtpResponse;
 import com.google.android.material.button.MaterialButton;
@@ -105,7 +108,8 @@ public class ForgotPasswordActivity extends AppCompatActivity {
             }
 
             hideError();
-            requestOtp(phone);
+            // Kiểm tra số điện thoại có tồn tại trước khi gửi OTP
+            checkPhoneExistsAndSendOtp(phone);
         });
     }
 
@@ -116,8 +120,57 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         return PHONE_PATTERN.matcher(phone).matches();
     }
 
-    private void requestOtp(String phone) {
+    /**
+     * Kiểm tra số điện thoại có tồn tại trong hệ thống không
+     * Nếu tồn tại → Gửi OTP
+     * Nếu không tồn tại → Hiển thị lỗi
+     */
+    private void checkPhoneExistsAndSendOtp(String phone) {
         setLoading(true);
+
+        AuthApiService authApiService = ApiClient.getAuthApiService();
+        Call<PhoneExistsResponse> call = authApiService.checkPhoneExists(phone);
+
+        call.enqueue(new Callback<PhoneExistsResponse>() {
+            @Override
+            public void onResponse(Call<PhoneExistsResponse> call, Response<PhoneExistsResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    PhoneExistsResponse result = response.body();
+
+                    // Nếu exists = true → Số điện thoại đã tồn tại → OK, gửi OTP
+                    if (result.isExists()) {
+                        // Số điện thoại tồn tại, tiếp tục gửi OTP
+                        requestOtp(phone);
+                    } else {
+                        // Số điện thoại không tồn tại
+                        setLoading(false);
+                        showError("Số điện thoại này chưa được đăng ký. Vui lòng kiểm tra lại.");
+                        Toast.makeText(ForgotPasswordActivity.this,
+                                "Số điện thoại không tồn tại trong hệ thống",
+                                Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    // Lỗi từ server
+                    setLoading(false);
+                    Toast.makeText(ForgotPasswordActivity.this,
+                            "Không thể kiểm tra số điện thoại. Vui lòng thử lại.",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<PhoneExistsResponse> call, Throwable t) {
+                setLoading(false);
+                Toast.makeText(ForgotPasswordActivity.this,
+                        "Lỗi kết nối. Vui lòng kiểm tra mạng và thử lại.",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void requestOtp(String phone) {
+        // Loading đã được bật từ checkPhoneExistsAndSendOtp
+        // setLoading(true); // Không cần gọi lại
 
         Call<OtpResponse> call = otpApiService.requestOtp(
                 GOIXE_USER_ID,

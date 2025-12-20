@@ -7,6 +7,7 @@ import com.example.mobilebanking.api.dto.LoginRequest;
 import com.example.mobilebanking.api.dto.RegisterRequest;
 import com.example.mobilebanking.api.dto.RefreshTokenRequest;
 import com.example.mobilebanking.api.dto.FeatureStatusResponse;
+import com.example.mobilebanking.api.dto.PhoneExistsResponse;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -93,6 +94,13 @@ public interface AuthApiService {
      */
     @POST("password/change")
     Call<ChangePasswordResponse> changePassword(@Body ChangePasswordRequest request);
+    
+    /**
+     * Kiểm tra số điện thoại đã tồn tại chưa
+     * Dùng trong registration để validate phone trước khi gửi OTP
+     */
+    @GET("auth/check-phone-exists")
+    Call<PhoneExistsResponse> checkPhoneExists(@Query("phone") String phone);
 }
 
 

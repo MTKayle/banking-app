@@ -110,13 +110,12 @@ public class OtpVerificationActivity extends AppCompatActivity {
         } else if ("login_verification".equals(fromActivity)) {
             // Luồng xác thực đăng nhập - gửi OTP với Goixe247
             sendOtpWithGoixe();
+        } else if ("register".equals(fromActivity)) {
+            // Luồng đăng ký - dùng Goixe247
+            sendOtpWithGoixe();
         } else {
-            // Luồng đăng ký - dùng eSMS
-            if (esmsConfig.isConfigured()) {
-                sendOtp();
-            } else {
-                showApiKeyConfigDialog();
-            }
+            // Luồng mặc định - dùng Goixe247
+            sendOtpWithGoixe();
         }
         
         startTimer();
@@ -366,12 +365,8 @@ public class OtpVerificationActivity extends AppCompatActivity {
             return;
         }
 
-        // Kiểm tra luồng
-        if ("forgot_password".equals(fromActivity) || "movie_booking".equals(fromActivity) || "login_verification".equals(fromActivity)) {
-            verifyOtpWithGoixe(otp);
-        } else {
-            verifyOtpWithESms(otp);
-        }
+        // Tất cả các flow đều dùng Goixe247
+        verifyOtpWithGoixe(otp);
     }
     
     private void verifyOtpWithESms(String otp) {
@@ -391,10 +386,8 @@ public class OtpVerificationActivity extends AppCompatActivity {
             Toast.makeText(this, "Xác thực OTP thành công!", Toast.LENGTH_SHORT).show();
 
             if ("register".equals(fromActivity)) {
-                // Registration successful, go to login
-                Intent intent = new Intent(OtpVerificationActivity.this, LoginActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
+                // Registration OTP verified - return to Step1BasicInfoFragment to proceed to Step 2
+                setResult(RESULT_OK);
                 finish();
             } else if ("transaction".equals(fromActivity)) {
                 // Transaction verification, go to success screen
@@ -476,6 +469,10 @@ public class OtpVerificationActivity extends AppCompatActivity {
                             } else if ("login_verification".equals(fromActivity)) {
                                 // Xác thực thành công → Đăng nhập
                                 performLogin();
+                            } else if ("register".equals(fromActivity)) {
+                                // Xác thực thành công → Trả về Step1BasicInfoFragment để chuyển sang Step 2
+                                setResult(RESULT_OK);
+                                finish();
                             }
                         } else {
                             // OTP sai - hiển thị thông báo và xóa input để nhập lại
@@ -776,16 +773,8 @@ public class OtpVerificationActivity extends AppCompatActivity {
         // Xóa các ô input trước
         clearOtpInputs();
         
-        if ("forgot_password".equals(fromActivity) || "movie_booking".equals(fromActivity) || "login_verification".equals(fromActivity)) {
-            // Gửi lại OTP với Goixe247
-            sendOtpWithGoixe();
-        } else {
-            if (esmsConfig.isConfigured()) {
-                sendOtp();
-            } else {
-                Toast.makeText(this, "Đã gửi lại OTP đến " + phoneNumber, Toast.LENGTH_SHORT).show();
-            }
-        }
+        // Tất cả các flow đều dùng Goixe247
+        sendOtpWithGoixe();
         
         // Reset timer và focus
         if (countDownTimer != null) {
