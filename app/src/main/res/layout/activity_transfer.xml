@@ -29,74 +29,312 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="From Account"
+                android:text="Nguồn chuyển tiền"
                 android:textStyle="bold"
-                android:layout_marginBottom="8dp"/>
+                android:textSize="16sp"
+                android:layout_marginBottom="12dp"/>
 
-            <Spinner
-                android:id="@+id/spinner_from_account"
+            <com.google.android.material.card.MaterialCardView
+
+                android:id="@+id/cv_from_account"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                android:background="@android:drawable/edit_text"
-                android:padding="12dp"/>
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/primary_color"
+                app:cardBackgroundColor="@android:color/white"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="17dp">
+
+                    <TextView
+                        android:id="@+id/tv_account_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="TÀI KHOẢN THANH TOÁN - 1234567890"
+                        android:textSize="11sp"
+                        android:textColor="@color/primary_color"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:id="@+id/tv_account_balance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="21 VNĐ"
+                        android:textSize="20sp"
+                        android:textColor="@android:color/black"/>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="To Bank"
+                android:text="Chuyển đến"
                 android:textStyle="bold"
-                android:layout_marginBottom="8dp"/>
+                android:textSize="16sp"
+                android:layout_marginBottom="12dp"/>
 
-            <Spinner
-                android:id="@+id/spinner_to_bank"
+            <!-- Container for bank and account number (connected) -->
+            <com.google.android.material.card.MaterialCardView
+
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                android:background="@android:drawable/edit_text"
-                android:padding="12dp"/>
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@android:color/white"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/primary_color">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Recipient Account Number"
-                android:layout_marginBottom="16dp">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_recipient_account"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="number"/>
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:orientation="vertical">
 
-            <com.google.android.material.textfield.TextInputLayout
+                    <!-- Bank selection (top part) -->
+                    <LinearLayout
+                        android:id="@+id/cv_to_bank"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="17dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground">
+
+                        <ImageView
+                            android:id="@+id/iv_bank_icon"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_bank_logo"
+                            android:tint="@color/primary_color"
+                            android:layout_marginEnd="12dp"/>
+
+                        <TextView
+                            android:id="@+id/tv_bank_name"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Ngân hàng"
+                            android:textSize="16sp"
+                            android:textColor="@android:color/black"/>
+
+                        <ImageView
+                            android:id="@+id/iv_arrow_down"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_arrow_down"
+                            app:tint="@color/text_secondary"
+                            android:contentDescription="@string/arrow_down"/>
+
+                    </LinearLayout>
+
+                    <!-- Dashed border separator (flush with card edges via negative margins) -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:background="@drawable/border_dashed_horizontal"
+                        android:layout_marginStart="-17dp"
+                        android:layout_marginEnd="-17dp"/>
+
+                    <!-- Account number (bottom part) -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Số tài khoản"
+                        android:layout_marginStart="17dp"
+                        android:layout_marginEnd="17dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        app:hintTextColor="@color/primary_color"
+                        app:boxStrokeColor="@color/primary_color"
+                        app:boxStrokeWidth="2dp"
+                        app:boxCornerRadiusTopStart="0dp"
+                        app:boxCornerRadiusTopEnd="0dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:hintEnabled="true"
+                        app:hintAnimationEnabled="true"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_recipient_account"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number"
+
+                            android:paddingStart="0dp"
+                            android:paddingLeft="0dp"
+                            android:paddingBottom="8dp"
+                            android:paddingTop="10dp"
+
+                            android:textSize="17sp"
+
+                            android:textColor="@android:color/black"
+                            android:background="@android:color/transparent"
+                            />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- solid separator between account and recipient name (hidden by default) -->
+                    <View
+                        android:id="@+id/v_account_name_separator"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="17dp"
+                        android:layout_marginEnd="17dp"
+                        android:layout_marginTop="0dp"
+                        android:background="@color/divider_color"
+                        android:visibility="gone" />
+
+                    <!-- Recipient account holder name (hidden by default) -->
+                    <TextView
+                        android:id="@+id/tv_recipient_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="17dp"
+                        android:layout_marginEnd="17dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:text=""
+                        android:textColor="@color/text_secondary"
+                        android:textSize="16sp"
+                        android:visibility="gone"
+                        android:importantForAccessibility="yes"/>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Dropdown container (initially hidden) -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cv_bank_dropdown"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Amount"
-                android:layout_marginBottom="16dp">
-                <com.google.android.material.textfield.TextInputEditText
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:id="@+id/ll_bank_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="8dp"/>
+
+            </androidx.cardview.widget.CardView>
+
+            <LinearLayout
+                android:id="@+id/ll_amount_container"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:orientation="horizontal"
+                android:background="@drawable/edittext_border"
+                android:gravity="center"
+                android:layout_marginVertical="5dp"
+                android:padding="8dp"
+                android:clickable="true"
+                android:focusable="false"
+                android:focusableInTouchMode="false">
+
+                <EditText
                     android:id="@+id/et_amount"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:inputType="numberDecimal"
+                    android:digits="0123456789."
+                    android:text="0"
+                    android:textSize="20sp"
+                    android:textColor="#000000"
+                    android:gravity="center"
+                    android:textAlignment="center"
+                    android:background="@android:color/transparent"
+                    android:paddingEnd="0dp"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:cursorVisible="true"/>
+
+                <TextView
+                    android:id="@+id/tv_vnd_suffix"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:inputType="numberDecimal"/>
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:text="VNĐ"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:paddingStart="6dp"
+                    android:gravity="center_vertical"/>
+
+            </LinearLayout>
+
+            <!-- Amount in words (shown when user finishes editing an amount > 0) -->
+            <TextView
+                android:id="@+id/tv_amount_in_words"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:textColor="#4CAF50"
+                android:textSize="14sp"
+                android:visibility="gone"/>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Note (Optional)"
-                android:layout_marginBottom="24dp">
+                android:hint="Nội dung chuyển tiền"
+                android:layout_marginTop="15dp"
+                android:layout_marginBottom="24dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+
+                android:background="@drawable/edittext_border"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+
+                app:boxBackgroundMode="none"
+                app:boxCollapsedPaddingTop="18dp"
+
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusBottomEnd="12dp"
+
+                app:hintTextColor="@color/primary_color"
+                app:hintEnabled="true"
+                app:hintAnimationEnabled="true">
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_note"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="text"/>
+                    android:inputType="text"
+
+                    android:background="@android:color/transparent"
+                    android:textColor="@android:color/black"
+                    android:textSize="17sp"
+                    android:paddingTop="8dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="8dp"/>
+
             </com.google.android.material.textfield.TextInputLayout>
+
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_continue"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:text="Continue"
+                android:text="Xác nhận"
                 app:cornerRadius="8dp"/>
 
         </LinearLayout>

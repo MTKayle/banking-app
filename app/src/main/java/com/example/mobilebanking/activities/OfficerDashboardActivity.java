@@ -17,7 +17,7 @@ import com.example.mobilebanking.utils.DataManager;
 /**
  * Officer Dashboard Activity - Main screen for bank officers
  */
-public class OfficerDashboardActivity extends AppCompatActivity {
+public class OfficerDashboardActivity extends BaseActivity {
     private TextView tvWelcome;
     private CardView cvCustomerManagement, cvAccountManagement, cvTransactionMonitoring, cvReports;
     private DataManager dataManager;

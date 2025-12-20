@@ -73,13 +73,16 @@
         <!-- Prominent balance display with card background -->
         <!-- ============================================ -->
         <LinearLayout
+            android:id="@+id/balance_card_container"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
             android:background="@drawable/bg_uiname_balance_card"
             android:padding="10dp"
-            android:maxWidth="280dp">
+            android:maxWidth="280dp"
+            android:clickable="true"
+            android:focusable="true">
 
             <!-- Balance Label Row -->
             <TextView

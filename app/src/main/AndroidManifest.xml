@@ -27,10 +27,10 @@
         android:networkSecurityConfig="@xml/network_security_config"
         tools:targetApi="31">
         
-        <!-- FileProvider for camera images -->
+        <!-- FileProvider for camera images and QR code sharing -->
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.fileprovider"
+            android:authorities="${applicationId}.provider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -122,8 +122,33 @@
 
         <!-- Account Activities -->
         <activity
+            android:name="com.example.mobilebanking.activities.AccountActivity"
+            android:parentActivityName="com.example.mobilebanking.ui_home.UiHomeActivity" />
+        
+        <activity
             android:name="com.example.mobilebanking.activities.AccountDetailActivity"
-            android:parentActivityName="com.example.mobilebanking.activities.CustomerDashboardActivity" />
+            android:parentActivityName="com.example.mobilebanking.activities.AccountActivity" />
+        
+        <activity
+            android:name="com.example.mobilebanking.activities.MyQRActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.AccountActivity" />
+
+        <!-- Saving Activities -->
+        <activity
+            android:name="com.example.mobilebanking.activities.SavingTermListActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.AccountActivity" />
+        
+        <activity
+            android:name="com.example.mobilebanking.activities.SavingDepositActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.SavingTermListActivity" />
+        
+        <activity
+            android:name="com.example.mobilebanking.activities.SavingConfirmActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.SavingDepositActivity" />
+        
+        <activity
+            android:name="com.example.mobilebanking.activities.SavingSuccessActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.SavingConfirmActivity" />
 
         <!-- Transaction Activities -->
         <activity
@@ -133,6 +158,10 @@
         <activity
             android:name="com.example.mobilebanking.activities.TransactionConfirmationActivity"
             android:parentActivityName="com.example.mobilebanking.activities.TransferActivity" />
+
+        <activity
+            android:name="com.example.mobilebanking.activities.TransferSuccessActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.TransactionConfirmationActivity" />
 
         <!-- Utility Services Activities -->
         <activity

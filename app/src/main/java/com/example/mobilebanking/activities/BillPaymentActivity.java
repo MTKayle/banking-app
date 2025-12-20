@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -15,7 +14,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mobilebanking.R;
@@ -50,8 +48,7 @@ public class BillPaymentActivity extends AppCompatActivity {
     private String selectedBillType = "electricity"; // "electricity" or "water"
     
     // Views - Payment Info
-    private EditText etBillCode, etReferralCode;
-    private CheckBox cbRecurringPayment;
+    private EditText etBillCode;
     private Button btnContinue;
     
     private DataManager dataManager;
@@ -93,8 +90,6 @@ public class BillPaymentActivity extends AppCompatActivity {
         
         // Payment info
         etBillCode = findViewById(R.id.et_bill_code);
-        etReferralCode = findViewById(R.id.et_referral_code);
-        cbRecurringPayment = findViewById(R.id.cb_recurring_payment);
         btnContinue = findViewById(R.id.btn_continue);
     }
     
@@ -226,18 +221,14 @@ public class BillPaymentActivity extends AppCompatActivity {
             return;
         }
         
-        // Get other info
-        String referralCode = etReferralCode.getText().toString().trim();
-        boolean isRecurring = cbRecurringPayment.isChecked();
-        
         // Navigate to confirmation screen (no dialog)
-        navigateToConfirmationScreen(billCode, referralCode, isRecurring);
+        navigateToConfirmationScreen(billCode);
     }
     
     /**
      * Navigate to confirmation screen
      */
-    private void navigateToConfirmationScreen(String billCode, String referralCode, boolean isRecurring) {
+    private void navigateToConfirmationScreen(String billCode) {
         // Mock bill data based on type
         String providerName;
         String billTypeName;
@@ -270,9 +261,7 @@ public class BillPaymentActivity extends AppCompatActivity {
         intent.putExtra(BillPaymentConfirmationActivity.EXTRA_AMOUNT, amount);
         intent.putExtra(BillPaymentConfirmationActivity.EXTRA_ACCOUNT_NUMBER, accountNumber);
         intent.putExtra(BillPaymentConfirmationActivity.EXTRA_USER_NAME, userName);
-        intent.putExtra(BillPaymentConfirmationActivity.EXTRA_IS_RECURRING, isRecurring);
-        intent.putExtra(BillPaymentConfirmationActivity.EXTRA_REFERRAL_CODE, referralCode);
-        
+
         startActivity(intent);
     }
     

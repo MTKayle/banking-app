@@ -9,6 +9,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -86,6 +87,7 @@ public class HomeFragment extends Fragment {
         ImageView ivNotification = view.findViewById(R.id.iv_notification);
         ImageView ivSearch = view.findViewById(R.id.iv_search);
         ImageView ivMenu = view.findViewById(R.id.iv_menu);
+        LinearLayout balanceCardContainer = view.findViewById(R.id.balance_card_container);
 
         // Calculate mock total balance
         List<com.example.mobilebanking.models.Account> accounts = dm.getMockAccounts("U001");
@@ -108,6 +110,14 @@ public class HomeFragment extends Fragment {
                     masked = true;
                     applyMask(balanceText);
                 }
+            });
+        }
+        
+        // Balance card click -> AccountActivity
+        if (balanceCardContainer != null) {
+            balanceCardContainer.setOnClickListener(v -> {
+                Intent intent = new Intent(requireContext(), com.example.mobilebanking.activities.AccountActivity.class);
+                startActivity(intent);
             });
         }
 

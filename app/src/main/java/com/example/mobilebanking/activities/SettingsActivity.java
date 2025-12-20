@@ -21,7 +21,7 @@ import java.util.Calendar;
  * Settings Activity - Combined Profile & Settings screen
  * Design according to BIDV style with collapsible sections
  */
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends BaseActivity {
     private DataManager dataManager;
     private BiometricAuthManager biometricManager;
     

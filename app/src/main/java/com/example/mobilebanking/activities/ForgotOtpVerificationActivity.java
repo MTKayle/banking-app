@@ -13,6 +13,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
+
 import com.example.mobilebanking.R;
 import com.example.mobilebanking.utils.OtpApiService;
 import com.example.mobilebanking.utils.OtpResponse;
@@ -193,10 +195,14 @@ public class ForgotOtpVerificationActivity extends AppCompatActivity {
                     Toast.makeText(ForgotOtpVerificationActivity.this,
                             "Xác thực OTP thành công.", Toast.LENGTH_SHORT).show();
 
-                    // TODO: chuyển sang màn hình đặt lại mật khẩu nếu cần
+                    // Chuyển sang màn hình đặt lại mật khẩu
+                    Intent intent = new Intent(ForgotOtpVerificationActivity.this, ResetPasswordActivity.class);
+                    intent.putExtra("phone", phone);
+                    startActivity(intent);
+                    finish();
                 } else {
-                    // OTP sai hoặc hết hạn
-                    String msg = "Xác thực OTP thất bại. Vui lòng kiểm tra lại mã và nhập lại.";
+                    // OTP sai hoặc hết hạn - xóa hết 6 số và nhập lại
+                    String msg = "Mã OTP không đúng. Vui lòng nhập lại.";
                     showError(msg);
                     clearOtpInputs();
                     clearAllErrors();

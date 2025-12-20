@@ -27,7 +27,7 @@ import java.util.Locale;
  * Profile Activity - Professional dark mode user profile screen
  * Banking app style with eKYC verification, account overview, and security settings
  */
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileActivity extends BaseActivity {
     // Header views
     private TextView tvFullName, tvCustomerId, tvEkycStatus;
     private View viewEkycIndicator;

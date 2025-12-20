@@ -202,4 +202,8 @@
     <string name="loans">Vay</string>
     <string name="insurance">Bảo Hiểm</string>
 
+    <!-- Bottom Sheet Bank Selection -->
+    <string name="bank_icon">Biểu tượng ngân hàng</string>
+    <string name="arrow_down">Mũi tên xuống</string>
+
 </resources>
