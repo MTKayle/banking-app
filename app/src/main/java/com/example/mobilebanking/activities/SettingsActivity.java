@@ -12,10 +12,18 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mobilebanking.R;
+import com.example.mobilebanking.api.ApiClient;
+import com.example.mobilebanking.api.UserApiService;
+import com.example.mobilebanking.api.dto.SmartFlagsRequest;
+import com.example.mobilebanking.api.dto.UserResponse;
 import com.example.mobilebanking.utils.BiometricAuthManager;
 import com.example.mobilebanking.utils.DataManager;
 
 import java.util.Calendar;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Settings Activity - Combined Profile & Settings screen
@@ -24,6 +32,7 @@ import java.util.Calendar;
 public class SettingsActivity extends BaseActivity {
     private DataManager dataManager;
     private BiometricAuthManager biometricManager;
+    private UserApiService userApiService;
     
     // Header views
     private TextView tvGreeting;
@@ -41,6 +50,7 @@ public class SettingsActivity extends BaseActivity {
 
         dataManager = DataManager.getInstance(this);
         biometricManager = new BiometricAuthManager(this);
+        userApiService = ApiClient.getUserApiService();
 
         initViews();
         setupUserInfo();
@@ -144,8 +154,7 @@ public class SettingsActivity extends BaseActivity {
                 .setTitle("Tắt xác thực sinh trắc học")
                 .setMessage("Bạn có chắc chắn muốn tắt chức năng này?")
                 .setPositiveButton("Tắt", (dialog, which) -> {
-                    biometricManager.disableBiometric();
-                    Toast.makeText(this, "Đã tắt xác thực sinh trắc học", Toast.LENGTH_SHORT).show();
+                    disableFingerprintOnBackend();
                 })
                 .setNegativeButton("Hủy", null)
                 .show();
@@ -154,7 +163,7 @@ public class SettingsActivity extends BaseActivity {
                 @Override
                 public void onSuccess() {
                     runOnUiThread(() -> {
-                        Toast.makeText(SettingsActivity.this, "Đã bật xác thực sinh trắc học", Toast.LENGTH_SHORT).show();
+                        enableFingerprintOnBackend();
                     });
                 }
                 
@@ -166,6 +175,76 @@ public class SettingsActivity extends BaseActivity {
                 }
             });
         }
+    }
+    
+    private void enableFingerprintOnBackend() {
+        Long userId = dataManager.getUserId();
+        if (userId == null) {
+            Toast.makeText(this, "Không tìm thấy thông tin người dùng", Toast.LENGTH_SHORT).show();
+            biometricManager.disableBiometric();
+            return;
+        }
+        
+        SmartFlagsRequest request = new SmartFlagsRequest();
+        request.setFingerprintLoginEnabled(true);
+        
+        userApiService.updateSmartFlags(userId, request).enqueue(new Callback<UserResponse>() {
+            @Override
+            public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    runOnUiThread(() -> {
+                        Toast.makeText(SettingsActivity.this, "Đã bật xác thực sinh trắc học", Toast.LENGTH_SHORT).show();
+                    });
+                } else {
+                    runOnUiThread(() -> {
+                        Toast.makeText(SettingsActivity.this, "Không thể cập nhật cài đặt trên server", Toast.LENGTH_LONG).show();
+                        biometricManager.disableBiometric();
+                    });
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<UserResponse> call, Throwable t) {
+                runOnUiThread(() -> {
+                    Toast.makeText(SettingsActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                    biometricManager.disableBiometric();
+                });
+            }
+        });
+    }
+    
+    private void disableFingerprintOnBackend() {
+        Long userId = dataManager.getUserId();
+        if (userId == null) {
+            Toast.makeText(this, "Không tìm thấy thông tin người dùng", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        SmartFlagsRequest request = new SmartFlagsRequest();
+        request.setFingerprintLoginEnabled(false);
+        
+        userApiService.updateSmartFlags(userId, request).enqueue(new Callback<UserResponse>() {
+            @Override
+            public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    runOnUiThread(() -> {
+                        biometricManager.disableBiometric();
+                        Toast.makeText(SettingsActivity.this, "Đã tắt xác thực sinh trắc học", Toast.LENGTH_SHORT).show();
+                    });
+                } else {
+                    runOnUiThread(() -> {
+                        Toast.makeText(SettingsActivity.this, "Không thể cập nhật cài đặt trên server", Toast.LENGTH_LONG).show();
+                    });
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<UserResponse> call, Throwable t) {
+                runOnUiThread(() -> {
+                    Toast.makeText(SettingsActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                });
+            }
+        });
     }
     
     private void setupSectionCollapse() {

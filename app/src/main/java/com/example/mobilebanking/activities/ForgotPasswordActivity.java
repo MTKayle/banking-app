@@ -148,8 +148,9 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                     // TODO: Khi có backend verify, sẽ không cần lưu OTP này nữa
                     
                     // Sau khi gửi OTP thành công, chuyển sang màn hình nhập OTP
-                    Intent intent = new Intent(ForgotPasswordActivity.this, ForgotOtpVerificationActivity.class);
+                    Intent intent = new Intent(ForgotPasswordActivity.this, OtpVerificationActivity.class);
                     intent.putExtra("phone", phone);
+                    intent.putExtra("from", "forgot_password");
                     startActivity(intent);
 
                 } else {

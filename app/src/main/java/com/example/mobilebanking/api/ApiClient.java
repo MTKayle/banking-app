@@ -85,6 +85,7 @@ public class ApiClient {
     private static ESmsApiService esmsApiService;
     private static MovieApiService movieApiService;
     private static TransactionApiService transactionApiService;
+    private static UserApiService userApiService;
 
     private static Context applicationContext;
 
@@ -236,6 +237,16 @@ public class ApiClient {
     }
 
     /**
+     * Lấy UserApiService instance
+     */
+    public static UserApiService getUserApiService() {
+        if (userApiService == null) {
+            userApiService = getRetrofitInstance().create(UserApiService.class);
+        }
+        return userApiService;
+    }
+
+    /**
      * Reset Retrofit instance (dùng khi cần thay đổi BASE_URL)
      */
     public static void reset() {
@@ -246,5 +257,6 @@ public class ApiClient {
         biometricApiService = null;
         movieApiService = null;
         transactionApiService = null;
+        userApiService = null;
     }
 }

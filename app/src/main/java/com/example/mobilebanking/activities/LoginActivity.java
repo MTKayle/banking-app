@@ -286,16 +286,41 @@ public class LoginActivity extends BaseActivity {
             Toast.makeText(this, "Số điện thoại không hợp lệ (10-11 chữ số)", Toast.LENGTH_SHORT).show();
             return;
         }
+        
+        // ⭐ THAY ĐỔI MỚI: Kiểm tra xem có phải tài khoản cuối cùng không
+        String lastUsername = dataManager.getLastUsername();
+        final String finalPhone = phone;
+        final String finalPassword = password;
+        
+        if (lastUsername != null && !lastUsername.isEmpty() && !finalPhone.equals(lastUsername)) {
+            // Không phải tài khoản cuối cùng → Yêu cầu xác thực OTP
+            new AlertDialog.Builder(this)
+                    .setTitle("Xác Thực OTP")
+                    .setMessage("Bạn đang đăng nhập bằng tài khoản khác. Vui lòng xác thực OTP để tiếp tục.")
+                    .setPositiveButton("Xác Thực", (dialog, which) -> {
+                        // Chuyển sang OtpVerificationActivity
+                        Intent intent = new Intent(LoginActivity.this, OtpVerificationActivity.class);
+                        intent.putExtra("flow", "login_verification");
+                        intent.putExtra("phone", finalPhone);
+                        intent.putExtra("password", finalPassword);
+                        startActivity(intent);
+                    })
+                    .setNegativeButton("Hủy", null)
+                    .show();
+            return;
+        }
 
+        // Tài khoản cuối cùng hoặc lần đầu đăng nhập → Đăng nhập bình thường
+        performPasswordLogin(finalPhone, finalPassword);
+    }
+    
+    private void performPasswordLogin(String phone, String password) {
         // Disable login button to prevent multiple clicks
         btnLogin.setEnabled(false);
         btnLogin.setText("Đang đăng nhập...");
 
-        // Make phone final for use in inner class
-        final String finalPhone = phone;
-
         // Call API
-        LoginRequest loginRequest = new LoginRequest(finalPhone, password);
+        LoginRequest loginRequest = new LoginRequest(phone, password);
         AuthApiService authApiService = ApiClient.getAuthApiService();
         
         Call<AuthResponse> call = authApiService.login(loginRequest);
@@ -312,10 +337,10 @@ public class LoginActivity extends BaseActivity {
                     User.UserRole role = "CUSTOMER".equalsIgnoreCase(authResponse.getRole()) 
                             ? User.UserRole.CUSTOMER 
                             : User.UserRole.OFFICER;
-                    dataManager.saveLoggedInUser(finalPhone, role);
+                    dataManager.saveLoggedInUser(phone, role);
                     
                     // Lưu username (phone) cuối cùng để tự động điền lần sau
-                    dataManager.saveLastUsername(finalPhone);
+                    dataManager.saveLastUsername(phone);
                     
                     // Lưu tên đầy đủ (fullName) của người dùng để hiển thị lần sau
                     if (authResponse.getFullName() != null && !authResponse.getFullName().isEmpty()) {
@@ -343,20 +368,18 @@ public class LoginActivity extends BaseActivity {
                         dataManager.saveUserEmail(authResponse.getEmail());
                     }
                     
+                    // ⭐ THAY ĐỔI MỚI: Luôn lưu refresh token
                     // Lưu token từ API response (access token + refresh token)
                     if (authResponse.getToken() != null && authResponse.getRefreshToken() != null) {
                         dataManager.saveTokens(authResponse.getToken(), authResponse.getRefreshToken());
+                        
+                        // Luôn lưu refresh token tạm thời để có thể bật fingerprint sau này
+                        // Không cần check isBiometricEnabled() vì user có thể bật sau
+                        saveRefreshTokenWithoutAuth(authResponse.getRefreshToken(), phone);
                     } else if (authResponse.getToken() != null) {
                         // Fallback: trong trường hợp backend chưa trả refresh token
                         dataManager.saveTokens(authResponse.getToken(), authResponse.getToken());
-                    }
-                    
-                    // Nếu đã bật chức năng vân tay, lưu refresh token tạm thời
-                    if (biometricManager.isBiometricEnabled()) {
-                        String refreshToken = dataManager.getRefreshToken();
-                        if (refreshToken != null) {
-                            saveRefreshTokenWithoutAuth(refreshToken, finalPhone);
-                        }
+                        saveRefreshTokenWithoutAuth(authResponse.getToken(), phone);
                     }
                     
                     // Reset session khi đăng nhập thành công
@@ -524,8 +547,22 @@ public class LoginActivity extends BaseActivity {
 
                             // Lưu token mới
                             dataManager.saveTokens(authResponse.getToken(), authResponse.getRefreshToken());
+                            
+                            // ⭐ THAY ĐỔI MỚI: Lưu userId và thông tin user từ AuthResponse
+                            if (authResponse.getUserId() != null) {
+                                dataManager.saveUserId(authResponse.getUserId());
+                            }
+                            if (authResponse.getPhone() != null) {
+                                dataManager.saveUserPhone(authResponse.getPhone());
+                            }
+                            if (authResponse.getFullName() != null) {
+                                dataManager.saveUserFullName(authResponse.getFullName());
+                            }
+                            if (authResponse.getEmail() != null) {
+                                dataManager.saveUserEmail(authResponse.getEmail());
+                            }
 
-                            // Lưu lại refresh token mới vào temp storage (không yêu cầu quét vân tay)
+                            // Lưu lại refresh token mới vào temp storage
                             saveRefreshTokenWithoutAuth(authResponse.getRefreshToken(), username);
                             
                             // Reset session khi đăng nhập thành công
