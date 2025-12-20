@@ -206,4 +206,33 @@
     <string name="bank_icon">Biểu tượng ngân hàng</string>
     <string name="arrow_down">Mũi tên xuống</string>
 
+    <!-- Officer Features -->
+    <string name="officer_welcome">Chào mừng Officer</string>
+    <string name="officer_badge">NHÂN VIÊN</string>
+    <string name="officer_subtitle">HỆ THỐNG QUẢN TRỊ</string>
+
+    <!-- User Management -->
+    <string name="user_management">Quản lý khách hàng</string>
+    <string name="user_list">Danh sách người dùng</string>
+    <string name="user_search">Tìm kiếm người dùng</string>
+    <string name="user_lock">Khóa/Mở khóa tài khoản</string>
+    <string name="user_update">Cập nhật thông tin</string>
+
+    <!-- Mortgage Management -->
+    <string name="mortgage_management">Quản lý khoản vay</string>
+    <string name="mortgage_create">Tạo khoản vay</string>
+    <string name="mortgage_pending_approve">Quản lý duyệt</string>
+    <string name="mortgage_search">Tìm kiếm khoản vay</string>
+
+    <!-- System Management -->
+    <string name="system_management">Quản lý hệ thống</string>
+    <string name="deposit_customer">Nạp tiền khách hàng</string>
+    <string name="update_interest_rate">Cập nhật lãi suất</string>
+    <string name="view_customer_transactions">Xem giao dịch khách hàng</string>
+    <string name="view_reports">Xem báo cáo thống kê</string>
+
+    <!-- Bottom Navigation -->
+    <string name="nav_user_mgmt">Quản lý User</string>
+    <string name="nav_mortgage_mgmt">Quản lý Vay</string>
+
 </resources>

@@ -276,11 +276,16 @@ public class SettingsActivity extends BaseActivity {
     }
     
     private void setupBottomNavigation() {
-        // Trang chủ - về UiHomeActivity (màn hình xanh lá)
+        // Trang chủ - về UiHomeActivity hoặc OfficerHomeActivity tùy role
         View navHome = findViewById(R.id.nav_home);
         if (navHome != null) {
             navHome.setOnClickListener(v -> {
-                Intent intent = new Intent(this, com.example.mobilebanking.ui_home.UiHomeActivity.class);
+                Intent intent;
+                if (dataManager.getUserRole() == com.example.mobilebanking.models.User.UserRole.OFFICER) {
+                    intent = new Intent(this, com.example.mobilebanking.ui_home.OfficerHomeActivity.class);
+                } else {
+                    intent = new Intent(this, com.example.mobilebanking.ui_home.UiHomeActivity.class);
+                }
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
                 finish();
