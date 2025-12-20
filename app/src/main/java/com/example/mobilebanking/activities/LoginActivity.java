@@ -287,6 +287,15 @@ public class LoginActivity extends BaseActivity {
             return;
         }
 
+        // ========== MOCK LOGIN FOR TESTING OFFICER UI (NO BACKEND NEEDED) ==========
+        // Test Officer 1: 0900000001 / officer123
+        // Test Officer 2: 0900000002 / officer123
+        if ((phone.equals("0900000001") || phone.equals("0900000002")) && password.equals("officer123")) {
+            handleMockOfficerLogin(phone);
+            return;
+        }
+        // ========== END MOCK LOGIN ==========
+
         // Disable login button to prevent multiple clicks
         btnLogin.setEnabled(false);
         btnLogin.setText("Đang đăng nhập...");
@@ -578,7 +587,8 @@ public class LoginActivity extends BaseActivity {
         Intent intent;
         
         if (role == User.UserRole.OFFICER) {
-            intent = new Intent(LoginActivity.this, OfficerDashboardActivity.class);
+            // Chuyển đến OfficerHomeActivity thay vì OfficerDashboardActivity
+            intent = new Intent(LoginActivity.this, com.example.mobilebanking.ui_home.OfficerHomeActivity.class);
         } else {
             // Chuyển đến UiHomeActivity thay vì CustomerDashboardActivity
             intent = new Intent(LoginActivity.this, com.example.mobilebanking.ui_home.UiHomeActivity.class);
@@ -587,6 +597,36 @@ public class LoginActivity extends BaseActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
+    }
+    
+    /**
+     * Mock Officer Login - Để test giao diện Officer mà không cần backend
+     * Sử dụng:
+     * - Số điện thoại: 0900000001 hoặc 0900000002
+     * - Mật khẩu: officer123
+     */
+    private void handleMockOfficerLogin(String phone) {
+        // Determine officer name based on phone
+        String fullName = phone.equals("0900000001") ? "Nguyễn Văn Officer" : "Trần Thị Lan";
+        String email = phone.equals("0900000001") ? "officer1@bank.com" : "officer2@bank.com";
+        
+        // Save officer session
+        dataManager.saveLoggedInUser(phone, User.UserRole.OFFICER);
+        dataManager.saveLastUsername(phone);
+        dataManager.saveLastFullName(fullName);
+        dataManager.saveUserFullName(fullName);
+        dataManager.saveUserPhone(phone);
+        dataManager.saveUserEmail(email);
+        dataManager.saveUserId(1L); // Mock user ID
+        
+        // Save mock token (không cần thật vì không call API)
+        dataManager.saveTokens("mock_access_token", "mock_refresh_token");
+        
+        // Reset session
+        sessionManager.onLoginSuccess();
+        
+        Toast.makeText(this, "Đăng nhập Officer thành công! (Mock Mode)", Toast.LENGTH_SHORT).show();
+        navigateToDashboard();
     }
     
     /**

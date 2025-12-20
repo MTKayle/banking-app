@@ -9,19 +9,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mobilebanking.R;
+import com.example.mobilebanking.ui_home.OfficerHomeActivity;
 import com.example.mobilebanking.utils.BiometricAuthManager;
 import com.example.mobilebanking.utils.DataManager;
 
 import java.util.Calendar;
 
 /**
- * Settings Activity - Combined Profile & Settings screen
- * Design according to BIDV style with collapsible sections
+ * Officer Settings Activity - Trang Hồ sơ cho Officer
+ * Bottom navigation giống trang chủ Officer: Trang chủ, Quản lý User, Quản lý Vay, Hồ sơ
  */
-public class SettingsActivity extends BaseActivity {
+public class OfficerSettingsActivity extends BaseActivity {
     private DataManager dataManager;
     private BiometricAuthManager biometricManager;
     
@@ -37,7 +37,7 @@ public class SettingsActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings_combined);
+        setContentView(R.layout.activity_officer_settings);
 
         dataManager = DataManager.getInstance(this);
         biometricManager = new BiometricAuthManager(this);
@@ -49,33 +49,27 @@ public class SettingsActivity extends BaseActivity {
         setupBottomNavigation();
         setupLogout();
     }
-    
+
     private void initViews() {
         tvGreeting = findViewById(R.id.tv_greeting);
         tvUserName = findViewById(R.id.tv_user_name);
         
-        // Section headers
         headerPersonal = findViewById(R.id.header_personal);
-        headerSecurity = findViewById(R.id.header_security);
-        
-        // Section contents
         contentPersonal = findViewById(R.id.content_personal);
-        contentSecurity = findViewById(R.id.content_security);
-        
-        // Expand icons
         ivExpandPersonal = findViewById(R.id.iv_expand_personal);
+        
+        headerSecurity = findViewById(R.id.header_security);
+        contentSecurity = findViewById(R.id.content_security);
         ivExpandSecurity = findViewById(R.id.iv_expand_security);
     }
     
     private void setupUserInfo() {
-        // Greeting based on time of day
-        Calendar calendar = Calendar.getInstance();
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        
+        // Greeting based on time
+        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
         String greeting;
-        if (hour >= 5 && hour < 12) {
+        if (hour < 12) {
             greeting = "Chào buổi sáng!";
-        } else if (hour >= 12 && hour < 18) {
+        } else if (hour < 18) {
             greeting = "Chào buổi chiều!";
         } else {
             greeting = "Chào buổi tối!";
@@ -85,16 +79,10 @@ public class SettingsActivity extends BaseActivity {
             tvGreeting.setText(greeting);
         }
         
-        // User name from DataManager
+        // User name
         String fullName = dataManager.getUserFullName();
         if (fullName == null || fullName.isEmpty()) {
-            fullName = dataManager.getLastFullName();
-        }
-        if (fullName == null || fullName.isEmpty()) {
-            fullName = dataManager.getLoggedInUser();
-        }
-        if (fullName == null || fullName.isEmpty()) {
-            fullName = "KHÁCH HÀNG";
+            fullName = "OFFICER";
         }
         
         if (tvUserName != null) {
@@ -103,41 +91,46 @@ public class SettingsActivity extends BaseActivity {
     }
     
     private void setupItemClickListeners() {
-        // Item: Cài đặt sinh trắc học -> Toggle biometric
+        // Đổi ảnh đại diện
+        View itemAvatar = findViewById(R.id.item_change_avatar);
+        if (itemAvatar != null) {
+            itemAvatar.setOnClickListener(v -> {
+                Toast.makeText(this, "Chức năng đổi ảnh đại diện đang phát triển", Toast.LENGTH_SHORT).show();
+            });
+        }
+        
+        // Đổi giao diện
+        View itemTheme = findViewById(R.id.item_change_theme);
+        if (itemTheme != null) {
+            itemTheme.setOnClickListener(v -> {
+                Toast.makeText(this, "Chức năng đổi giao diện đang phát triển", Toast.LENGTH_SHORT).show();
+            });
+        }
+        
+        // Ngôn ngữ
+        View itemLanguage = findViewById(R.id.item_language);
+        if (itemLanguage != null) {
+            itemLanguage.setOnClickListener(v -> {
+                Toast.makeText(this, "Chức năng đổi ngôn ngữ đang phát triển", Toast.LENGTH_SHORT).show();
+            });
+        }
+        
+        // Xác thực sinh trắc học
         View itemBiometric = findViewById(R.id.item_biometric);
         if (itemBiometric != null) {
             itemBiometric.setOnClickListener(v -> toggleBiometric());
         }
         
-        // Item: Cài đặt vân tay -> Toggle biometric
-        View itemFingerprint = findViewById(R.id.item_fingerprint);
-        if (itemFingerprint != null) {
-            itemFingerprint.setOnClickListener(v -> toggleBiometric());
-        }
-        
-        // Các item khác: Toast "đang phát triển"
-        int[] developingItems = {
-            R.id.item_avatar, R.id.item_theme, R.id.item_wallpaper,
-            R.id.item_language, R.id.item_watch,
-            R.id.item_otp, R.id.item_login, R.id.item_password
-        };
-        
-        for (int itemId : developingItems) {
-            View item = findViewById(itemId);
-            if (item != null) {
-                item.setOnClickListener(v -> {
-                    Toast.makeText(this, "Tính năng đang phát triển", Toast.LENGTH_SHORT).show();
-                });
-            }
+        // Đổi mật khẩu
+        View itemPassword = findViewById(R.id.item_change_password);
+        if (itemPassword != null) {
+            itemPassword.setOnClickListener(v -> {
+                Toast.makeText(this, "Chức năng đổi mật khẩu đang phát triển", Toast.LENGTH_SHORT).show();
+            });
         }
     }
     
     private void toggleBiometric() {
-        if (!biometricManager.isBiometricAvailable()) {
-            Toast.makeText(this, "Thiết bị không hỗ trợ xác thực sinh trắc học", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        
         boolean isEnabled = biometricManager.isBiometricEnabled();
         if (isEnabled) {
             new AlertDialog.Builder(this)
@@ -154,14 +147,14 @@ public class SettingsActivity extends BaseActivity {
                 @Override
                 public void onSuccess() {
                     runOnUiThread(() -> {
-                        Toast.makeText(SettingsActivity.this, "Đã bật xác thực sinh trắc học", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(OfficerSettingsActivity.this, "Đã bật xác thực sinh trắc học", Toast.LENGTH_SHORT).show();
                     });
                 }
                 
                 @Override
                 public void onError(String error) {
                     runOnUiThread(() -> {
-                        Toast.makeText(SettingsActivity.this, "Không thể bật chức năng: " + error, Toast.LENGTH_LONG).show();
+                        Toast.makeText(OfficerSettingsActivity.this, "Không thể bật chức năng: " + error, Toast.LENGTH_LONG).show();
                     });
                 }
             });
@@ -197,39 +190,34 @@ public class SettingsActivity extends BaseActivity {
     }
     
     private void setupBottomNavigation() {
-        // Trang chủ - về UiHomeActivity hoặc OfficerHomeActivity tùy role
-        View navHome = findViewById(R.id.nav_home);
+        // Trang chủ - về OfficerHomeActivity
+        View navHome = findViewById(R.id.officer_nav_home);
         if (navHome != null) {
             navHome.setOnClickListener(v -> {
-                Intent intent;
-                if (dataManager.getUserRole() == com.example.mobilebanking.models.User.UserRole.OFFICER) {
-                    intent = new Intent(this, com.example.mobilebanking.ui_home.OfficerHomeActivity.class);
-                } else {
-                    intent = new Intent(this, com.example.mobilebanking.ui_home.UiHomeActivity.class);
-                }
+                Intent intent = new Intent(this, OfficerHomeActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
                 finish();
             });
         }
         
-        // Quét QR
-        View navQr = findViewById(R.id.nav_qr);
-        if (navQr != null) {
-            navQr.setOnClickListener(v -> {
-                startActivity(new Intent(this, QrScannerActivity.class));
+        // Quản lý User
+        View navUser = findViewById(R.id.officer_nav_user);
+        if (navUser != null) {
+            navUser.setOnClickListener(v -> {
+                startActivity(new Intent(this, OfficerUserListActivity.class));
             });
         }
         
-        // Thẻ
-        View navCard = findViewById(R.id.nav_card);
-        if (navCard != null) {
-            navCard.setOnClickListener(v -> {
-                Toast.makeText(this, "Tính năng Thẻ đang phát triển", Toast.LENGTH_SHORT).show();
+        // Quản lý Vay
+        View navMortgage = findViewById(R.id.officer_nav_mortgage);
+        if (navMortgage != null) {
+            navMortgage.setOnClickListener(v -> {
+                startActivity(new Intent(this, OfficerMortgageListActivity.class));
             });
         }
         
-        // Hồ sơ - đang ở đây rồi
+        // Hồ sơ - đang ở đây rồi, không cần xử lý
     }
     
     private void setupLogout() {
@@ -260,6 +248,11 @@ public class SettingsActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        // Về trang chủ Officer
+        Intent intent = new Intent(this, OfficerHomeActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
     }
 }
+

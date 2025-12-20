@@ -117,6 +117,47 @@
             android:exported="false"
             android:theme="@style/Theme.MobileBanking" />
 
+        <!-- Officer Home UI Activity (frontend-only) -->
+        <activity
+            android:name="com.example.mobilebanking.ui_home.OfficerHomeActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MobileBanking" />
+
+        <!-- Officer Management Activities -->
+        <activity
+            android:name="com.example.mobilebanking.activities.OfficerUserListActivity"
+            android:parentActivityName="com.example.mobilebanking.ui_home.OfficerHomeActivity" />
+        <activity
+            android:name="com.example.mobilebanking.activities.OfficerUserDetailActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.OfficerUserListActivity" />
+        <activity
+            android:name="com.example.mobilebanking.activities.OfficerUserUpdateActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.OfficerUserDetailActivity" />
+        <activity
+            android:name="com.example.mobilebanking.activities.OfficerMortgageListActivity"
+            android:parentActivityName="com.example.mobilebanking.ui_home.OfficerHomeActivity" />
+        <activity
+            android:name="com.example.mobilebanking.activities.OfficerMortgageDetailActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.OfficerMortgageListActivity" />
+        <activity
+            android:name="com.example.mobilebanking.activities.OfficerMortgageCreateActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.OfficerMortgageListActivity" />
+        <activity
+            android:name="com.example.mobilebanking.activities.OfficerDepositActivity"
+            android:parentActivityName="com.example.mobilebanking.ui_home.OfficerHomeActivity" />
+        <activity
+            android:name="com.example.mobilebanking.activities.OfficerInterestRateActivity"
+            android:parentActivityName="com.example.mobilebanking.ui_home.OfficerHomeActivity" />
+        <activity
+            android:name="com.example.mobilebanking.activities.OfficerCustomerTransactionsActivity"
+            android:parentActivityName="com.example.mobilebanking.ui_home.OfficerHomeActivity" />
+        <activity
+            android:name="com.example.mobilebanking.activities.OfficerReportsActivity"
+            android:parentActivityName="com.example.mobilebanking.ui_home.OfficerHomeActivity" />
+        <activity
+            android:name="com.example.mobilebanking.activities.OfficerSettingsActivity"
+            android:parentActivityName="com.example.mobilebanking.ui_home.OfficerHomeActivity" />
+
         <activity
             android:name="com.example.mobilebanking.activities.OfficerDashboardActivity" />
 
