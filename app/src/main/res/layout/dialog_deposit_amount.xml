@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/dialog_rounded_background">
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Nạp tiền vào tài khoản"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/bidv_text_dark"
+        android:gravity="center"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Amount Input Card -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
+        android:layout_marginBottom="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Số tiền nạp"
+                android:textSize="14sp"
+                android:textColor="@color/bidv_text_gray"
+                android:layout_marginBottom="8dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <EditText
+                    android:id="@+id/et_deposit_amount"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="0"
+                    android:inputType="number"
+                    android:textSize="32sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/bidv_primary"
+                    android:background="@null"
+                    android:maxLength="15"
+                    android:gravity="end" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" VNĐ"
+                    android:textSize="18sp"
+                    android:textColor="@color/bidv_text_gray"
+                    android:layout_marginStart="8dp" />
+            </LinearLayout>
+
+            <!-- Amount in words -->
+            <TextView
+                android:id="@+id/tv_amount_words"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Không đồng"
+                android:textSize="13sp"
+                android:textColor="@color/bidv_text_gray"
+                android:textStyle="italic"
+                android:layout_marginTop="8dp"
+                android:gravity="end" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Quick Amount Buttons -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Chọn nhanh"
+        android:textSize="14sp"
+        android:textColor="@color/bidv_text_gray"
+        android:layout_marginBottom="12dp" />
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="3"
+        android:rowCount="2"
+        android:layout_marginBottom="24dp">
+
+        <Button
+            android:id="@+id/btn_amount_100k"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_margin="4dp"
+            android:text="100.000"
+            android:textSize="12sp"
+            android:padding="8dp" />
+
+        <Button
+            android:id="@+id/btn_amount_500k"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_margin="4dp"
+            android:text="500.000"
+            android:textSize="12sp"
+            android:padding="8dp" />
+
+        <Button
+            android:id="@+id/btn_amount_1m"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_margin="4dp"
+            android:text="1.000.000"
+            android:textSize="12sp"
+            android:padding="8dp" />
+
+        <Button
+            android:id="@+id/btn_amount_2m"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_margin="4dp"
+            android:text="2.000.000"
+            android:textSize="12sp"
+            android:padding="8dp" />
+
+        <Button
+            android:id="@+id/btn_amount_5m"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_margin="4dp"
+            android:text="5.000.000"
+            android:textSize="12sp"
+            android:padding="8dp" />
+
+        <Button
+            android:id="@+id/btn_amount_10m"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_margin="4dp"
+            android:text="10.000.000"
+            android:textSize="12sp"
+            android:padding="8dp" />
+    </GridLayout>
+
+    <!-- Note -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="💡 Số tiền tối thiểu: 10.000 VNĐ"
+        android:textSize="12sp"
+        android:textColor="@color/bidv_text_gray"
+        android:layout_marginBottom="16dp"
+        android:gravity="center" />
+
+    <!-- Confirm Button -->
+    <Button
+        android:id="@+id/btn_confirm_deposit"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Xác nhận"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/white"
+        android:backgroundTint="@color/bidv_primary"
+        app:cornerRadius="12dp" />
+
+</LinearLayout>

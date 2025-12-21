@@ -298,23 +298,64 @@ public class BillPaymentConfirmationActivity extends AppCompatActivity {
                         .show();
                     return;
                 }
+                
+                // Check if amount >= 10 million -> require face verification first
+                if (totalAmount >= 10000000) {
+                    // Show confirmation dialog then navigate to face verification
+                    new AlertDialog.Builder(this)
+                        .setTitle("Xác nhận thanh toán")
+                        .setMessage("Giao dịch trên 10 triệu đồng yêu cầu xác thực khuôn mặt.\n\n" +
+                                   "Số tiền: " + tvTotalAmount.getText().toString())
+                        .setPositiveButton("Tiếp tục", (dialog, which) -> {
+                            navigateToFaceVerification();
+                        })
+                        .setNegativeButton("Hủy", null)
+                        .show();
+                } else {
+                    // Show final confirmation dialog for normal amount
+                    new AlertDialog.Builder(this)
+                        .setTitle("Xác nhận thanh toán")
+                        .setMessage("Bạn có chắc chắn muốn thanh toán hóa đơn này?\n\n" +
+                                   "Số tiền: " + tvTotalAmount.getText().toString())
+                        .setPositiveButton("Xác nhận", (dialog, which) -> {
+                            // Navigate to OTP verification
+                            navigateToOtpVerification();
+                        })
+                        .setNegativeButton("Hủy", null)
+                        .show();
+                }
             } catch (NumberFormatException e) {
                 Toast.makeText(this, "Lỗi: Không thể xác định số tiền", Toast.LENGTH_SHORT).show();
                 return;
             }
         }
+    }
+    
+    /**
+     * Navigate to face verification for high-value transactions (>= 10M)
+     */
+    private void navigateToFaceVerification() {
+        // Get phone number from DataManager
+        String userPhone = dataManager.getUserPhone();
+        if (TextUtils.isEmpty(userPhone)) {
+            Toast.makeText(this, "Không tìm thấy số điện thoại", Toast.LENGTH_SHORT).show();
+            return;
+        }
         
-        // Show final confirmation dialog
-        new AlertDialog.Builder(this)
-            .setTitle("Xác nhận thanh toán")
-            .setMessage("Bạn có chắc chắn muốn thanh toán hóa đơn này?\n\n" +
-                       "Số tiền: " + tvTotalAmount.getText().toString())
-            .setPositiveButton("Xác nhận", (dialog, which) -> {
-                // Navigate to OTP verification
-                navigateToOtpVerification();
-            })
-            .setNegativeButton("Hủy", null)
-            .show();
+        Intent intent = new Intent(this, FaceVerificationTransactionActivity.class);
+        intent.putExtra("from", "BILL_PAYMENT");
+        intent.putExtra("phone", userPhone);
+        
+        // Pass bill payment data
+        intent.putExtra("BILL_CODE", billCode);
+        intent.putExtra("BILL_TYPE", billType);
+        intent.putExtra("PROVIDER_NAME", providerName);
+        intent.putExtra("AMOUNT", amount);
+        intent.putExtra("ACCOUNT_NUMBER", accountNumber);
+        intent.putExtra("BILLING_PERIOD", billingPeriod);
+        
+        startActivity(intent);
+        finish();
     }
     
     /**

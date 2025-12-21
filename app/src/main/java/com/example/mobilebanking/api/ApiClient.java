@@ -91,6 +91,7 @@ public class ApiClient {
     private static TransferApiService transferApiService;
     private static UtilityBillApiService utilityBillApiService;
     private static QrApiService qrApiService;
+    private static VNPayApiService vnPayApiService;
 
     private static Context applicationContext;
 
@@ -299,6 +300,23 @@ public class ApiClient {
             qrApiService = getRetrofitInstance().create(QrApiService.class);
         }
         return qrApiService;
+    }
+    
+    /**
+     * Lấy VNPayApiService instance
+     */
+    public static VNPayApiService getVNPayApiService() {
+        if (vnPayApiService == null) {
+            vnPayApiService = getRetrofitInstance().create(VNPayApiService.class);
+        }
+        return vnPayApiService;
+    }
+    
+    /**
+     * Get base URL (without /api/ suffix)
+     */
+    public static String getBaseUrl() {
+        return BASE_URL.replace("/api/", "");
     }
 
     /**

@@ -514,12 +514,9 @@ public class OtpVerificationActivity extends AppCompatActivity {
             // Xác thực thành công → Gọi API đặt vé
             processMovieBooking();
         } else if ("BILL_PAYMENT".equals(fromActivity)) {
-            // Xác thực thành công → Return result to BillPaymentConfirmationActivity
-            Log.d(TAG, "BILL_PAYMENT - Returning RESULT_OK");
-            Intent resultIntent = new Intent();
-            resultIntent.putExtra("OTP_VERIFIED", true);
-            setResult(RESULT_OK, resultIntent);
-            finish();
+            // Xác thực thành công → Gọi API thanh toán hóa đơn
+            Log.d(TAG, "BILL_PAYMENT - Processing payment");
+            processBillPayment();
         } else if ("SAVING".equals(fromActivity)) {
             // Xác thực thành công → Return result to SavingConfirmActivity
             Log.d(TAG, "SAVING - Returning RESULT_OK");
@@ -967,6 +964,95 @@ public class OtpVerificationActivity extends AppCompatActivity {
 
         // Start success activity
         startActivity(successIntent);
+        finish();
+    }
+    
+    /**
+     * Process bill payment after OTP verification
+     */
+    private void processBillPayment() {
+        // Show loading
+        if (progressBar != null) {
+            progressBar.setVisibility(android.view.View.VISIBLE);
+        }
+        btnVerify.setEnabled(false);
+        
+        // Get bill code from intent
+        String billCode = getIntent().getStringExtra("BILL_CODE");
+        
+        if (billCode == null || billCode.isEmpty()) {
+            Toast.makeText(this, "Lỗi: Không tìm thấy mã hóa đơn", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        // Build request
+        com.example.mobilebanking.api.dto.BillPaymentRequest request = 
+            new com.example.mobilebanking.api.dto.BillPaymentRequest(billCode);
+        
+        // Call API
+        ApiClient.getUtilityBillApiService()
+            .payBill(request)
+            .enqueue(new retrofit2.Callback<com.example.mobilebanking.api.dto.BillPaymentResponse>() {
+                @Override
+                public void onResponse(retrofit2.Call<com.example.mobilebanking.api.dto.BillPaymentResponse> call, 
+                                     retrofit2.Response<com.example.mobilebanking.api.dto.BillPaymentResponse> response) {
+                    if (progressBar != null) {
+                        progressBar.setVisibility(android.view.View.GONE);
+                    }
+                    btnVerify.setEnabled(true);
+                    
+                    if (response.isSuccessful() && response.body() != null) {
+                        com.example.mobilebanking.api.dto.BillPaymentResponse paymentResponse = response.body();
+                        if (paymentResponse.getSuccess() && paymentResponse.getData() != null) {
+                            // Payment successful - navigate to success screen
+                            navigateToBillPaymentSuccess(paymentResponse.getData());
+                        } else {
+                            Toast.makeText(OtpVerificationActivity.this, 
+                                paymentResponse.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    } else {
+                        Toast.makeText(OtpVerificationActivity.this, 
+                            "Lỗi thanh toán: " + response.code(), Toast.LENGTH_LONG).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(retrofit2.Call<com.example.mobilebanking.api.dto.BillPaymentResponse> call, Throwable t) {
+                    if (progressBar != null) {
+                        progressBar.setVisibility(android.view.View.GONE);
+                    }
+                    btnVerify.setEnabled(true);
+                    
+                    Toast.makeText(OtpVerificationActivity.this, 
+                        "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            });
+    }
+    
+    /**
+     * Navigate to bill payment success screen
+     */
+    private void navigateToBillPaymentSuccess(com.example.mobilebanking.api.dto.BillPaymentResponse.PaymentData paymentData) {
+        Intent intent = new Intent(this, BillPaymentSuccessActivity.class);
+        
+        // Pass payment result data
+        intent.putExtra("transaction_id", paymentData.getTransactionId());
+        intent.putExtra("bill_code", paymentData.getBillCode());
+        intent.putExtra("amount", paymentData.getAmount() != null ? 
+            paymentData.getAmount().toString() : getIntent().getStringExtra("AMOUNT"));
+        intent.putExtra("payment_time", paymentData.getPaymentTime());
+        intent.putExtra("balance_after", paymentData.getBalanceAfter() != null ? 
+            paymentData.getBalanceAfter().toString() : "0");
+        intent.putExtra("status", paymentData.getStatus());
+        intent.putExtra("message", paymentData.getMessage());
+        
+        // Pass bill info from original intent
+        intent.putExtra("provider_name", getIntent().getStringExtra("PROVIDER_NAME"));
+        intent.putExtra("bill_type", getIntent().getStringExtra("BILL_TYPE"));
+        intent.putExtra("billing_period", getIntent().getStringExtra("BILLING_PERIOD"));
+        intent.putExtra("account_number", getIntent().getStringExtra("ACCOUNT_NUMBER"));
+
+        startActivity(intent);
         finish();
     }
     

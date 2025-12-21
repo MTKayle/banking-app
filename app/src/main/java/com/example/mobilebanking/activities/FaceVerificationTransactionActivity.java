@@ -360,14 +360,76 @@ public class FaceVerificationTransactionActivity extends AppCompatActivity {
                 .setTitle("XÁC THỰC THÀNH CÔNG")
                 .setMessage("Khuôn mặt của bạn đã được xác thực thành công")
                 .setPositiveButton("Tiếp tục", (dialog, which) -> {
-                    // Return success result and proceed to OTP
-                    Intent resultIntent = new Intent();
-                    resultIntent.putExtra("verification_success", true);
-                    setResult(RESULT_OK, resultIntent);
-                    finish();
+                    // Navigate to OTP verification after face verification success
+                    navigateToOtpVerification();
                 })
                 .setCancelable(false)
                 .show();
+    }
+    
+    /**
+     * Navigate to OTP verification after face verification success
+     */
+    private void navigateToOtpVerification() {
+        Intent currentIntent = getIntent();
+        String from = currentIntent.getStringExtra("from");
+        
+        Intent otpIntent = new Intent(this, OtpVerificationActivity.class);
+        
+        if ("movie_booking".equals(from)) {
+            // Movie booking flow
+            String userPhone = currentIntent.getStringExtra("user_phone");
+            otpIntent.putExtra("phone", userPhone);
+            otpIntent.putExtra("from", "movie_booking");
+            
+            // Pass all booking data
+            otpIntent.putExtra("customer_name", currentIntent.getStringExtra("customer_name"));
+            otpIntent.putExtra("customer_phone", currentIntent.getStringExtra("customer_phone"));
+            otpIntent.putExtra("customer_email", currentIntent.getStringExtra("customer_email"));
+            otpIntent.putExtra("screening_id", currentIntent.getLongExtra("screening_id", -1));
+            otpIntent.putExtra("seat_ids", currentIntent.getLongArrayExtra("seat_ids"));
+            
+            // Display info
+            otpIntent.putExtra("movie_title", currentIntent.getStringExtra("movie_title"));
+            otpIntent.putExtra("cinema_name", currentIntent.getStringExtra("cinema_name"));
+            otpIntent.putExtra("showtime", currentIntent.getStringExtra("showtime"));
+            otpIntent.putExtra("seats", currentIntent.getStringExtra("seats"));
+            otpIntent.putExtra("total_amount", currentIntent.getDoubleExtra("total_amount", 0));
+            
+        } else if ("BILL_PAYMENT".equals(from)) {
+            // Bill payment flow
+            String userPhone = currentIntent.getStringExtra("phone");
+            otpIntent.putExtra("phone", userPhone);
+            otpIntent.putExtra("from", "BILL_PAYMENT");
+            
+            // Pass all bill payment data
+            otpIntent.putExtra("BILL_CODE", currentIntent.getStringExtra("BILL_CODE"));
+            otpIntent.putExtra("BILL_TYPE", currentIntent.getStringExtra("BILL_TYPE"));
+            otpIntent.putExtra("PROVIDER_NAME", currentIntent.getStringExtra("PROVIDER_NAME"));
+            otpIntent.putExtra("AMOUNT", currentIntent.getStringExtra("AMOUNT"));
+            otpIntent.putExtra("ACCOUNT_NUMBER", currentIntent.getStringExtra("ACCOUNT_NUMBER"));
+            otpIntent.putExtra("BILLING_PERIOD", currentIntent.getStringExtra("BILLING_PERIOD"));
+            
+        } else {
+            // Transfer or other transaction flow (existing logic)
+            String recipientAccount = currentIntent.getStringExtra("recipientAccount");
+            String recipientName = currentIntent.getStringExtra("recipientName");
+            String recipientBank = currentIntent.getStringExtra("recipientBank");
+            double amount = currentIntent.getDoubleExtra("amount", 0);
+            String description = currentIntent.getStringExtra("description");
+            String userPhone = currentIntent.getStringExtra("userPhone");
+            
+            otpIntent.putExtra("from", "transfer");
+            otpIntent.putExtra("phone", userPhone);
+            otpIntent.putExtra("recipientAccount", recipientAccount);
+            otpIntent.putExtra("recipientName", recipientName);
+            otpIntent.putExtra("recipientBank", recipientBank);
+            otpIntent.putExtra("amount", amount);
+            otpIntent.putExtra("description", description);
+        }
+        
+        startActivity(otpIntent);
+        finish();
     }
     
     private void showFailureDialog(String message) {

@@ -396,6 +396,48 @@ public class MoviePaymentActivity extends AppCompatActivity {
             return;
         }
         
+        // Check if amount >= 10 million -> require face verification first
+        if (totalAmount >= 10000000) {
+            // Navigate to face verification first
+            navigateToFaceVerification(customerName, customerPhone, customerEmail, userPhone);
+        } else {
+            // Navigate directly to OTP
+            navigateToOtpWithData(customerName, customerPhone, customerEmail, userPhone);
+        }
+    }
+    
+    /**
+     * Navigate to face verification for high-value transactions (>= 10M)
+     */
+    private void navigateToFaceVerification(String customerName, String customerPhone, 
+                                           String customerEmail, String userPhone) {
+        Intent intent = new Intent(this, FaceVerificationTransactionActivity.class);
+        intent.putExtra("from", "movie_booking");
+        
+        // Pass booking data
+        intent.putExtra("customer_name", customerName);
+        intent.putExtra("customer_phone", customerPhone);
+        intent.putExtra("customer_email", customerEmail);
+        intent.putExtra("user_phone", userPhone);
+        intent.putExtra("screening_id", screeningId);
+        intent.putExtra("seat_ids", seatIds);
+        
+        // Pass display info
+        intent.putExtra("movie_title", getIntent().getStringExtra(EXTRA_MOVIE_TITLE));
+        intent.putExtra("cinema_name", getIntent().getStringExtra(EXTRA_CINEMA_NAME));
+        intent.putExtra("showtime", getIntent().getStringExtra(EXTRA_SHOWTIME));
+        intent.putExtra("seats", getIntent().getStringExtra(EXTRA_SEATS));
+        intent.putExtra("total_amount", totalAmount);
+        
+        startActivity(intent);
+        finish();
+    }
+    
+    /**
+     * Navigate to OTP with booking data
+     */
+    private void navigateToOtpWithData(String customerName, String customerPhone, 
+                                      String customerEmail, String userPhone) {
         Intent intent = new Intent(this, OtpVerificationActivity.class);
         // OTP gửi đến số điện thoại của tài khoản đang đăng nhập
         intent.putExtra("phone", userPhone);

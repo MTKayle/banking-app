@@ -358,7 +358,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_button_outline_rounded"
+                    android:background="@drawable/bg_button_green_rounded"
                     android:minHeight="50dp"
                     android:text="Chia sẻ"
                     android:textAllCaps="false"

@@ -98,8 +98,10 @@ public class SavingSuccessActivity extends AppCompatActivity {
     }
 
     private void navigateToHome() {
-        Intent intent = new Intent(this, UiHomeActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        // Navigate to UiHome, then it will open Account with Saving tab
+        Intent intent = new Intent(this, com.example.mobilebanking.ui_home.UiHomeActivity.class);
+        intent.putExtra("OPEN_ACCOUNT_TAB", 1); // 1 = Tiết kiệm tab
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
         finish();
     }

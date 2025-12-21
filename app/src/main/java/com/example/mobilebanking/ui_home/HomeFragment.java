@@ -150,7 +150,13 @@ public class HomeFragment extends Fragment {
 
         // Quick actions
         setupQuickAction(view, R.id.uihome_action_transfer, new Intent(requireContext(), TransferActivity.class));
-        setupQuickAction(view, R.id.uihome_action_my_qr, new Intent(requireContext(), com.example.mobilebanking.activities.MyQRActivity.class));
+        
+        // Nạp tiền - Show deposit dialog
+        View depositButton = view.findViewById(R.id.uihome_action_deposit);
+        if (depositButton != null) {
+            depositButton.setOnClickListener(v -> showDepositDialog());
+        }
+        
         setupQuickAction(view, R.id.uihome_action_data, new Intent(requireContext(), MobileTopUpActivity.class));
         setupQuickAction(view, R.id.uihome_action_topup, new Intent(requireContext(), MobileTopUpActivity.class));
         setupQuickAction(view, R.id.uihome_action_bill, new Intent(requireContext(), BillPaymentActivity.class));
@@ -706,6 +712,175 @@ public class HomeFragment extends Fragment {
         stopAutoScroll();
         cancelResumeAutoScroll();
     }
+    
+    /**
+     * Show deposit amount dialog
+     */
+    private void showDepositDialog() {
+        com.google.android.material.bottomsheet.BottomSheetDialog dialog = 
+                new com.google.android.material.bottomsheet.BottomSheetDialog(requireContext());
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_deposit_amount, null);
+        dialog.setContentView(dialogView);
+        
+        android.widget.EditText etAmount = dialogView.findViewById(R.id.et_deposit_amount);
+        TextView tvAmountWords = dialogView.findViewById(R.id.tv_amount_words);
+        android.widget.Button btnConfirm = dialogView.findViewById(R.id.btn_confirm_deposit);
+        
+        // Quick amount buttons
+        dialogView.findViewById(R.id.btn_amount_100k).setOnClickListener(v -> setAmount(etAmount, tvAmountWords, 100000));
+        dialogView.findViewById(R.id.btn_amount_500k).setOnClickListener(v -> setAmount(etAmount, tvAmountWords, 500000));
+        dialogView.findViewById(R.id.btn_amount_1m).setOnClickListener(v -> setAmount(etAmount, tvAmountWords, 1000000));
+        dialogView.findViewById(R.id.btn_amount_2m).setOnClickListener(v -> setAmount(etAmount, tvAmountWords, 2000000));
+        dialogView.findViewById(R.id.btn_amount_5m).setOnClickListener(v -> setAmount(etAmount, tvAmountWords, 5000000));
+        dialogView.findViewById(R.id.btn_amount_10m).setOnClickListener(v -> setAmount(etAmount, tvAmountWords, 10000000));
+        
+        // Format amount as user types
+        etAmount.addTextChangedListener(new android.text.TextWatcher() {
+            private String current = "";
+            
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+                if (!s.toString().equals(current)) {
+                    etAmount.removeTextChangedListener(this);
+                    
+                    String cleanString = s.toString().replaceAll("[,.]", "");
+                    
+                    if (cleanString.isEmpty()) {
+                        tvAmountWords.setText("Không đồng");
+                        current = "";
+                    } else {
+                        try {
+                            long parsed = Long.parseLong(cleanString);
+                            String formatted = formatNumber(parsed);
+                            current = formatted;
+                            etAmount.setText(formatted);
+                            etAmount.setSelection(formatted.length());
+                            
+                            // Convert to words
+                            String words = com.example.mobilebanking.utils.NumberToVietnameseWords.convert(parsed);
+                            tvAmountWords.setText(words);
+                        } catch (NumberFormatException e) {
+                            tvAmountWords.setText("Số không hợp lệ");
+                        }
+                    }
+                    
+                    etAmount.addTextChangedListener(this);
+                }
+            }
+        });
+        
+        // Confirm button
+        btnConfirm.setOnClickListener(v -> {
+            String amountStr = etAmount.getText().toString().replaceAll("[,.]", "");
+            if (amountStr.isEmpty()) {
+                Toast.makeText(requireContext(), "Vui lòng nhập số tiền", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            try {
+                long amount = Long.parseLong(amountStr);
+                if (amount < 10000) {
+                    Toast.makeText(requireContext(), "Số tiền tối thiểu là 10.000 VNĐ", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                
+                dialog.dismiss();
+                // Call VNPay API to create payment
+                createVNPayPayment(amount);
+            } catch (NumberFormatException e) {
+                Toast.makeText(requireContext(), "Số tiền không hợp lệ", Toast.LENGTH_SHORT).show();
+            }
+        });
+        
+        dialog.show();
+    }
+    
+    private void setAmount(android.widget.EditText etAmount, TextView tvAmountWords, long amount) {
+        String formatted = formatNumber(amount);
+        etAmount.setText(formatted);
+        etAmount.setSelection(formatted.length());
+        
+        String words = com.example.mobilebanking.utils.NumberToVietnameseWords.convert(amount);
+        tvAmountWords.setText(words);
+    }
+    
+    private String formatNumber(long number) {
+        java.text.DecimalFormat formatter = new java.text.DecimalFormat("#,###");
+        return formatter.format(number).replace(",", ".");
+    }
+    
+    /**
+     * Create VNPay payment and open browser
+     */
+    private void createVNPayPayment(long amount) {
+        // Show loading
+        android.app.ProgressDialog progressDialog = new android.app.ProgressDialog(requireContext());
+        progressDialog.setMessage("Đang tạo link thanh toán...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+        
+        com.example.mobilebanking.api.VNPayApiService vnPayService = 
+                com.example.mobilebanking.api.ApiClient.getVNPayApiService();
+        
+        // Create request body
+        com.example.mobilebanking.api.dto.VNPayDepositRequest request = 
+                new com.example.mobilebanking.api.dto.VNPayDepositRequest(amount);
+        
+        vnPayService.createPayment(request).enqueue(new retrofit2.Callback<com.example.mobilebanking.api.dto.VNPayCreatePaymentResponse>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.example.mobilebanking.api.dto.VNPayCreatePaymentResponse> call, 
+                                 retrofit2.Response<com.example.mobilebanking.api.dto.VNPayCreatePaymentResponse> response) {
+                progressDialog.dismiss();
+                
+                if (response.isSuccessful() && response.body() != null) {
+                    com.example.mobilebanking.api.dto.VNPayCreatePaymentResponse paymentResponse = response.body();
+                    
+                    if (Boolean.TRUE.equals(paymentResponse.getSuccess()) && paymentResponse.getPaymentUrl() != null) {
+                        // Open payment URL in browser
+                        openPaymentUrl(paymentResponse.getPaymentUrl());
+                    } else {
+                        String errorMsg = paymentResponse.getMessage() != null ? 
+                                paymentResponse.getMessage() : "Không thể tạo link thanh toán";
+                        Toast.makeText(requireContext(), errorMsg, Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    Toast.makeText(requireContext(), 
+                            "Lỗi tạo thanh toán: " + response.code(), Toast.LENGTH_LONG).show();
+                }
+            }
+            
+            @Override
+            public void onFailure(retrofit2.Call<com.example.mobilebanking.api.dto.VNPayCreatePaymentResponse> call, Throwable t) {
+                progressDialog.dismiss();
+                Toast.makeText(requireContext(), 
+                        "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+    
+    /**
+     * Open payment URL in WebView
+     */
+    private void openPaymentUrl(String paymentUrl) {
+        try {
+            Intent intent = new Intent(requireContext(), com.example.mobilebanking.activities.VNPayWebViewActivity.class);
+            intent.putExtra("PAYMENT_URL", paymentUrl);
+            startActivity(intent);
+            
+            Toast.makeText(requireContext(), 
+                    "Đang mở trang thanh toán VNPay...", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(requireContext(), 
+                    "Không thể mở trang thanh toán: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
 
 }
+
 
