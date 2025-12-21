@@ -89,6 +89,7 @@ public class ApiClient {
     private static BankApiService bankApiService;
     private static ExternalAccountApiService externalAccountApiService;
     private static TransferApiService transferApiService;
+    private static UtilityBillApiService utilityBillApiService;
 
     private static Context applicationContext;
 
@@ -280,6 +281,16 @@ public class ApiClient {
     }
 
     /**
+     * Lấy UtilityBillApiService instance
+     */
+    public static UtilityBillApiService getUtilityBillApiService() {
+        if (utilityBillApiService == null) {
+            utilityBillApiService = getRetrofitInstance().create(UtilityBillApiService.class);
+        }
+        return utilityBillApiService;
+    }
+
+    /**
      * Reset Retrofit instance (dùng khi cần thay đổi BASE_URL)
      */
     public static void reset() {
@@ -292,5 +303,6 @@ public class ApiClient {
         transactionApiService = null;
         userApiService = null;
         externalAccountApiService = null;
+        utilityBillApiService = null;
     }
 }

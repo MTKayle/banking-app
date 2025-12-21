@@ -113,6 +113,9 @@ public class OtpVerificationActivity extends AppCompatActivity {
         } else if ("login_verification".equals(fromActivity)) {
             // Luồng xác thực đăng nhập - gửi OTP với Goixe247
             sendOtpWithGoixe();
+        } else if ("BILL_PAYMENT".equals(fromActivity)) {
+            // Luồng thanh toán hóa đơn - gửi OTP với Goixe247
+            sendOtpWithGoixe();
         } else if ("register".equals(fromActivity)) {
             // Luồng đăng ký - dùng Goixe247
             sendOtpWithGoixe();
@@ -496,6 +499,12 @@ public class OtpVerificationActivity extends AppCompatActivity {
         } else if ("movie_booking".equals(fromActivity)) {
             // Xác thực thành công → Gọi API đặt vé
             processMovieBooking();
+        } else if ("BILL_PAYMENT".equals(fromActivity)) {
+            // Xác thực thành công → Return result to BillPaymentConfirmationActivity
+            Intent resultIntent = new Intent();
+            resultIntent.putExtra("OTP_VERIFIED", true);
+            setResult(RESULT_OK, resultIntent);
+            finish();
         } else if ("login_verification".equals(fromActivity)) {
             // Xác thực thành công → Đăng nhập
             performLogin();

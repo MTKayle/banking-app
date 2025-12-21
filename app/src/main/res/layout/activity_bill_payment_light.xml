@@ -97,7 +97,7 @@
                             android:id="@+id/tv_account_number_header"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="TK người: 6960342476"
+                            android:text="TK nguồn: 6960342476"
                             android:textColor="@android:color/white"
                             android:textSize="14sp"
                             android:textStyle="bold" />
@@ -292,7 +292,7 @@
                 android:id="@+id/et_bill_code"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="4dp"
                 android:background="@drawable/bg_input_light_rounded"
                 android:hint="Nhập mã hóa đơn"
                 android:inputType="text"
@@ -301,6 +301,17 @@
                 android:textColor="#333333"
                 android:textColorHint="#999999"
                 android:textSize="15sp" />
+
+            <!-- Error Message -->
+            <TextView
+                android:id="@+id/tv_bill_code_error"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text=""
+                android:textColor="#F44336"
+                android:textSize="13sp"
+                android:visibility="gone" />
 
 
             <!-- Continue Button -->

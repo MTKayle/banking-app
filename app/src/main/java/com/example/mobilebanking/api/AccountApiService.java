@@ -5,11 +5,13 @@ import com.example.mobilebanking.api.dto.CheckingAccountInfoResponse;
 import com.example.mobilebanking.api.dto.CreateSavingRequest;
 import com.example.mobilebanking.api.dto.CreateSavingResponse;
 import com.example.mobilebanking.api.dto.MortgageAccountDTO;
+import com.example.mobilebanking.api.dto.QRCodeRequest;
 import com.example.mobilebanking.api.dto.SavingAccountDTO;
 import com.example.mobilebanking.api.dto.SavingTermDTO;
 
 import java.util.List;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -69,6 +71,14 @@ public interface AccountApiService {
      */
     @GET("saving/my-accounts")
     Call<List<SavingAccountDTO>> getMySavingAccounts();
+    
+    /**
+     * Lấy QR code cho tài khoản checking
+     * Header cần có: Authorization: Bearer {token}
+     * Response: Image (PNG)
+     */
+    @POST("accounts/checking/qr-code")
+    Call<ResponseBody> getCheckingQRCode(@Body QRCodeRequest request);
 }
 
 
