@@ -3,20 +3,21 @@ package com.example.mobilebanking.api;
 import com.example.mobilebanking.api.dto.AuthResponse;
 import com.example.mobilebanking.api.dto.ChangePasswordRequest;
 import com.example.mobilebanking.api.dto.ChangePasswordResponse;
+import com.example.mobilebanking.api.dto.FaceCompareResponse;
 import com.example.mobilebanking.api.dto.LoginRequest;
 import com.example.mobilebanking.api.dto.RegisterRequest;
 import com.example.mobilebanking.api.dto.RefreshTokenRequest;
 import com.example.mobilebanking.api.dto.FeatureStatusResponse;
+import com.example.mobilebanking.api.dto.PhoneExistsResponse;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
-import retrofit2.http.Body;
-import retrofit2.http.GET;
 import retrofit2.http.Query;
 
 /**
@@ -93,6 +94,29 @@ public interface AuthApiService {
      */
     @POST("password/change")
     Call<ChangePasswordResponse> changePassword(@Body ChangePasswordRequest request);
+    
+    /**
+     * Kiểm tra số điện thoại đã tồn tại chưa
+     * Dùng trong registration để validate phone trước khi gửi OTP
+     */
+    @GET("auth/check-phone-exists")
+    Call<PhoneExistsResponse> checkPhoneExists(@Query("phone") String phone);
+    
+    /**
+     * Kiểm tra số CCCD đã tồn tại chưa
+     * Dùng trong registration để validate CCCD sau khi quét QR
+     */
+    @GET("auth/check-cccd-exists")
+    Call<PhoneExistsResponse> checkCccdExists(@Query("cccd") String cccd);
+    
+    /**
+     * So sánh khuôn mặt với ảnh đã lưu
+     * Dùng cho xác thực giao dịch >= 10 triệu
+     * Lấy userId từ JWT token
+     */
+    @Multipart
+    @POST("face/compare")
+    Call<FaceCompareResponse> compareFace(@Part MultipartBody.Part faceImage);
 }
 
 

@@ -1,9 +1,11 @@
 package com.example.mobilebanking.fragments;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,19 +18,29 @@ import androidx.fragment.app.Fragment;
 
 import com.example.mobilebanking.R;
 import com.example.mobilebanking.activities.MainRegistrationActivity;
+import com.example.mobilebanking.api.ApiClient;
+import com.example.mobilebanking.api.AuthApiService;
+import com.example.mobilebanking.api.dto.PhoneExistsResponse;
 import com.example.mobilebanking.models.RegistrationData;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Step 1: Basic Information (Phone, Email, Password)
  */
 public class Step1BasicInfoFragment extends Fragment {
+    private static final String TAG = "Step1BasicInfo";
+    
     private RegistrationData registrationData;
     
     private TextInputLayout tilPhone, tilEmail, tilPassword, tilConfirmPassword;
     private TextInputEditText etPhone, etEmail, etPassword, etConfirmPassword;
     private Button btnContinue;
+    private ProgressDialog progressDialog;
     
     public static Step1BasicInfoFragment newInstance(RegistrationData data) {
         Step1BasicInfoFragment fragment = new Step1BasicInfoFragment();
@@ -192,26 +204,113 @@ public class Step1BasicInfoFragment extends Fragment {
         }
         
         if (isValid) {
-            // Ensure registrationData is not null
-            if (registrationData == null) {
-                if (getActivity() instanceof MainRegistrationActivity) {
-                    registrationData = ((MainRegistrationActivity) getActivity()).getRegistrationData();
+            // Kiểm tra số điện thoại đã tồn tại chưa
+            checkPhoneExistsAndContinue(phone, email, password, confirmPassword);
+        }
+    }
+    
+    /**
+     * Kiểm tra số điện thoại đã tồn tại chưa trước khi tiếp tục
+     */
+    private void checkPhoneExistsAndContinue(String phone, String email, String password, String confirmPassword) {
+        // Show loading
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.setMessage("Đang kiểm tra số điện thoại...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+        
+        AuthApiService authApiService = ApiClient.getAuthApiService();
+        Call<PhoneExistsResponse> call = authApiService.checkPhoneExists(phone);
+        
+        call.enqueue(new Callback<PhoneExistsResponse>() {
+            @Override
+            public void onResponse(Call<PhoneExistsResponse> call, Response<PhoneExistsResponse> response) {
+                if (progressDialog != null && progressDialog.isShowing()) {
+                    progressDialog.dismiss();
                 }
-                if (registrationData == null) {
-                    registrationData = new RegistrationData();
+                
+                if (response.isSuccessful() && response.body() != null) {
+                    PhoneExistsResponse result = response.body();
+                    
+                    // Nếu exists = true → Số điện thoại đã tồn tại → KHÔNG cho phép tiếp tục
+                    if (result.isExists()) {
+                        tilPhone.setError("Số điện thoại này đã được đăng ký");
+                        Toast.makeText(getContext(), "Số điện thoại đã tồn tại. Vui lòng sử dụng số khác.", Toast.LENGTH_LONG).show();
+                        // KHÔNG gọi saveDataAndContinue() - dừng lại ở đây
+                    } else {
+                        // Số điện thoại chưa tồn tại (exists = false) → OK, tiếp tục
+                        saveDataAndContinue(phone, email, password, confirmPassword);
+                    }
+                } else {
+                    // Lỗi từ server - KHÔNG cho phép tiếp tục
+                    Log.e(TAG, "Check phone exists failed: " + response.code());
+                    Toast.makeText(getContext(), "Không thể kiểm tra số điện thoại. Vui lòng thử lại.", Toast.LENGTH_SHORT).show();
                 }
             }
             
-            // Save data
-            registrationData.setPhoneNumber(phone);
-            registrationData.setEmail(email);
-            registrationData.setPassword(password);
-            registrationData.setConfirmPassword(confirmPassword);
-            
-            // Navigate to next step
+            @Override
+            public void onFailure(Call<PhoneExistsResponse> call, Throwable t) {
+                if (progressDialog != null && progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+                
+                Log.e(TAG, "Check phone exists error", t);
+                Toast.makeText(getContext(), "Lỗi kết nối. Vui lòng kiểm tra mạng và thử lại.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    
+    /**
+     * Lưu dữ liệu và chuyển sang trang xác thực OTP
+     */
+    private void saveDataAndContinue(String phone, String email, String password, String confirmPassword) {
+        // Ensure registrationData is not null
+        if (registrationData == null) {
             if (getActivity() instanceof MainRegistrationActivity) {
-                ((MainRegistrationActivity) getActivity()).goToNextStep();
+                registrationData = ((MainRegistrationActivity) getActivity()).getRegistrationData();
             }
+            if (registrationData == null) {
+                registrationData = new RegistrationData();
+            }
+        }
+        
+        // Save data
+        registrationData.setPhoneNumber(phone);
+        registrationData.setEmail(email);
+        registrationData.setPassword(password);
+        registrationData.setConfirmPassword(confirmPassword);
+        
+        // Navigate to OTP Verification Activity
+        android.content.Intent intent = new android.content.Intent(getActivity(), com.example.mobilebanking.activities.OtpVerificationActivity.class);
+        intent.putExtra("phone", phone);
+        intent.putExtra("flow", "register");
+        startActivityForResult(intent, 100); // Request code 100 for registration OTP
+    }
+    
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable android.content.Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        
+        if (requestCode == 100) { // Registration OTP verification
+            if (resultCode == android.app.Activity.RESULT_OK) {
+                // OTP verified successfully, navigate to next step (Step 2: QR Scan)
+                if (getActivity() instanceof MainRegistrationActivity) {
+                    ((MainRegistrationActivity) getActivity()).goToNextStep();
+                }
+            } else {
+                // OTP verification failed or cancelled
+                Toast.makeText(getContext(), "Xác thực OTP thất bại. Vui lòng thử lại.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+    
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        
+        // Dismiss progress dialog if showing
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
         }
     }
 }

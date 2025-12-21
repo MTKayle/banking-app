@@ -7,12 +7,14 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,16 +24,32 @@ import androidx.appcompat.widget.Toolbar;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import com.example.mobilebanking.R;
+import com.example.mobilebanking.api.ApiClient;
+import com.example.mobilebanking.api.AccountApiService;
+import com.example.mobilebanking.api.BankApiService;
+import com.example.mobilebanking.api.ExternalAccountApiService;
+import com.example.mobilebanking.api.dto.AccountInfoResponse;
+import com.example.mobilebanking.api.dto.BankListResponse;
+import com.example.mobilebanking.api.dto.BankResponse;
+import com.example.mobilebanking.api.dto.CheckingAccountInfoResponse;
+import com.example.mobilebanking.api.dto.ExternalAccountInfoApiResponse;
+import com.example.mobilebanking.api.dto.ExternalAccountInfoResponse;
 import com.example.mobilebanking.models.Account;
 import com.example.mobilebanking.utils.DataManager;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Transfer Activity - Money transfer functionality
  */
 public class TransferActivity extends BaseActivity {
+    private static final String TAG = "TransferActivity";
     private EditText etRecipientAccount, etAmount, etNote;
     private Button btnContinue;
     private DataManager dataManager;
@@ -44,8 +62,16 @@ public class TransferActivity extends BaseActivity {
     private TextView tvAmountInWords;
     private TextView tvRecipientName;
     private View vAccountNameSeparator;
-    private String selectedBank = "Ngân hàng";
-    private final String[] banks = {"Cùng Ngân Hàng", "VietcomBank", "BIDV", "Techcombank", "VietinBank"};
+    private TextView tvBankErrorIndicator;
+    private TextView tvAccountErrorIndicator;
+    private TextView tvAmountError;
+    private com.google.android.material.textfield.TextInputLayout tilRecipientAccount;
+    private String selectedBank = "Ngân hàng"; // Store selected bank code for display
+    private String selectedBankCode = null; // Store bank code (e.g., "HATBANK")
+    private String selectedBankBin = null; // Store bank BIN for API calls
+    private List<BankResponse> bankList = new ArrayList<>(); // Store banks from API
+    private BigDecimal currentBalance = BigDecimal.ZERO; // Store current account balance
+    private static final long MAX_TRANSFER_AMOUNT = 500000000L; // 500 million VND
 
     private BroadcastReceiver finishReceiver = new BroadcastReceiver() {
         @Override
@@ -96,16 +122,20 @@ public class TransferActivity extends BaseActivity {
 
     private void initializeViews() {
         etRecipientAccount = findViewById(R.id.et_recipient_account);
+        tilRecipientAccount = findViewById(R.id.til_recipient_account);
         tvRecipientName = findViewById(R.id.tv_recipient_name);
         vAccountNameSeparator = findViewById(R.id.v_account_name_separator);
         etAmount = findViewById(R.id.et_amount);
         tvAmountInWords = findViewById(R.id.tv_amount_in_words);
+        tvAmountError = findViewById(R.id.tv_amount_error);
         etNote = findViewById(R.id.et_note);
         btnContinue = findViewById(R.id.btn_continue);
         tvAccountType = findViewById(R.id.tv_account_type);
         tvAccountBalance = findViewById(R.id.tv_account_balance);
         cvToBank = findViewById(R.id.cv_to_bank);
         tvBankName = findViewById(R.id.tv_bank_name);
+        tvBankErrorIndicator = findViewById(R.id.tv_bank_error_indicator);
+        tvAccountErrorIndicator = findViewById(R.id.tv_account_error_indicator);
         llAmountContainer = findViewById(R.id.ll_amount_container);
 
         // Set default note with user's name
@@ -114,48 +144,287 @@ public class TransferActivity extends BaseActivity {
         // Hide recipient name initially
         if (tvRecipientName != null) tvRecipientName.setVisibility(View.GONE);
         if (vAccountNameSeparator != null) vAccountNameSeparator.setVisibility(View.GONE);
-    }
-
-    private void loadAccounts() {
-        accounts = dataManager.getMockAccounts("U001");
         
-        // Filter out mortgage accounts for transfer and get first available account
-        for (Account account : accounts) {
-            if (account.getType() != Account.AccountType.MORTGAGE) {
-                selectedAccount = account;
-                break;
-            }
-        }
-
-        // Display account information
-        if (selectedAccount != null) {
-            String accountTypeText = getAccountTypeText(selectedAccount.getType());
-            tvAccountType.setText(accountTypeText + " - " + selectedAccount.getAccountNumber());
-
-            // Lấy số dư
-            double balance = selectedAccount.getBalance();
-
-            // Làm tròn về số nguyên (nếu balance là double)
-            long roundedBalance = Math.round(balance);
-
-            // Format bằng dấu chấm
-            String formattedBalance = formatWithDots(String.valueOf(roundedBalance));
-
-            // Gán lên TextView
-            tvAccountBalance.setText(formattedBalance + " VNĐ");
-
-        }
-
-        // Setup bank dropdown
-        setupBankDropdown();
-    }
-
-    private void setupBankDropdown() {
-        // Setup click listener for bank card to show bottom sheet
+        // Setup bank dropdown click listener
         cvToBank.setOnClickListener(v -> showBankBottomSheet());
     }
 
+    private void loadAccounts() {
+        // Get userId from DataManager
+        Long userId = dataManager.getUserId();
+        if (userId == null) {
+            Toast.makeText(this, "Không tìm thấy thông tin người dùng", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        // Call API to get checking account info
+        AccountApiService accountApiService = ApiClient.getAccountApiService();
+        Call<CheckingAccountInfoResponse> call = accountApiService.getCheckingAccountInfo(userId);
+        
+        call.enqueue(new Callback<CheckingAccountInfoResponse>() {
+            @Override
+            public void onResponse(Call<CheckingAccountInfoResponse> call, Response<CheckingAccountInfoResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    CheckingAccountInfoResponse accountInfo = response.body();
+                    
+                    // Display account information
+                    String accountNumber = accountInfo.getAccountNumber();
+                    BigDecimal balance = accountInfo.getBalance();
+                    
+                    if (accountNumber != null && balance != null) {
+                        // Store balance for validation
+                        currentBalance = balance;
+                        
+                        tvAccountType.setText("TÀI KHOẢN THANH TOÁN - " + accountNumber);
+                        
+                        // Format balance - convert BigDecimal to long
+                        long roundedBalance = balance.longValue();
+                        String formattedBalance = formatWithDots(String.valueOf(roundedBalance));
+                        tvAccountBalance.setText(formattedBalance + " VNĐ");
+                        
+                        Log.d(TAG, "Account loaded: " + accountNumber + ", Balance: " + formattedBalance);
+                    } else {
+                        Toast.makeText(TransferActivity.this, "Không tìm thấy thông tin tài khoản", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Log.e(TAG, "Failed to load account: " + response.code());
+                    Toast.makeText(TransferActivity.this, "Không thể tải thông tin tài khoản", Toast.LENGTH_SHORT).show();
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<CheckingAccountInfoResponse> call, Throwable t) {
+                Log.e(TAG, "Error loading account", t);
+                Toast.makeText(TransferActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Load banks from API
+        loadBanks();
+    }
+
+    private void loadBanks() {
+        BankApiService bankApiService = ApiClient.getBankApiService();
+        Call<BankListResponse> call = bankApiService.getAllBanks();
+        
+        call.enqueue(new Callback<BankListResponse>() {
+            @Override
+            public void onResponse(Call<BankListResponse> call, Response<BankListResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    BankListResponse bankListResponse = response.body();
+                    if (bankListResponse.isSuccess() && bankListResponse.getData() != null) {
+                        bankList = bankListResponse.getData();
+                        Log.d(TAG, "Loaded " + bankList.size() + " banks");
+                    } else {
+                        Log.e(TAG, "Failed to load banks: " + bankListResponse.getMessage());
+                        Toast.makeText(TransferActivity.this, "Không thể tải danh sách ngân hàng", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Log.e(TAG, "Failed to load banks: " + response.code());
+                    Toast.makeText(TransferActivity.this, "Không thể tải danh sách ngân hàng", Toast.LENGTH_SHORT).show();
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<BankListResponse> call, Throwable t) {
+                Log.e(TAG, "Error loading banks", t);
+                Toast.makeText(TransferActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    /**
+     * Lookup account holder name from API
+     * - If HAT bank: use internal API /api/accounts/info/{accountNumber}
+     * - If other bank: use external API /api/external-accounts/info
+     */
+    private void lookupAccountName(String bankCode, String bankBin, String accountNumber) {
+        // Check if this is HAT bank (internal)
+        if ("HATBANK".equals(bankCode)) {
+            lookupInternalAccount(accountNumber);
+        } else {
+            lookupExternalAccount(bankBin, accountNumber);
+        }
+    }
+
+    /**
+     * Lookup internal HAT bank account
+     */
+    private void lookupInternalAccount(String accountNumber) {
+        AccountApiService accountApiService = ApiClient.getAccountApiService();
+        Call<AccountInfoResponse> call = accountApiService.getAccountInfo(accountNumber);
+        
+        call.enqueue(new Callback<AccountInfoResponse>() {
+            @Override
+            public void onResponse(Call<AccountInfoResponse> call, Response<AccountInfoResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    AccountInfoResponse accountInfo = response.body();
+                    String holderName = accountInfo.getAccountHolderName();
+                    
+                    if (holderName != null && !holderName.trim().isEmpty()) {
+                        tvRecipientName.setText(holderName.toUpperCase());
+                        tvRecipientName.setVisibility(View.VISIBLE);
+                        if (vAccountNameSeparator != null) vAccountNameSeparator.setVisibility(View.VISIBLE);
+                        clearAccountError();
+                    } else {
+                        showAccountError("Số tài khoản không tồn tại");
+                        tvRecipientName.setVisibility(View.GONE);
+                        if (vAccountNameSeparator != null) vAccountNameSeparator.setVisibility(View.GONE);
+                    }
+                } else {
+                    // Account not found
+                    showAccountError("Số tài khoản không tồn tại");
+                    tvRecipientName.setVisibility(View.GONE);
+                    if (vAccountNameSeparator != null) vAccountNameSeparator.setVisibility(View.GONE);
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<AccountInfoResponse> call, Throwable t) {
+                Log.e(TAG, "Error looking up internal account", t);
+                showAccountError("Lỗi kết nối");
+                tvRecipientName.setVisibility(View.GONE);
+                if (vAccountNameSeparator != null) vAccountNameSeparator.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    /**
+     * Lookup external bank account
+     */
+    private void lookupExternalAccount(String bankBin, String accountNumber) {
+        ExternalAccountApiService externalAccountApiService = ApiClient.getExternalAccountApiService();
+        Call<ExternalAccountInfoApiResponse> call = externalAccountApiService.getAccountInfo(bankBin, accountNumber);
+        
+        call.enqueue(new Callback<ExternalAccountInfoApiResponse>() {
+            @Override
+            public void onResponse(Call<ExternalAccountInfoApiResponse> call, Response<ExternalAccountInfoApiResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    ExternalAccountInfoApiResponse apiResponse = response.body();
+                    if (apiResponse.isSuccess() && apiResponse.getData() != null) {
+                        ExternalAccountInfoResponse accountInfo = apiResponse.getData();
+                        String fullName = accountInfo.getFullName();
+                        
+                        if (fullName != null && !fullName.trim().isEmpty()) {
+                            tvRecipientName.setText(fullName.toUpperCase());
+                            tvRecipientName.setVisibility(View.VISIBLE);
+                            if (vAccountNameSeparator != null) vAccountNameSeparator.setVisibility(View.VISIBLE);
+                            clearAccountError();
+                        } else {
+                            showAccountError("Số tài khoản không tồn tại");
+                            tvRecipientName.setVisibility(View.GONE);
+                            if (vAccountNameSeparator != null) vAccountNameSeparator.setVisibility(View.GONE);
+                        }
+                    } else {
+                        showAccountError("Số tài khoản không tồn tại");
+                        tvRecipientName.setVisibility(View.GONE);
+                        if (vAccountNameSeparator != null) vAccountNameSeparator.setVisibility(View.GONE);
+                    }
+                } else {
+                    showAccountError("Số tài khoản không tồn tại");
+                    tvRecipientName.setVisibility(View.GONE);
+                    if (vAccountNameSeparator != null) vAccountNameSeparator.setVisibility(View.GONE);
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<ExternalAccountInfoApiResponse> call, Throwable t) {
+                Log.e(TAG, "Error looking up external account", t);
+                showAccountError("Lỗi kết nối");
+                tvRecipientName.setVisibility(View.GONE);
+                if (vAccountNameSeparator != null) vAccountNameSeparator.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    /**
+     * Show bank error state
+     */
+    private void showBankError() {
+        if (tvBankErrorIndicator != null) {
+            tvBankErrorIndicator.setVisibility(View.VISIBLE);
+        }
+        if (tvBankName != null) {
+            tvBankName.setTextColor(0xFFF44336); // Red color
+        }
+        Toast.makeText(this, "Vui lòng chọn ngân hàng trước", Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Clear bank error state
+     */
+    private void clearBankError() {
+        if (tvBankErrorIndicator != null) {
+            tvBankErrorIndicator.setVisibility(View.GONE);
+        }
+        if (tvBankName != null) {
+            tvBankName.setTextColor(0xFF000000); // Black color
+        }
+    }
+
+    /**
+     * Show account error
+     */
+    private void showAccountError(String message) {
+        if (tvAccountErrorIndicator != null) {
+            tvAccountErrorIndicator.setVisibility(View.VISIBLE);
+        }
+        if (etRecipientAccount != null) {
+            etRecipientAccount.setTextColor(0xFFF44336); // Red color
+        }
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Clear account error state
+     */
+    private void clearAccountError() {
+        if (tvAccountErrorIndicator != null) {
+            tvAccountErrorIndicator.setVisibility(View.GONE);
+        }
+        if (etRecipientAccount != null) {
+            etRecipientAccount.setTextColor(0xFF000000); // Black color
+        }
+    }
+
+    /**
+     * Show amount error
+     */
+    private void showAmountError(String message) {
+        if (tvAmountError != null) {
+            tvAmountError.setText(message);
+            tvAmountError.setVisibility(View.VISIBLE);
+        }
+        if (etAmount != null) {
+            etAmount.setTextColor(0xFFF44336); // Red color
+        }
+        if (llAmountContainer != null) {
+            llAmountContainer.setBackgroundResource(R.drawable.edittext_border_error);
+        }
+    }
+
+    /**
+     * Clear amount error
+     */
+    private void clearAmountError() {
+        if (tvAmountError != null) {
+            tvAmountError.setVisibility(View.GONE);
+        }
+        if (etAmount != null) {
+            etAmount.setTextColor(0xFF000000); // Black color
+        }
+        if (llAmountContainer != null) {
+            llAmountContainer.setBackgroundResource(R.drawable.edittext_border);
+        }
+    }
+
     private void showBankBottomSheet() {
+        // Check if banks are loaded
+        if (bankList == null || bankList.isEmpty()) {
+            Toast.makeText(this, "Đang tải danh sách ngân hàng...", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
         // Create bottom sheet dialog
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
         View bottomSheetView = LayoutInflater.from(this).inflate(
@@ -163,8 +432,8 @@ public class TransferActivity extends BaseActivity {
 
         LinearLayout llBankListBottomSheet = bottomSheetView.findViewById(R.id.ll_bank_list_bottom_sheet);
 
-        // Add bank items to bottom sheet
-        for (String bank : banks) {
+        // Add bank items to bottom sheet from API data
+        for (BankResponse bank : bankList) {
             View bankItem = createBankItemForBottomSheet(bank, bottomSheetDialog);
             llBankListBottomSheet.addView(bankItem);
         }
@@ -209,15 +478,36 @@ public class TransferActivity extends BaseActivity {
         bottomSheetDialog.show();
     }
 
-    private View createBankItemForBottomSheet(String bankName, BottomSheetDialog dialog) {
+    private View createBankItemForBottomSheet(BankResponse bank, BottomSheetDialog dialog) {
         View itemView = LayoutInflater.from(this).inflate(R.layout.item_bank_dropdown, null, false);
 
-        TextView tvBankItem = itemView.findViewById(R.id.tv_bank_item);
-        tvBankItem.setText(bankName);
+        TextView tvBankCode = itemView.findViewById(R.id.tv_bank_code);
+        TextView tvBankNameItem = itemView.findViewById(R.id.tv_bank_name);
+        
+        tvBankCode.setText(bank.getBankCode());
+        tvBankNameItem.setText(bank.getBankName());
 
         itemView.setOnClickListener(v -> {
-            selectedBank = bankName;
-            tvBankName.setText(bankName);
+            selectedBank = bank.getBankCode(); // Store bank code for display (e.g., "HAT")
+            selectedBankCode = bank.getBankCode(); // Store full bank code (e.g., "HATBANK")
+            selectedBankBin = bank.getBankBin();
+            tvBankName.setText(bank.getBankCode()); // Display bank code in the selection field
+            
+            // Clear bank error state
+            clearBankError();
+            
+            // Clear recipient account and name when bank changes
+            if (etRecipientAccount != null) {
+                etRecipientAccount.setText("");
+            }
+            clearAccountError();
+            if (tvRecipientName != null) {
+                tvRecipientName.setVisibility(View.GONE);
+            }
+            if (vAccountNameSeparator != null) {
+                vAccountNameSeparator.setVisibility(View.GONE);
+            }
+            
             dialog.dismiss();
         });
 
@@ -291,17 +581,43 @@ public class TransferActivity extends BaseActivity {
         });
 
         // When EditText loses focus, if empty show "0"; when gains focus and is "0" clear so user can type
+        // Also validate that account number is entered before allowing amount input
         etAmount.setOnFocusChangeListener((v, hasFocus) -> {
-            String cur = etAmount.getText() == null ? "" : etAmount.getText().toString();
             if (hasFocus) {
+                // Check if account number is entered
+                String accountNumber = etRecipientAccount.getText().toString().trim();
+                if (accountNumber.isEmpty()) {
+                    showAmountError("Vui lòng nhập số tài khoản trước");
+                    etAmount.clearFocus();
+                    return;
+                }
+                // Clear error when user starts typing
+                clearAmountError();
                 // Place cursor at end (to the right of the 0) instead of clearing it immediately
                 etAmount.post(() -> etAmount.setSelection(etAmount.getText() != null ? etAmount.getText().length() : 0));
                 // hide words while editing
                 if (tvAmountInWords != null) tvAmountInWords.setVisibility(View.GONE);
             } else {
+                String cur = etAmount.getText() == null ? "" : etAmount.getText().toString();
                 if (cur.isEmpty()) {
                     etAmount.setText("0");
                     etAmount.setSelection(1);
+                }
+                // Validate amount
+                String cleaned = cur.replace(".", "").replace(",", "");
+                try {
+                    double amount = Double.parseDouble(cleaned);
+                    if (amount <= 0) {
+                        showAmountError("Số tiền phải lớn hơn 0");
+                    } else if (amount > MAX_TRANSFER_AMOUNT) {
+                        showAmountError("Số tiền chuyển tối đa 500.000.000 VNĐ");
+                    } else if (BigDecimal.valueOf(amount).compareTo(currentBalance) > 0) {
+                        showAmountError("Số dư không đủ để thực hiện giao dịch");
+                    } else {
+                        clearAmountError();
+                    }
+                } catch (NumberFormatException e) {
+                    // Ignore
                 }
                 // on focus lost, show amount in words if > 0
                 if (tvAmountInWords != null) {
@@ -314,7 +630,12 @@ public class TransferActivity extends BaseActivity {
         final boolean[] isEditing = {false};
         etAmount.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // Clear error when user types
+                if (s != null && s.length() > 0) {
+                    clearAmountError();
+                }
+            }
             @Override
             public void afterTextChanged(Editable s) {
                 if (isEditing[0]) return;
@@ -345,20 +666,38 @@ public class TransferActivity extends BaseActivity {
             }
         });
 
-        // Recipient account: hide name while typing, show on focus loss if known
+        // Recipient account: validate bank selection and lookup account name
         if (etRecipientAccount != null) {
             etRecipientAccount.setOnFocusChangeListener((v, hasFocus) -> {
-                if (!hasFocus) {
-                    updateRecipientNameFromField();
-                } else {
+                if (hasFocus) {
+                    // Check if bank is selected when user focuses on account field
+                    if (selectedBankCode == null || selectedBankCode.isEmpty()) {
+                        showBankError();
+                        etRecipientAccount.clearFocus();
+                        return;
+                    }
+                    // Hide name while typing
                     if (tvRecipientName != null) tvRecipientName.setVisibility(View.GONE);
                     if (vAccountNameSeparator != null) vAccountNameSeparator.setVisibility(View.GONE);
+                } else {
+                    // When focus is lost, lookup account name
+                    String accountNumber = etRecipientAccount.getText().toString().trim();
+                    if (accountNumber.isEmpty()) {
+                        // Empty account - show red text and error indicator
+                        showAccountError("Vui lòng nhập số tài khoản");
+                    } else if (selectedBankCode != null && !selectedBankCode.isEmpty()) {
+                        lookupAccountName(selectedBankCode, selectedBankBin, accountNumber);
+                    }
                 }
             });
 
             etRecipientAccount.addTextChangedListener(new TextWatcher() {
                 @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
                 @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    // Clear error when user types
+                    if (s != null && s.length() > 0) {
+                        clearAccountError();
+                    }
                     if (s == null || s.toString().trim().isEmpty()) {
                         if (tvRecipientName != null) tvRecipientName.setVisibility(View.GONE);
                         if (vAccountNameSeparator != null) vAccountNameSeparator.setVisibility(View.GONE);
@@ -369,69 +708,71 @@ public class TransferActivity extends BaseActivity {
         }
     }
 
-    // Update tvRecipientName based on current value of etRecipientAccount (lookup mock data)
-    private void updateRecipientNameFromField() {
-        if (etRecipientAccount == null || tvRecipientName == null || dataManager == null) return;
-        String input = etRecipientAccount.getText() == null ? "" : etRecipientAccount.getText().toString().trim();
-        String acc = input.replaceAll("[^0-9]", "");
-        if (acc.isEmpty()) {
-            tvRecipientName.setVisibility(View.GONE);
-            if (vAccountNameSeparator != null) vAccountNameSeparator.setVisibility(View.GONE);
-            return;
-        }
-        String name = findNameByAccount(acc);
-        if (name != null && !name.trim().isEmpty()) {
-            tvRecipientName.setText(name.toUpperCase());
-            tvRecipientName.setVisibility(View.VISIBLE);
-            if (vAccountNameSeparator != null) vAccountNameSeparator.setVisibility(View.VISIBLE);
-        } else {
-            tvRecipientName.setVisibility(View.GONE);
-            if (vAccountNameSeparator != null) vAccountNameSeparator.setVisibility(View.GONE);
-        }
-    }
-
-    // Search mock users and their mock accounts for a matching account number
-    private String findNameByAccount(String accountNumber) {
-        List<com.example.mobilebanking.models.User> users = dataManager.getMockUsers();
-        if (users == null) return null;
-        for (com.example.mobilebanking.models.User user : users) {
-            if (user == null) continue;
-            List<Account> userAccounts = dataManager.getMockAccounts(user.getUserId());
-            if (userAccounts == null) continue;
-            for (Account a : userAccounts) {
-                if (a != null && accountNumber.equals(a.getAccountNumber())) {
-                    return user.getFullName();
-                }
-            }
-        }
-        return null;
-    }
-
     private void handleTransfer() {
         String recipientAccount = etRecipientAccount.getText().toString().trim();
         String amountStr = etAmount.getText().toString().trim();
         String note = etNote.getText().toString().trim();
 
-        // Validation
+        boolean hasError = false;
+
+        // Validation: Check bank selection
+        if (selectedBankCode == null || selectedBankCode.isEmpty()) {
+            showBankError();
+            hasError = true;
+        } else {
+            clearBankError();
+        }
+
+        // Validation: Check recipient account
         if (recipientAccount.isEmpty()) {
-            Toast.makeText(this, "Vui lòng nhập số tài khoản người nhận", Toast.LENGTH_SHORT).show();
+            showAccountError("Vui lòng nhập số tài khoản người nhận");
+            hasError = true;
+        } else {
+            // Check if account name was loaded (meaning account exists)
+            if (tvRecipientName != null && tvRecipientName.getVisibility() != View.VISIBLE) {
+                showAccountError("Số tài khoản không tồn tại");
+                hasError = true;
+            }
+        }
+
+        // Validation: Check amount
+        if (amountStr.isEmpty() || amountStr.equals("0")) {
+            showAmountError("Vui lòng nhập số tiền");
+            hasError = true;
+        } else {
+            double amount;
+            try {
+                // Remove grouping separators (dots/commas) — app uses only integers
+                String cleaned = amountStr.replace(".", "").replace(",", "");
+                amount = Double.parseDouble(cleaned);
+                if (amount <= 0) {
+                    showAmountError("Số tiền phải lớn hơn 0");
+                    hasError = true;
+                } else if (amount > MAX_TRANSFER_AMOUNT) {
+                    showAmountError("Số tiền chuyển tối đa 500.000.000 VNĐ");
+                    hasError = true;
+                } else if (BigDecimal.valueOf(amount).compareTo(currentBalance) > 0) {
+                    showAmountError("Số dư không đủ để thực hiện giao dịch");
+                    hasError = true;
+                } else {
+                    clearAmountError();
+                }
+            } catch (NumberFormatException e) {
+                showAmountError("Số tiền không hợp lệ");
+                hasError = true;
+            }
+        }
+
+        // If there are errors, don't proceed
+        if (hasError) {
             return;
         }
 
-        if (amountStr.isEmpty()) {
-            Toast.makeText(this, "Vui lòng nhập số tiền", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
+        // All validations passed, proceed with transfer
         double amount;
         try {
-            // Remove grouping separators (dots/commas) — app uses only integers
             String cleaned = amountStr.replace(".", "").replace(",", "");
             amount = Double.parseDouble(cleaned);
-            if (amount <= 0) {
-                Toast.makeText(this, "Số tiền phải lớn hơn 0", Toast.LENGTH_SHORT).show();
-                return;
-            }
         } catch (NumberFormatException e) {
             Toast.makeText(this, "Số tiền không hợp lệ", Toast.LENGTH_SHORT).show();
             return;
@@ -440,13 +781,17 @@ public class TransferActivity extends BaseActivity {
         // Navigate to confirmation screen
         Intent intent = new Intent(this, TransactionConfirmationActivity.class);
         intent.putExtra("type", "TRANSFER");
-        String fromAccountText = selectedAccount != null ? 
-            selectedAccount.getAccountNumber() : "N/A";
-        intent.putExtra("from_account", fromAccountText);
+        
+        // Get recipient name from TextView (already looked up)
+        String recipientName = tvRecipientName.getVisibility() == View.VISIBLE ? 
+            tvRecipientName.getText().toString() : "";
+        
         intent.putExtra("to_account", recipientAccount);
+        intent.putExtra("to_name", recipientName);
         intent.putExtra("amount", amount);
         intent.putExtra("note", note);
-        intent.putExtra("bank", selectedBank);
+        intent.putExtra("bank", selectedBank); // Bank code (e.g., "HATBANK")
+        intent.putExtra("bank_bin", selectedBankBin); // Bank BIN for external transfer
         startActivity(intent);
     }
 

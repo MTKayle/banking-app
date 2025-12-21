@@ -1256,12 +1256,49 @@ public class Step5FaceVerificationFragment extends Fragment {
                         isDialogShowing = false;
                         // Reset and retry
                         registrationData.setSelfieImage(null);
-                        // Restart camera
+                        
+                        // Reset all flags
+                        isScanning = false;
+                        isCapturing = false;
+                        isVerifying = false;
+                        isCameraStarting = false;
+                        isReadyToCapture = false;
+                        
+                        // Unbind camera first
+                        if (cameraProvider != null) {
+                            try {
+                                cameraProvider.unbindAll();
+                                cameraProvider = null;
+                                Log.d(TAG, "Camera unbound before retry");
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error unbinding camera before retry", e);
+                            }
+                        }
+                        
+                        // Ensure views are visible
+                        if (previewView != null) {
+                            previewView.setVisibility(View.VISIBLE);
+                        }
+                        if (overlayView != null) {
+                            overlayView.setVisibility(View.VISIBLE);
+                            overlayView.clearFaceRect();
+                        }
+                        if (tvInstruction != null) {
+                            tvInstruction.setText("Đặt khuôn mặt vào khung hình");
+                        }
+                        
+                        // Restart camera after a short delay
                         if (isAdded() && getActivity() != null && !getActivity().isFinishing()) {
-                            if (checkCameraPermission()) {
-                                startCamera();
-                            } else {
-                                requestCameraPermission();
+                            if (previewView != null) {
+                                previewView.postDelayed(() -> {
+                                    if (isAdded() && getActivity() != null && !getActivity().isFinishing()) {
+                                        if (checkCameraPermission()) {
+                                            startCamera();
+                                        } else {
+                                            requestCameraPermission();
+                                        }
+                                    }
+                                }, 300);
                             }
                         }
                     })

@@ -130,6 +130,17 @@
                             android:textSize="16sp"
                             android:textColor="@android:color/black"/>
 
+                        <TextView
+                            android:id="@+id/tv_bank_error_indicator"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="!"
+                            android:textSize="18sp"
+                            android:textColor="#F44336"
+                            android:textStyle="bold"
+                            android:layout_marginEnd="8dp"
+                            android:visibility="gone"/>
+
                         <ImageView
                             android:id="@+id/iv_arrow_down"
                             android:layout_width="20dp"
@@ -149,43 +160,65 @@
                         android:layout_marginEnd="-17dp"/>
 
                     <!-- Account number (bottom part) -->
-                    <com.google.android.material.textfield.TextInputLayout
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Số tài khoản"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
                         android:layout_marginStart="17dp"
                         android:layout_marginEnd="17dp"
                         android:layout_marginTop="10dp"
-                        android:layout_marginBottom="10dp"
-                        app:hintTextColor="@color/primary_color"
-                        app:boxStrokeColor="@color/primary_color"
-                        app:boxStrokeWidth="2dp"
-                        app:boxCornerRadiusTopStart="0dp"
-                        app:boxCornerRadiusTopEnd="0dp"
-                        app:boxCornerRadiusBottomStart="12dp"
-                        app:boxCornerRadiusBottomEnd="12dp"
-                        app:hintEnabled="true"
-                        app:hintAnimationEnabled="true"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                        android:layout_marginBottom="10dp">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/et_recipient_account"
-                            android:layout_width="match_parent"
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/til_recipient_account"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:inputType="number"
+                            android:layout_weight="1"
+                            android:hint="Số tài khoản"
+                            app:hintTextColor="@color/primary_color"
+                            app:boxStrokeColor="@color/primary_color"
+                            app:boxStrokeWidth="2dp"
+                            app:boxCornerRadiusTopStart="0dp"
+                            app:boxCornerRadiusTopEnd="0dp"
+                            app:boxCornerRadiusBottomStart="12dp"
+                            app:boxCornerRadiusBottomEnd="12dp"
+                            app:hintEnabled="true"
+                            app:hintAnimationEnabled="true"
+                            app:errorEnabled="false"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-                            android:paddingStart="0dp"
-                            android:paddingLeft="0dp"
-                            android:paddingBottom="8dp"
-                            android:paddingTop="10dp"
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/et_recipient_account"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="number"
 
-                            android:textSize="17sp"
+                                android:paddingStart="0dp"
+                                android:paddingLeft="0dp"
+                                android:paddingBottom="8dp"
+                                android:paddingTop="10dp"
 
-                            android:textColor="@android:color/black"
-                            android:background="@android:color/transparent"
-                            />
+                                android:textSize="17sp"
 
-                    </com.google.android.material.textfield.TextInputLayout>
+                                android:textColor="@android:color/black"
+                                android:background="@android:color/transparent"
+                                />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <TextView
+                            android:id="@+id/tv_account_error_indicator"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="!"
+                            android:textSize="18sp"
+                            android:textColor="#F44336"
+                            android:textStyle="bold"
+                            android:layout_marginStart="8dp"
+                            android:visibility="gone"/>
+
+                    </LinearLayout>
 
                     <!-- solid separator between account and recipient name (hidden by default) -->
                     <View
@@ -287,6 +320,18 @@
                 android:paddingEnd="8dp"
                 android:textColor="#4CAF50"
                 android:textSize="14sp"
+                android:visibility="gone"/>
+
+            <!-- Amount error message -->
+            <TextView
+                android:id="@+id/tv_amount_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:textColor="#F44336"
+                android:textSize="12sp"
                 android:visibility="gone"/>
 
             <com.google.android.material.textfield.TextInputLayout

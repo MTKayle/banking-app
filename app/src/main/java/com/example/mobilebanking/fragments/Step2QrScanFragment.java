@@ -1,6 +1,7 @@
 package com.example.mobilebanking.fragments;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,6 +30,9 @@ import androidx.fragment.app.Fragment;
 
 import com.example.mobilebanking.R;
 import com.example.mobilebanking.activities.MainRegistrationActivity;
+import com.example.mobilebanking.api.ApiClient;
+import com.example.mobilebanking.api.AuthApiService;
+import com.example.mobilebanking.api.dto.PhoneExistsResponse;
 import com.example.mobilebanking.models.RegistrationData;
 import com.example.mobilebanking.utils.CccdQrParser;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -41,6 +45,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Step 2: QR Code Scanning and Confirmation (embedded scanner)
@@ -70,6 +78,7 @@ public class Step2QrScanFragment extends Fragment {
     private AtomicBoolean isProcessing = new AtomicBoolean(false);
     private Handler mainHandler;
     private long scanStartTime;
+    private ProgressDialog progressDialog;
 
     public static Step2QrScanFragment newInstance(RegistrationData data) {
         Step2QrScanFragment fragment = new Step2QrScanFragment();
@@ -271,6 +280,12 @@ public class Step2QrScanFragment extends Fragment {
                 imageProxy.close();
                 return;
             }
+            
+            // Check if barcodeScanner is null (can happen after reset)
+            if (barcodeScanner == null) {
+                imageProxy.close();
+                return;
+            }
 
             InputImage image = InputImage.fromMediaImage(
                     imageProxy.getImage(),
@@ -405,17 +420,124 @@ public class Step2QrScanFragment extends Fragment {
             return;
         }
 
-        android.util.Log.d("Step2QrScanFragment", "confirmAndContinue called, calling goToNextStep");
+        String cccd = registrationData.getIdNumber();
+        if (cccd == null || cccd.isEmpty()) {
+            Toast.makeText(requireContext(), "Số CCCD không hợp lệ", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Kiểm tra CCCD có tồn tại không
+        checkCccdExistsAndContinue(cccd);
+    }
+
+    /**
+     * Kiểm tra số CCCD đã tồn tại chưa trước khi tiếp tục
+     */
+    private void checkCccdExistsAndContinue(String cccd) {
+        // Show loading
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.setMessage("Đang kiểm tra số CCCD...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        AuthApiService authApiService = ApiClient.getAuthApiService();
+        Call<PhoneExistsResponse> call = authApiService.checkCccdExists(cccd);
+
+        call.enqueue(new Callback<PhoneExistsResponse>() {
+            @Override
+            public void onResponse(Call<PhoneExistsResponse> call, Response<PhoneExistsResponse> response) {
+                if (progressDialog != null && progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+
+                if (response.isSuccessful() && response.body() != null) {
+                    PhoneExistsResponse result = response.body();
+
+                    // Nếu exists = true → Số CCCD đã tồn tại → KHÔNG cho phép tiếp tục
+                    if (result.isExists()) {
+                        Toast.makeText(getContext(), "Số CCCD này đã được đăng ký. Vui lòng quét lại.", Toast.LENGTH_LONG).show();
+                        // Reset để quét lại
+                        resetScannerForRescan();
+                    } else {
+                        // Số CCCD chưa tồn tại (exists = false) → OK, tiếp tục sang Step 3
+                        proceedToNextStep();
+                    }
+                } else {
+                    // Lỗi từ server - KHÔNG cho phép tiếp tục
+                    Log.e(TAG, "Check CCCD exists failed: " + response.code());
+                    Toast.makeText(getContext(), "Không thể kiểm tra số CCCD. Vui lòng thử lại.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<PhoneExistsResponse> call, Throwable t) {
+                if (progressDialog != null && progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+
+                Log.e(TAG, "Check CCCD exists error", t);
+                Toast.makeText(getContext(), "Lỗi kết nối. Vui lòng kiểm tra mạng và thử lại.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    /**
+     * Reset scanner để quét lại khi CCCD đã tồn tại
+     */
+    private void resetScannerForRescan() {
+        // Clear data
+        registrationData.setFullName(null);
+        registrationData.setIdNumber(null);
+        registrationData.setDateOfBirth(null);
+        registrationData.setGender(null);
+        registrationData.setPermanentAddress(null);
+        registrationData.setIssueDate(null);
+
+        // Hide info container
+        llInfoContainer.setVisibility(View.GONE);
+        btnConfirm.setVisibility(View.GONE);
+
+        // Show scanner UI again
+        if (previewView != null) {
+            previewView.setVisibility(View.VISIBLE);
+        }
+        if (overlayFrame != null) {
+            overlayFrame.setVisibility(View.VISIBLE);
+        }
+        if (tvStatus != null) {
+            tvStatus.setVisibility(View.VISIBLE);
+        }
+
+        // Reset processing flag
+        isProcessing.set(false);
+        
+        // Reinitialize barcode scanner
+        setupBarcodeScanner();
+        
+        // Restart camera
+        startCameraIfPermitted();
+    }
+
+    /**
+     * Chuyển sang Step 3
+     */
+    private void proceedToNextStep() {
+        android.util.Log.d(TAG, "proceedToNextStep called, calling goToNextStep");
         if (getActivity() instanceof MainRegistrationActivity) {
             ((MainRegistrationActivity) getActivity()).goToNextStep();
         } else {
-            android.util.Log.e("Step2QrScanFragment", "Activity is not MainRegistrationActivity");
+            android.util.Log.e(TAG, "Activity is not MainRegistrationActivity");
         }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+
+        // Dismiss progress dialog if showing
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
 
         if (barcodeScanner != null) {
             barcodeScanner.close();

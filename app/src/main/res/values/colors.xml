@@ -37,14 +37,6 @@
 
     <!-- Divider -->
     <color name="divider_color">#E0E0E0</color>
-    <color name="divider">#E0E0E0</color>
-    
-    <!-- Officer UI Colors (thêm cho tương thích) -->
-    <color name="primary">#4CAF50</color>
-    <color name="green">#4CAF50</color>
-    <color name="orange">#FF9800</color>
-    <color name="red">#F44336</color>
-    <color name="blue">#2196F3</color>
 
     <!-- BIDV Banking Colors -->
     <color name="bidv_blue_primary">#0066CC</color>

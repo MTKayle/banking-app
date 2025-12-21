@@ -25,7 +25,7 @@ import java.util.Random;
  */
 public class TransferSuccessActivity extends AppCompatActivity {
     private TextView tvSuccessAmount, tvSuccessDateTime, tvRecipientName;
-    private TextView tvRecipientAccount, tvTransferNote, tvFromAccountName, tvTransactionCode;
+    private TextView tvRecipientAccount, tvTransferNote, tvFromAccountName, tvTransactionCode, tvBankName;
     private ImageView ivHome;
     private MaterialCardView cardTransactionDetails;
     private LinearLayout btnShare, btnSaveImage, btnSaveTemplate;
@@ -57,6 +57,7 @@ public class TransferSuccessActivity extends AppCompatActivity {
         tvSuccessDateTime = findViewById(R.id.tv_success_datetime);
         tvRecipientName = findViewById(R.id.tv_recipient_name);
         tvRecipientAccount = findViewById(R.id.tv_recipient_account);
+        tvBankName = findViewById(R.id.bank_name);
         tvTransferNote = findViewById(R.id.tv_transfer_note);
         tvFromAccountName = findViewById(R.id.tv_from_account_name);
         tvTransactionCode = findViewById(R.id.tv_transaction_code);
@@ -74,8 +75,10 @@ public class TransferSuccessActivity extends AppCompatActivity {
         Intent intent = getIntent();
         double amount = intent.getDoubleExtra("amount", 0);
         String toAccount = intent.getStringExtra("to_account");
+        String toName = intent.getStringExtra("to_name");
         String note = intent.getStringExtra("note");
-        String fromAccount = intent.getStringExtra("from_account");
+        String bank = intent.getStringExtra("bank");
+        String transactionCode = intent.getStringExtra("transaction_code");
 
         // Format amount
         String formattedAmount = formatWithDots(String.valueOf((long)amount)) + " VNĐ";
@@ -86,14 +89,29 @@ public class TransferSuccessActivity extends AppCompatActivity {
         String currentDateTime = sdf.format(new Date());
         tvSuccessDateTime.setText(currentDateTime);
 
-        // Set recipient info
-        String recipientName = findNameByAccount(toAccount);
-        if (recipientName != null && !recipientName.isEmpty()) {
-            tvRecipientName.setText(recipientName.toUpperCase());
+        // Set recipient info - use toName from intent if available
+        if (toName != null && !toName.isEmpty()) {
+            tvRecipientName.setText(toName.toUpperCase());
         } else {
-            tvRecipientName.setText("NGƯỜI NHẬN");
+            // Fallback to finding by account
+            String recipientName = findNameByAccount(toAccount);
+            if (recipientName != null && !recipientName.isEmpty()) {
+                tvRecipientName.setText(recipientName.toUpperCase());
+            } else {
+                tvRecipientName.setText("NGƯỜI NHẬN");
+            }
         }
+        
+        // Set recipient account - only account number
         tvRecipientAccount.setText(toAccount);
+        
+        // Set bank name separately
+        if (bank != null && !bank.isEmpty()) {
+            String bankFullName = getBankFullName(bank);
+            tvBankName.setText(bankFullName);
+        } else {
+            tvBankName.setText("Ngân hàng");
+        }
 
         // Set transfer note
         if (note != null && !note.isEmpty()) {
@@ -110,9 +128,45 @@ public class TransferSuccessActivity extends AppCompatActivity {
             tvFromAccountName.setText("NGƯỜI DÙNG");
         }
 
-        // Generate transaction code
-        String transactionCode = generateTransactionCode();
-        tvTransactionCode.setText(transactionCode);
+        // Use transaction code from API if available, otherwise generate
+        if (transactionCode != null && !transactionCode.isEmpty()) {
+            tvTransactionCode.setText(transactionCode);
+        } else {
+            String generatedCode = generateTransactionCode();
+            tvTransactionCode.setText(generatedCode);
+        }
+    }
+    
+    private String getBankFullName(String bankCode) {
+        if (bankCode == null) return "";
+        
+        // Map bank codes to full names
+        switch (bankCode) {
+            case "HATBANK":
+                return "Ngân hàng công nghệ HAT";
+            case "AGRIBANK":
+                return "Ngân hàng Nông nghiệp và Phát triển Nông thôn Việt Nam";
+            case "VIETCOMBANK":
+                return "Ngân hàng TMCP Ngoại thương Việt Nam";
+            case "BIDV":
+                return "Ngân hàng TMCP Đầu tư và Phát triển Việt Nam";
+            case "TECHCOMBANK":
+                return "Ngân hàng TMCP Kỹ thương Việt Nam";
+            case "VIETINBANK":
+                return "Ngân hàng TMCP Công thương Việt Nam";
+            case "ACB":
+                return "Ngân hàng TMCP Á Châu";
+            case "MB":
+                return "Ngân hàng TMCP Quân đội";
+            case "VPB":
+                return "Ngân hàng TMCP Việt Nam Thịnh Vượng";
+            case "TPB":
+                return "Ngân hàng TMCP Tiên Phong";
+            case "SACOMBANK":
+                return "Ngân hàng TMCP Sài Gòn Thương Tín";
+            default:
+                return bankCode;
+        }
     }
 
     private void setupListeners() {

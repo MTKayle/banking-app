@@ -18,15 +18,15 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * API Client for Retrofit
- * 
+ *
  * Cấu hình:
  * - BASE_URL: http://10.0.2.2:8089/api/ (cho Android Emulator)
  * - BASE_URL: http://YOUR_COMPUTER_IP:8089/api/ (cho thiết bị thật)
- * 
+ *
  * Để tìm IP máy tính:
  * - Windows: ipconfig (tìm IPv4 Address)
  * - Mac/Linux: ifconfig hoặc ip addr
- * 
+ *
  * LƯU Ý: Đổi IP_MÁY_TÍNH_CỦA_BẠN thành IP thật của máy tính chạy backend
  * Ví dụ: "http://192.168.1.100:8089/api/"
  */
@@ -38,15 +38,15 @@ public class ApiClient {
     // Khi dùng cùng Wi-Fi, IP là IP của máy tính trên mạng Wi-Fi
     // Chạy 'ipconfig' để tìm IP trong "Wireless LAN adapter Wi-Fi"
     private static final String IP_MÁY_TÍNH_CỦA_BẠN = "10.0.221.236"; // <-- IP Wi-Fi của máy tính
-    
+
     // Base URL cho Android Emulator (10.0.2.2 là alias cho localhost của máy host)
     // Nếu chạy trên thiết bị thật, dùng IP máy tính của bạn
     private static final String BASE_URL_EMULATOR = "http://10.0.2.2:8089/api/";
     private static final String BASE_URL_DEVICE = "http://" + IP_MÁY_TÍNH_CỦA_BẠN + ":8089/api/";
     private static final String BASE_URL_USB = "http://localhost:8089/api/"; // Dùng khi kết nối USB + adb reverse
     // Ngrok tunnel (HTTPS) do user cung cấp
-    private static final String BASE_URL_NGROK = "  https://unconsonant-alycia-pawkily.ngrok-free.dev/api/";
-    
+    private static final String BASE_URL_NGROK = " https://unbuffed-unindicatively-nada.ngrok-free.dev/api/";
+
     // Chọn phương thức kết nối:
     // - "USB": Dùng USB + adb reverse (ổn định nhất, không cần IP) - KHUYẾN NGHỊ!
     // - "WIFI": Dùng Wi-Fi với IP máy tính (cần cùng subnet)
@@ -55,7 +55,7 @@ public class ApiClient {
     // LƯU Ý: Nếu IP điện thoại và máy tính khác subnet (ví dụ: 10.0.220.x vs 10.0.221.x)
     //        → Dùng USB tethering hoặc kiểm tra router settings (AP Isolation)
     private static final String CONNECTION_MODE = "NGROK"; // "USB", "WIFI", "EMULATOR", hoặc "NGROK"
-    
+
     private static final String BASE_URL;
     static {
         switch (CONNECTION_MODE) {
@@ -75,7 +75,7 @@ public class ApiClient {
         }
     }
     private static final String ESMS_BASE_URL = "https://rest.esms.vn/"; // eSMS API base URL
-    
+
     private static Retrofit retrofit;
     private static Retrofit esmsRetrofit;
     private static AuthApiService authApiService;
@@ -85,9 +85,13 @@ public class ApiClient {
     private static ESmsApiService esmsApiService;
     private static MovieApiService movieApiService;
     private static TransactionApiService transactionApiService;
-    
+    private static UserApiService userApiService;
+    private static BankApiService bankApiService;
+    private static ExternalAccountApiService externalAccountApiService;
+    private static TransferApiService transferApiService;
+
     private static Context applicationContext;
-    
+
     /**
      * Khởi tạo ApiClient với context
      * Nên gọi trong Application class hoặc Activity onCreate
@@ -95,7 +99,7 @@ public class ApiClient {
     public static void init(Context context) {
         applicationContext = context.getApplicationContext();
     }
-    
+
     /**
      * Interceptor để tự động thêm JWT token vào header
      */
@@ -104,33 +108,33 @@ public class ApiClient {
             @Override
             public Response intercept(Chain chain) throws IOException {
                 Request original = chain.request();
-                
+
                 // Lấy token từ DataManager
                 String token = null;
                 if (applicationContext != null) {
                     DataManager dataManager = DataManager.getInstance(applicationContext);
                     token = dataManager.getAccessToken();
                 }
-                
+
                 // Nếu có token, thêm vào header
                 Request.Builder requestBuilder = original.newBuilder();
                 if (token != null && !token.isEmpty()) {
                     requestBuilder.header("Authorization", "Bearer " + token);
                 }
-                
+
                 requestBuilder.header("Content-Type", "application/json");
                 Request request = requestBuilder.build();
                 return chain.proceed(request);
             }
         };
     }
-    
+
     public static Retrofit getRetrofitInstance() {
         if (retrofit == null) {
             // Create logging interceptor (chỉ log trong debug mode)
             HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
             logging.setLevel(HttpLoggingInterceptor.Level.BODY);
-            
+
             // Create OkHttp client with timeout và auth interceptor
             OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder()
                     .addInterceptor(getAuthInterceptor())
@@ -138,9 +142,9 @@ public class ApiClient {
                     .connectTimeout(30, TimeUnit.SECONDS)
                     .readTimeout(30, TimeUnit.SECONDS)
                     .writeTimeout(30, TimeUnit.SECONDS);
-            
+
             OkHttpClient okHttpClient = clientBuilder.build();
-            
+
             retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
                     .client(okHttpClient)
@@ -149,7 +153,7 @@ public class ApiClient {
         }
         return retrofit;
     }
-    
+
     /**
      * Lấy AuthApiService instance
      */
@@ -159,7 +163,7 @@ public class ApiClient {
         }
         return authApiService;
     }
-    
+
     /**
      * Lấy AccountApiService instance
      */
@@ -169,7 +173,7 @@ public class ApiClient {
         }
         return accountApiService;
     }
-    
+
     /**
      * Lấy PaymentApiService instance
      */
@@ -179,26 +183,26 @@ public class ApiClient {
         }
         return paymentApiService;
     }
-    
+
     public static BiometricApiService getBiometricApiService() {
         if (biometricApiService == null) {
             biometricApiService = getRetrofitInstance().create(BiometricApiService.class);
         }
         return biometricApiService;
     }
-    
+
     public static Retrofit getESmsRetrofitInstance() {
         if (esmsRetrofit == null) {
             HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
             logging.setLevel(HttpLoggingInterceptor.Level.BODY);
-            
+
             OkHttpClient okHttpClient = new OkHttpClient.Builder()
                     .addInterceptor(logging)
                     .connectTimeout(30, TimeUnit.SECONDS)
                     .readTimeout(30, TimeUnit.SECONDS)
                     .writeTimeout(30, TimeUnit.SECONDS)
                     .build();
-            
+
             esmsRetrofit = new Retrofit.Builder()
                     .baseUrl(ESMS_BASE_URL)
                     .client(okHttpClient)
@@ -207,14 +211,14 @@ public class ApiClient {
         }
         return esmsRetrofit;
     }
-    
+
     public static ESmsApiService getESmsApiService() {
         if (esmsApiService == null) {
             esmsApiService = getESmsRetrofitInstance().create(ESmsApiService.class);
         }
         return esmsApiService;
     }
-    
+
     /**
      * Lấy MovieApiService instance
      */
@@ -224,7 +228,7 @@ public class ApiClient {
         }
         return movieApiService;
     }
-    
+
     /**
      * Lấy TransactionApiService instance
      */
@@ -234,7 +238,47 @@ public class ApiClient {
         }
         return transactionApiService;
     }
-    
+
+    /**
+     * Lấy UserApiService instance
+     */
+    public static UserApiService getUserApiService() {
+        if (userApiService == null) {
+            userApiService = getRetrofitInstance().create(UserApiService.class);
+        }
+        return userApiService;
+    }
+
+    /**
+     * Lấy BankApiService instance
+     */
+    public static BankApiService getBankApiService() {
+        if (bankApiService == null) {
+            bankApiService = getRetrofitInstance().create(BankApiService.class);
+        }
+        return bankApiService;
+    }
+
+    /**
+     * Lấy ExternalAccountApiService instance
+     */
+    public static ExternalAccountApiService getExternalAccountApiService() {
+        if (externalAccountApiService == null) {
+            externalAccountApiService = getRetrofitInstance().create(ExternalAccountApiService.class);
+        }
+        return externalAccountApiService;
+    }
+
+    /**
+     * Lấy TransferApiService instance
+     */
+    public static TransferApiService getTransferApiService() {
+        if (transferApiService == null) {
+            transferApiService = getRetrofitInstance().create(TransferApiService.class);
+        }
+        return transferApiService;
+    }
+
     /**
      * Reset Retrofit instance (dùng khi cần thay đổi BASE_URL)
      */
@@ -246,6 +290,7 @@ public class ApiClient {
         biometricApiService = null;
         movieApiService = null;
         transactionApiService = null;
+        userApiService = null;
+        externalAccountApiService = null;
     }
 }
-

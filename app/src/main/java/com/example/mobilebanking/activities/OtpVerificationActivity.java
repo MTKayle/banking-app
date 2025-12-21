@@ -16,14 +16,50 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mobilebanking.R;
+import com.example.mobilebanking.api.ApiClient;
+import com.example.mobilebanking.api.AuthApiService;
+import com.example.mobilebanking.api.MovieApiService;
+import com.example.mobilebanking.api.TransferApiService;
+import com.example.mobilebanking.api.dto.AuthResponse;
+import com.example.mobilebanking.api.dto.BookingRequest;
+import com.example.mobilebanking.api.dto.BookingResponse;
+import com.example.mobilebanking.api.dto.LoginRequest;
+import com.example.mobilebanking.api.dto.TransferConfirmRequest;
+import com.example.mobilebanking.api.dto.TransferConfirmResponse;
+import com.example.mobilebanking.models.User;
+import com.example.mobilebanking.utils.DataManager;
 import com.example.mobilebanking.utils.ESmsConfig;
+import com.example.mobilebanking.utils.OtpApiService;
+import com.example.mobilebanking.utils.OtpResponse;
+import com.example.mobilebanking.utils.SessionManager;
 import com.example.mobilebanking.utils.SmsService;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * OTP Verification Activity
+ * Hỗ trợ nhiều flow:
+ * - register: Đăng ký (eSMS)
+ * - forgot_password: Quên mật khẩu (Goixe247)
+ * - movie_booking: Đặt vé xem phim (Goixe247)
+ * - login_verification: Xác thực đăng nhập tài khoản khác (Goixe247)
  */
 public class OtpVerificationActivity extends AppCompatActivity {
     private static final String TAG = "OtpVerification";
+    
+    // Goixe247 API configuration
+    private static final String GOIXE_BASE_URL = "https://otp.goixe247.com/";
+    private static final String GOIXE_USER_ID = "13";
+    private static final String GOIXE_API_KEY = "328945bfca039d9663890e71f4d9e2203669dd1e49fd3cb9a44fa86a48d915da";
     
     private EditText etOtp1, etOtp2, etOtp3, etOtp4, etOtp5, etOtp6;
     private Button btnVerify, btnResend;
@@ -31,10 +67,12 @@ public class OtpVerificationActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private String phoneNumber;
     private String fromActivity;
+    private String password; // For login_verification flow
     private CountDownTimer countDownTimer;
     
     private SmsService smsService;
     private ESmsConfig esmsConfig;
+    private OtpApiService otpApiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,25 +81,64 @@ public class OtpVerificationActivity extends AppCompatActivity {
 
         phoneNumber = getIntent().getStringExtra("phone");
         fromActivity = getIntent().getStringExtra("from");
+        
+        // Lấy flow từ intent (ưu tiên "flow" hơn "from")
+        String flow = getIntent().getStringExtra("flow");
+        if (flow != null && !flow.isEmpty()) {
+            fromActivity = flow;
+        }
+        
+        // Lấy password nếu là login_verification flow
+        password = getIntent().getStringExtra("password");
 
         // Initialize SMS service
         smsService = new SmsService(this);
         esmsConfig = new ESmsConfig(this);
+        
+        // Initialize Goixe247 service
+        initGoixeService();
 
         initializeViews();
         setupOtpInputs();
         setupListeners();
         
-        // Check if eSMS is configured
-        if (esmsConfig.isConfigured()) {
-            // Send OTP automatically when activity starts
-            sendOtp();
+        // Xử lý theo flow
+        if ("forgot_password".equals(fromActivity)) {
+            // Luồng quên mật khẩu - OTP đã được gửi từ ForgotPasswordActivity
+            // Không cần gửi lại OTP ở đây
+            Toast.makeText(this, "Mã OTP đã được gửi đến " + phoneNumber, Toast.LENGTH_SHORT).show();
+        } else if ("movie_booking".equals(fromActivity)) {
+            // Luồng đặt vé - gửi OTP với Goixe247
+            sendOtpWithGoixe();
+        } else if ("login_verification".equals(fromActivity)) {
+            // Luồng xác thực đăng nhập - gửi OTP với Goixe247
+            sendOtpWithGoixe();
+        } else if ("register".equals(fromActivity)) {
+            // Luồng đăng ký - dùng Goixe247
+            sendOtpWithGoixe();
         } else {
-            // Show dialog to configure API keys
-            showApiKeyConfigDialog();
+            // Luồng mặc định - dùng Goixe247
+            sendOtpWithGoixe();
         }
         
         startTimer();
+    }
+    
+    private void initGoixeService() {
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .addInterceptor(logging)
+                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(GOIXE_BASE_URL)
+                .client(okHttpClient)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        otpApiService = retrofit.create(OtpApiService.class);
     }
 
     private void initializeViews() {
@@ -85,6 +162,7 @@ public class OtpVerificationActivity extends AppCompatActivity {
             tvPhone.setText("Đã gửi đến " + phoneNumber);
         }
     }
+
     
     private void showApiKeyConfigDialog() {
         android.widget.EditText etApiKey = new android.widget.EditText(this);
@@ -180,6 +258,71 @@ public class OtpVerificationActivity extends AppCompatActivity {
             }
         });
     }
+    
+    private void sendOtpWithGoixe() {
+        if (phoneNumber == null || phoneNumber.isEmpty()) {
+            Toast.makeText(this, "Số điện thoại không hợp lệ", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        Log.d(TAG, "Sending OTP to: " + phoneNumber);
+        
+        // Show progress
+        if (progressBar != null) {
+            progressBar.setVisibility(android.view.View.VISIBLE);
+        }
+        btnResend.setEnabled(false);
+        
+        // Sử dụng đúng tên field: recipient_phone (theo API Goixe247)
+        Call<OtpResponse> call = otpApiService.requestOtp(
+                GOIXE_USER_ID,
+                GOIXE_API_KEY,
+                phoneNumber
+        );
+        
+        call.enqueue(new Callback<OtpResponse>() {
+            @Override
+            public void onResponse(Call<OtpResponse> call, Response<OtpResponse> response) {
+                runOnUiThread(() -> {
+                    if (progressBar != null) {
+                        progressBar.setVisibility(android.view.View.GONE);
+                    }
+                    
+                    Log.d(TAG, "OTP Request Response Code: " + response.code());
+                    
+                    if (response.isSuccessful() && response.body() != null) {
+                        OtpResponse otpResponse = response.body();
+                        Log.d(TAG, "OTP Response: success=" + otpResponse.isSuccess() + ", message=" + otpResponse.getMessage());
+                        
+                        if (otpResponse.isSuccess()) {
+                            Toast.makeText(OtpVerificationActivity.this, 
+                                    "Mã OTP đã được gửi đến " + phoneNumber, Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(OtpVerificationActivity.this, 
+                                    "Lỗi: " + otpResponse.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    } else {
+                        Log.e(TAG, "OTP Request failed: " + response.code());
+                        Toast.makeText(OtpVerificationActivity.this, 
+                                "Không thể gửi OTP. Vui lòng thử lại.", Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+            
+            @Override
+            public void onFailure(Call<OtpResponse> call, Throwable t) {
+                runOnUiThread(() -> {
+                    if (progressBar != null) {
+                        progressBar.setVisibility(android.view.View.GONE);
+                    }
+                    
+                    Log.e(TAG, "OTP Request failed", t);
+                    Toast.makeText(OtpVerificationActivity.this, 
+                            "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                });
+            }
+        });
+    }
 
     private void setupOtpInputs() {
         EditText[] otpInputs = {etOtp1, etOtp2, etOtp3, etOtp4, etOtp5, etOtp6};
@@ -225,6 +368,11 @@ public class OtpVerificationActivity extends AppCompatActivity {
             return;
         }
 
+        // Tất cả các flow đều dùng Goixe247
+        verifyOtpWithGoixe(otp);
+    }
+    
+    private void verifyOtpWithESms(String otp) {
         // Verify OTP - Fake OTP is 123456
         boolean isValid = false;
         
@@ -239,58 +387,574 @@ public class OtpVerificationActivity extends AppCompatActivity {
 
         if (isValid) {
             Toast.makeText(this, "Xác thực OTP thành công!", Toast.LENGTH_SHORT).show();
-
-            if ("register".equals(fromActivity)) {
-                // Registration successful, go to login
-                Intent intent = new Intent(OtpVerificationActivity.this, LoginActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-                finish();
-            } else if ("transaction".equals(fromActivity)) {
-                // Transaction verification, go to success screen
-                Intent successIntent = new Intent(OtpVerificationActivity.this, TransferSuccessActivity.class);
-
-                // Pass transaction data from previous intent
-                Intent originalIntent = getIntent();
-                successIntent.putExtra("amount", originalIntent.getDoubleExtra("amount", 0));
-                successIntent.putExtra("to_account", originalIntent.getStringExtra("to_account"));
-                successIntent.putExtra("note", originalIntent.getStringExtra("note"));
-                successIntent.putExtra("from_account", originalIntent.getStringExtra("from_account"));
-                successIntent.putExtra("bank", originalIntent.getStringExtra("bank"));
-
-                // Add flag to indicate we need to clear the transaction stack
-                successIntent.putExtra("clear_transaction_stack", true);
-
-                // Start success activity
-                startActivity(successIntent);
-
-                // Finish this OTP activity
-                finish();
-            } else {
-                // Other cases, return to previous activity
-                setResult(RESULT_OK);
-                finish();
-            }
+            handleOtpSuccess();
         } else {
             Toast.makeText(this, "Mã OTP không đúng hoặc đã hết hạn. Vui lòng thử lại.", Toast.LENGTH_LONG).show();
-            // Clear OTP inputs
-            etOtp1.setText("");
-            etOtp2.setText("");
-            etOtp3.setText("");
-            etOtp4.setText("");
-            etOtp5.setText("");
-            etOtp6.setText("");
-            etOtp1.requestFocus();
+            clearOtpInputs();
         }
+    }
+    
+    private void verifyOtpWithGoixe(String otp) {
+        Log.d(TAG, "Verifying OTP: " + otp + " for phone: " + phoneNumber);
+        
+        // Check for test OTP first
+        if ("123456".equals(otp)) {
+            Log.d(TAG, "Test OTP detected: 123456 - bypassing verification");
+            Toast.makeText(this, "Xác thực OTP thành công! (Test Mode)", Toast.LENGTH_SHORT).show();
+            handleOtpSuccess();
+            return;
+        }
+        
+        // Show progress
+        if (progressBar != null) {
+            progressBar.setVisibility(android.view.View.VISIBLE);
+        }
+        btnVerify.setEnabled(false);
+        
+        // Sử dụng đúng tên field: recipient_phone và otp_code (theo API Goixe247)
+        Call<OtpResponse> call = otpApiService.verifyOtp(
+                GOIXE_USER_ID,
+                GOIXE_API_KEY,
+                phoneNumber,
+                otp
+        );
+        
+        call.enqueue(new Callback<OtpResponse>() {
+            @Override
+            public void onResponse(Call<OtpResponse> call, Response<OtpResponse> response) {
+                runOnUiThread(() -> {
+                    if (progressBar != null) {
+                        progressBar.setVisibility(android.view.View.GONE);
+                    }
+                    btnVerify.setEnabled(true);
+                    
+                    Log.d(TAG, "OTP Verify Response Code: " + response.code());
+                    
+                    if (response.isSuccessful() && response.body() != null) {
+                        OtpResponse otpResponse = response.body();
+                        Log.d(TAG, "OTP Verify Response: success=" + otpResponse.isSuccess() + ", message=" + otpResponse.getMessage());
+                        
+                        if (otpResponse.isSuccess()) {
+                            Toast.makeText(OtpVerificationActivity.this, 
+                                    "Xác thực OTP thành công!", Toast.LENGTH_SHORT).show();
+                            handleOtpSuccess();
+                        } else {
+                            // OTP sai - hiển thị thông báo và xóa input để nhập lại
+                            String errorMsg = otpResponse.getMessage() != null ? otpResponse.getMessage() : "Mã OTP không đúng";
+                            Toast.makeText(OtpVerificationActivity.this, 
+                                    errorMsg + ". Vui lòng nhập lại.", Toast.LENGTH_LONG).show();
+                            clearOtpInputs();
+                            // Focus vào ô đầu tiên
+                            etOtp1.requestFocus();
+                        }
+                    } else {
+                        // Lỗi response
+                        Log.e(TAG, "OTP Verify failed: " + response.code());
+                        try {
+                            if (response.errorBody() != null) {
+                                String errorBody = response.errorBody().string();
+                                Log.e(TAG, "Error body: " + errorBody);
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error reading error body", e);
+                        }
+                        
+                        Toast.makeText(OtpVerificationActivity.this, 
+                                "Xác thực OTP thất bại. Vui lòng thử lại.", Toast.LENGTH_LONG).show();
+                        clearOtpInputs();
+                        etOtp1.requestFocus();
+                    }
+                });
+            }
+            
+            @Override
+            public void onFailure(Call<OtpResponse> call, Throwable t) {
+                runOnUiThread(() -> {
+                    if (progressBar != null) {
+                        progressBar.setVisibility(android.view.View.GONE);
+                    }
+                    btnVerify.setEnabled(true);
+                    
+                    Log.e(TAG, "OTP verification failed", t);
+                    Toast.makeText(OtpVerificationActivity.this, 
+                            "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                });
+            }
+        });
+    }
+    
+    /**
+     * Handle successful OTP verification
+     */
+    private void handleOtpSuccess() {
+        if ("forgot_password".equals(fromActivity)) {
+            // Chuyển sang màn hình đặt lại mật khẩu
+            Intent intent = new Intent(OtpVerificationActivity.this, ResetPasswordActivity.class);
+            intent.putExtra("phone", phoneNumber);
+            startActivity(intent);
+            finish();
+        } else if ("movie_booking".equals(fromActivity)) {
+            // Xác thực thành công → Gọi API đặt vé
+            processMovieBooking();
+        } else if ("login_verification".equals(fromActivity)) {
+            // Xác thực thành công → Đăng nhập
+            performLogin();
+        } else if ("register".equals(fromActivity)) {
+            // Xác thực thành công → Trả về Step1BasicInfoFragment để chuyển sang Step 2
+            setResult(RESULT_OK);
+            finish();
+        } else if ("transaction".equals(fromActivity)) {
+            // Xác thực thành công → Gọi API confirm transfer
+            processTransferConfirm();
+        }
+    }
+    
+    private void performLogin() {
+        if (phoneNumber == null || password == null) {
+            Toast.makeText(this, "Lỗi: Thiếu thông tin đăng nhập", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        // Show loading
+        if (progressBar != null) {
+            progressBar.setVisibility(android.view.View.VISIBLE);
+        }
+        btnVerify.setEnabled(false);
+        
+        // Call login API
+        LoginRequest loginRequest = new LoginRequest(phoneNumber, password);
+        AuthApiService authApiService = ApiClient.getAuthApiService();
+        
+        Call<AuthResponse> call = authApiService.login(loginRequest);
+        
+        call.enqueue(new Callback<AuthResponse>() {
+            @Override
+            public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+                if (progressBar != null) {
+                    progressBar.setVisibility(android.view.View.GONE);
+                }
+                btnVerify.setEnabled(true);
+                
+                if (response.isSuccessful() && response.body() != null) {
+                    AuthResponse authResponse = response.body();
+                    
+                    // Save session and user info
+                    DataManager dataManager = DataManager.getInstance(OtpVerificationActivity.this);
+                    User.UserRole role = "CUSTOMER".equalsIgnoreCase(authResponse.getRole()) 
+                            ? User.UserRole.CUSTOMER 
+                            : User.UserRole.OFFICER;
+                    
+                    dataManager.saveLoggedInUser(phoneNumber, role);
+                    dataManager.saveLastUsername(phoneNumber);
+                    
+                    if (authResponse.getUserId() != null) {
+                        dataManager.saveUserId(authResponse.getUserId());
+                    }
+                    if (authResponse.getPhone() != null) {
+                        dataManager.saveUserPhone(authResponse.getPhone());
+                    }
+                    if (authResponse.getFullName() != null) {
+                        dataManager.saveUserFullName(authResponse.getFullName());
+                        dataManager.saveLastFullName(authResponse.getFullName());
+                    }
+                    if (authResponse.getEmail() != null) {
+                        dataManager.saveUserEmail(authResponse.getEmail());
+                    }
+                    
+                    if (authResponse.getToken() != null && authResponse.getRefreshToken() != null) {
+                        dataManager.saveTokens(authResponse.getToken(), authResponse.getRefreshToken());
+                    }
+                    
+                    SessionManager sessionManager = SessionManager.getInstance(OtpVerificationActivity.this);
+                    sessionManager.onLoginSuccess();
+                    
+                    Toast.makeText(OtpVerificationActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
+                    
+                    // Navigate to dashboard
+                    Intent intent = new Intent(OtpVerificationActivity.this, 
+                            com.example.mobilebanking.ui_home.UiHomeActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    Toast.makeText(OtpVerificationActivity.this, 
+                            "Đăng nhập thất bại. Vui lòng thử lại.", Toast.LENGTH_LONG).show();
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<AuthResponse> call, Throwable t) {
+                if (progressBar != null) {
+                    progressBar.setVisibility(android.view.View.GONE);
+                }
+                btnVerify.setEnabled(true);
+                
+                Toast.makeText(OtpVerificationActivity.this, 
+                        "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+    
+    private void processMovieBooking() {
+        // Show loading
+        if (progressBar != null) {
+            progressBar.setVisibility(android.view.View.VISIBLE);
+        }
+        btnVerify.setEnabled(false);
+        
+        // Lấy thông tin booking từ Intent
+        String customerName = getIntent().getStringExtra("customer_name");
+        String customerPhone = getIntent().getStringExtra("customer_phone");
+        String customerEmail = getIntent().getStringExtra("customer_email");
+        Long screeningId = getIntent().getLongExtra("screening_id", -1);
+        long[] seatIds = getIntent().getLongArrayExtra("seat_ids");
+        
+        if (screeningId == -1 || seatIds == null || seatIds.length == 0) {
+            Toast.makeText(this, "Lỗi: Thiếu thông tin đặt vé", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        // Convert seatIds to List
+        List<Long> seatIdList = new ArrayList<>();
+        for (long id : seatIds) {
+            seatIdList.add(id);
+        }
+        
+        // Build request
+        BookingRequest request = new BookingRequest(
+                screeningId,
+                seatIdList,
+                customerName,
+                customerPhone,
+                customerEmail
+        );
+        
+        // Call API
+        MovieApiService apiService = ApiClient.getMovieApiService();
+        Call<BookingResponse> call = apiService.createBooking(request);
+        
+        call.enqueue(new Callback<BookingResponse>() {
+            @Override
+            public void onResponse(Call<BookingResponse> call, Response<BookingResponse> response) {
+                if (progressBar != null) {
+                    progressBar.setVisibility(android.view.View.GONE);
+                }
+                btnVerify.setEnabled(true);
+                
+                if (response.isSuccessful() && response.body() != null) {
+                    BookingResponse bookingResponse = response.body();
+                    
+                    if (bookingResponse.getSuccess() != null && bookingResponse.getSuccess()) {
+                        // Success - navigate to success screen
+                        navigateToMovieSuccessScreen(bookingResponse.getData());
+                    } else {
+                        // Error
+                        String errorMsg = parseMovieBookingError(response.code(), bookingResponse.getMessage());
+                        Toast.makeText(OtpVerificationActivity.this, errorMsg, Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    String errorMsg = parseMovieBookingError(response.code(), null);
+                    Toast.makeText(OtpVerificationActivity.this, errorMsg, Toast.LENGTH_LONG).show();
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<BookingResponse> call, Throwable t) {
+                if (progressBar != null) {
+                    progressBar.setVisibility(android.view.View.GONE);
+                }
+                btnVerify.setEnabled(true);
+                
+                Toast.makeText(OtpVerificationActivity.this, 
+                        "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+    
+    private String parseMovieBookingError(int statusCode, String message) {
+        if (statusCode == 402) {
+            return "Số dư tài khoản không đủ để thanh toán.";
+        } else if (statusCode == 409) {
+            return "Ghế đã được đặt bởi người khác. Vui lòng chọn ghế khác.";
+        } else if (message != null && !message.isEmpty()) {
+            return message;
+        } else {
+            return "Đặt vé thất bại. Vui lòng thử lại.";
+        }
+    }
+    
+    private void navigateToMovieSuccessScreen(BookingResponse.BookingData data) {
+        Intent intent = new Intent(this, MovieTicketSuccessActivity.class);
+        
+        if (data != null) {
+            intent.putExtra(MovieTicketSuccessActivity.EXTRA_BOOKING_CODE, data.getBookingCode());
+            intent.putExtra(MovieTicketSuccessActivity.EXTRA_MOVIE_TITLE, data.getMovieTitle());
+            intent.putExtra(MovieTicketSuccessActivity.EXTRA_CINEMA_NAME, data.getCinemaName());
+            
+            // Combine screening date and start time for showtime
+            String showtime = "";
+            if (data.getScreeningDate() != null && data.getStartTime() != null) {
+                showtime = data.getScreeningDate() + " " + data.getStartTime();
+            } else if (data.getStartTime() != null) {
+                showtime = data.getStartTime();
+            }
+            intent.putExtra(MovieTicketSuccessActivity.EXTRA_SHOWTIME, showtime);
+            
+            // Convert seat labels list to comma-separated string
+            String seats = "";
+            if (data.getSeatLabels() != null && !data.getSeatLabels().isEmpty()) {
+                seats = String.join(", ", data.getSeatLabels());
+            }
+            intent.putExtra(MovieTicketSuccessActivity.EXTRA_SEATS, seats);
+            
+            // Use EXTRA_TOTAL_AMOUNT (not EXTRA_TOTAL_PRICE)
+            if (data.getTotalAmount() != null) {
+                intent.putExtra(MovieTicketSuccessActivity.EXTRA_TOTAL_AMOUNT, data.getTotalAmount());
+            }
+            
+            // Additional fields from BookingData
+            if (data.getCinemaAddress() != null) {
+                intent.putExtra(MovieTicketSuccessActivity.EXTRA_CINEMA_ADDRESS, data.getCinemaAddress());
+            }
+            if (data.getHallName() != null) {
+                intent.putExtra(MovieTicketSuccessActivity.EXTRA_HALL_NAME, data.getHallName());
+            }
+            if (data.getScreeningDate() != null) {
+                intent.putExtra(MovieTicketSuccessActivity.EXTRA_SCREENING_DATE, data.getScreeningDate());
+            }
+            if (data.getStartTime() != null) {
+                intent.putExtra(MovieTicketSuccessActivity.EXTRA_START_TIME, data.getStartTime());
+            }
+            if (data.getSeatCount() != null) {
+                intent.putExtra(MovieTicketSuccessActivity.EXTRA_SEAT_COUNT, data.getSeatCount());
+            }
+            if (data.getCustomerName() != null) {
+                intent.putExtra(MovieTicketSuccessActivity.EXTRA_CUSTOMER_NAME, data.getCustomerName());
+            }
+            if (data.getQrCode() != null) {
+                intent.putExtra(MovieTicketSuccessActivity.EXTRA_QR_CODE, data.getQrCode());
+            }
+        } else {
+            // Fallback: use data from intent
+            intent.putExtra(MovieTicketSuccessActivity.EXTRA_MOVIE_TITLE, getIntent().getStringExtra("movie_title"));
+            intent.putExtra(MovieTicketSuccessActivity.EXTRA_CINEMA_NAME, getIntent().getStringExtra("cinema_name"));
+            intent.putExtra(MovieTicketSuccessActivity.EXTRA_SHOWTIME, getIntent().getStringExtra("showtime"));
+            intent.putExtra(MovieTicketSuccessActivity.EXTRA_SEATS, getIntent().getStringExtra("seats"));
+            intent.putExtra(MovieTicketSuccessActivity.EXTRA_TOTAL_AMOUNT, getIntent().getDoubleExtra("total_amount", 0));
+        }
+        
+        startActivity(intent);
+        finish();
+    }
+    
+    /**
+     * Process transfer confirmation after OTP verification
+     */
+    private void processTransferConfirm() {
+        // Get transaction code and bank from intent
+        String transactionCode = getIntent().getStringExtra("transaction_code");
+        String bankCode = getIntent().getStringExtra("bank");
+        
+        Log.d(TAG, "Processing transfer confirm - transactionCode: " + transactionCode + ", bank: " + bankCode);
+        
+        if (transactionCode == null || transactionCode.isEmpty()) {
+            Toast.makeText(this, "Lỗi: Không tìm thấy mã giao dịch", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        // Show loading
+        if (progressBar != null) {
+            progressBar.setVisibility(android.view.View.VISIBLE);
+        }
+        btnVerify.setEnabled(false);
+        
+        TransferApiService transferApiService = ApiClient.getTransferApiService();
+        
+        // Check if internal or external transfer
+        if ("HATBANK".equals(bankCode)) {
+            // Internal transfer - use JSON body
+            Log.d(TAG, "Calling internal transfer confirm API");
+            TransferConfirmRequest request = new TransferConfirmRequest(transactionCode);
+            Call<TransferConfirmResponse> call = transferApiService.confirmInternalTransfer(request);
+            
+            call.enqueue(new Callback<TransferConfirmResponse>() {
+                @Override
+                public void onResponse(Call<TransferConfirmResponse> call, Response<TransferConfirmResponse> response) {
+                    if (progressBar != null) {
+                        progressBar.setVisibility(android.view.View.GONE);
+                    }
+                    btnVerify.setEnabled(true);
+                    
+                    Log.d(TAG, "Internal transfer confirm response code: " + response.code());
+                    
+                    if (response.code() == 401) {
+                        Log.e(TAG, "Unauthorized - Token may be expired or invalid");
+                        Toast.makeText(OtpVerificationActivity.this, 
+                                "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                    
+                    if (response.isSuccessful() && response.body() != null) {
+                        TransferConfirmResponse confirmResponse = response.body();
+                        Log.d(TAG, "Response - status: " + confirmResponse.getStatus() + 
+                                ", transactionId: " + confirmResponse.getTransactionId() +
+                                ", isSuccess: " + confirmResponse.isSuccess());
+                        
+                        if (confirmResponse.isSuccess()) {
+                            Log.d(TAG, "Internal transfer confirmed successfully - navigating to success");
+                            Toast.makeText(OtpVerificationActivity.this, 
+                                    "Chuyển tiền thành công!", Toast.LENGTH_SHORT).show();
+                            navigateToTransferSuccess();
+                        } else {
+                            String errorMsg = confirmResponse.getMessage() != null ? 
+                                    confirmResponse.getMessage() : "Giao dịch thất bại";
+                            Toast.makeText(OtpVerificationActivity.this, 
+                                    errorMsg, Toast.LENGTH_LONG).show();
+                        }
+                    } else {
+                        Log.e(TAG, "Failed to confirm internal transfer: " + response.code());
+                        try {
+                            if (response.errorBody() != null) {
+                                String errorBody = response.errorBody().string();
+                                Log.e(TAG, "Error body: " + errorBody);
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error reading error body", e);
+                        }
+                        Toast.makeText(OtpVerificationActivity.this, 
+                                "Xác nhận giao dịch thất bại (Code: " + response.code() + ")", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                
+                @Override
+                public void onFailure(Call<TransferConfirmResponse> call, Throwable t) {
+                    if (progressBar != null) {
+                        progressBar.setVisibility(android.view.View.GONE);
+                    }
+                    btnVerify.setEnabled(true);
+                    
+                    Log.e(TAG, "Error confirming internal transfer", t);
+                    Toast.makeText(OtpVerificationActivity.this, 
+                            "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            });
+        } else {
+            // External transfer - use form-data
+            Log.d(TAG, "Calling external transfer confirm API");
+            Call<TransferConfirmResponse> call = transferApiService.confirmExternalTransfer(transactionCode);
+            
+            call.enqueue(new Callback<TransferConfirmResponse>() {
+                @Override
+                public void onResponse(Call<TransferConfirmResponse> call, Response<TransferConfirmResponse> response) {
+                    if (progressBar != null) {
+                        progressBar.setVisibility(android.view.View.GONE);
+                    }
+                    btnVerify.setEnabled(true);
+                    
+                    Log.d(TAG, "External transfer confirm response code: " + response.code());
+                    
+                    if (response.code() == 401) {
+                        Log.e(TAG, "Unauthorized - Token may be expired or invalid");
+                        Toast.makeText(OtpVerificationActivity.this, 
+                                "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                    
+                    if (response.isSuccessful() && response.body() != null) {
+                        TransferConfirmResponse confirmResponse = response.body();
+                        Log.d(TAG, "Response - status: " + confirmResponse.getStatus() + 
+                                ", success: " + confirmResponse.isSuccess() +
+                                ", message: " + confirmResponse.getMessage());
+                        
+                        if (confirmResponse.isSuccess()) {
+                            Log.d(TAG, "External transfer confirmed successfully - navigating to success");
+                            Toast.makeText(OtpVerificationActivity.this, 
+                                    "Chuyển tiền thành công!", Toast.LENGTH_SHORT).show();
+                            navigateToTransferSuccess();
+                        } else {
+                            String errorMsg = confirmResponse.getMessage() != null ? 
+                                    confirmResponse.getMessage() : "Giao dịch thất bại";
+                            Toast.makeText(OtpVerificationActivity.this, 
+                                    errorMsg, Toast.LENGTH_LONG).show();
+                        }
+                    } else {
+                        Log.e(TAG, "Failed to confirm external transfer: " + response.code());
+                        try {
+                            if (response.errorBody() != null) {
+                                String errorBody = response.errorBody().string();
+                                Log.e(TAG, "Error body: " + errorBody);
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error reading error body", e);
+                        }
+                        Toast.makeText(OtpVerificationActivity.this, 
+                                "Xác nhận giao dịch thất bại (Code: " + response.code() + ")", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                
+                @Override
+                public void onFailure(Call<TransferConfirmResponse> call, Throwable t) {
+                    if (progressBar != null) {
+                        progressBar.setVisibility(android.view.View.GONE);
+                    }
+                    btnVerify.setEnabled(true);
+                    
+                    Log.e(TAG, "Error confirming external transfer", t);
+                    Toast.makeText(OtpVerificationActivity.this, 
+                            "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+    }
+    
+    /**
+     * Navigate to transfer success screen
+     */
+    private void navigateToTransferSuccess() {
+        Intent successIntent = new Intent(OtpVerificationActivity.this, TransferSuccessActivity.class);
+
+        // Pass transaction data from previous intent
+        Intent originalIntent = getIntent();
+        successIntent.putExtra("amount", originalIntent.getDoubleExtra("amount", 0));
+        successIntent.putExtra("to_account", originalIntent.getStringExtra("to_account"));
+        successIntent.putExtra("to_name", originalIntent.getStringExtra("to_name"));
+        successIntent.putExtra("note", originalIntent.getStringExtra("note"));
+        successIntent.putExtra("bank", originalIntent.getStringExtra("bank"));
+        successIntent.putExtra("transaction_code", originalIntent.getStringExtra("transaction_code"));
+
+        // Add flag to indicate we need to clear the transaction stack
+        successIntent.putExtra("clear_transaction_stack", true);
+
+        // Start success activity
+        startActivity(successIntent);
+        finish();
+    }
+    
+    private void clearOtpInputs() {
+        etOtp1.setText("");
+        etOtp2.setText("");
+        etOtp3.setText("");
+        etOtp4.setText("");
+        etOtp5.setText("");
+        etOtp6.setText("");
+        etOtp1.requestFocus();
     }
 
     private void resendOtp() {
-        if (esmsConfig.isConfigured()) {
-            sendOtp();
-        } else {
-            Toast.makeText(this, "Đã gửi lại OTP đến " + phoneNumber, Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "Resending OTP for flow: " + fromActivity);
+        
+        // Xóa các ô input trước
+        clearOtpInputs();
+        
+        // Tất cả các flow đều dùng Goixe247
+        sendOtpWithGoixe();
+        
+        // Reset timer và focus
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
         }
         startTimer();
+        etOtp1.requestFocus();
     }
 
     private void startTimer() {

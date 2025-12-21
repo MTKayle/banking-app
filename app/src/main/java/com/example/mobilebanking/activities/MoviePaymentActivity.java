@@ -361,8 +361,8 @@ public class MoviePaymentActivity extends AppCompatActivity {
                 return;
             }
             
-            // Call booking API
-            createBooking();
+            // Chuyển sang OTP verification trước khi đặt vé
+            navigateToOtpVerification();
         });
     }
     
@@ -375,6 +375,48 @@ public class MoviePaymentActivity extends AppCompatActivity {
             return true;
         }
         return userBalance.compareTo(BigDecimal.valueOf(totalAmount)) >= 0;
+    }
+    
+    /**
+     * Navigate to OTP verification before booking
+     * OTP sẽ được gửi đến số điện thoại của tài khoản đang đăng nhập
+     */
+    private void navigateToOtpVerification() {
+        // Lấy thông tin từ form
+        String customerName = etCustomerName.getText().toString().trim();
+        String customerPhone = etCustomerPhone.getText().toString().trim();
+        String customerEmail = etCustomerEmail.getText().toString().trim();
+        
+        // Lấy số điện thoại của user đang đăng nhập
+        DataManager dataManager = DataManager.getInstance(this);
+        String userPhone = dataManager.getUserPhone();
+        
+        if (userPhone == null || userPhone.isEmpty()) {
+            Toast.makeText(this, "Không tìm thấy số điện thoại tài khoản. Vui lòng đăng nhập lại.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        
+        Intent intent = new Intent(this, OtpVerificationActivity.class);
+        // OTP gửi đến số điện thoại của tài khoản đang đăng nhập
+        intent.putExtra("phone", userPhone);
+        intent.putExtra("from", "movie_booking");
+        
+        // Truyền thông tin booking để xử lý sau khi OTP thành công
+        intent.putExtra("customer_name", customerName);
+        intent.putExtra("customer_phone", customerPhone);  // SĐT khách hàng (có thể khác với SĐT tài khoản)
+        intent.putExtra("customer_email", customerEmail);
+        intent.putExtra("screening_id", screeningId);
+        intent.putExtra("seat_ids", seatIds);
+        
+        // Truyền thêm thông tin để hiển thị trong success screen
+        intent.putExtra("movie_title", getIntent().getStringExtra(EXTRA_MOVIE_TITLE));
+        intent.putExtra("cinema_name", getIntent().getStringExtra(EXTRA_CINEMA_NAME));
+        intent.putExtra("showtime", getIntent().getStringExtra(EXTRA_SHOWTIME));
+        intent.putExtra("seats", getIntent().getStringExtra(EXTRA_SEATS));
+        intent.putExtra("total_amount", totalAmount);
+        
+        startActivity(intent);
+        finish(); // Finish activity này để không quay lại được
     }
     
     /**

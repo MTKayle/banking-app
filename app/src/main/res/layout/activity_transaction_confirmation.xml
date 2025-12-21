@@ -164,7 +164,7 @@
                                 android:id="@+id/tv_from_bank"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Ngân hàng TMCP Quân đội"
+                                android:text="Ngân hàng công nghệ HAT"
                                 android:textSize="13sp"
                                 android:textColor="#888888"/>
 
