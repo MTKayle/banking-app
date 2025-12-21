@@ -6,6 +6,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mobilebanking.R;
@@ -40,6 +42,12 @@ public class SavingConfirmActivity extends AppCompatActivity {
     
     private DataManager dataManager;
     private boolean isProcessing = false;
+    
+    // Activity result launchers
+    private ActivityResultLauncher<Intent> faceVerificationLauncher;
+    private ActivityResultLauncher<Intent> otpVerificationLauncher;
+    
+    private static final double FACE_VERIFICATION_THRESHOLD = 10000000; // 10 triệu
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,8 +66,43 @@ public class SavingConfirmActivity extends AppCompatActivity {
 
         initViews();
         setupToolbar();
+        setupActivityResultLaunchers();
         displayInfo();
         setupConfirmButton();
+    }
+    
+    /**
+     * Setup activity result launchers for face and OTP verification
+     */
+    private void setupActivityResultLaunchers() {
+        // Face verification launcher
+        faceVerificationLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        // Face verification successful, proceed to OTP
+                        navigateToOtpVerification();
+                    } else {
+                        // Face verification failed or cancelled
+                        Toast.makeText(this, "Xác thực khuôn mặt thất bại", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        // OTP verification launcher
+        otpVerificationLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    android.util.Log.d("SavingConfirm", "OTP result code: " + result.getResultCode());
+                    if (result.getResultCode() == RESULT_OK) {
+                        // OTP verification successful, create saving
+                        android.util.Log.d("SavingConfirm", "OTP verified, calling createSaving()");
+                        createSaving();
+                    } else {
+                        // OTP verification failed or cancelled
+                        android.util.Log.w("SavingConfirm", "OTP verification failed or cancelled");
+                        Toast.makeText(this, "Xác thực OTP thất bại", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void initViews() {
@@ -102,9 +145,51 @@ public class SavingConfirmActivity extends AppCompatActivity {
     private void setupConfirmButton() {
         btnConfirm.setOnClickListener(v -> {
             if (!isProcessing) {
-                createSaving();
+                startVerificationFlow();
             }
         });
+    }
+    
+    /**
+     * Start verification flow based on amount
+     */
+    private void startVerificationFlow() {
+        if (amount >= FACE_VERIFICATION_THRESHOLD) {
+            // Amount >= 10 triệu: Face verification first, then OTP
+            navigateToFaceVerification();
+        } else {
+            // Amount < 10 triệu: OTP only
+            navigateToOtpVerification();
+        }
+    }
+    
+    /**
+     * Navigate to face verification
+     */
+    private void navigateToFaceVerification() {
+        Intent intent = new Intent(this, FaceVerificationTransactionActivity.class);
+        intent.putExtra("transaction_type", "SAVING");
+        intent.putExtra("amount", amount);
+        faceVerificationLauncher.launch(intent);
+    }
+    
+    /**
+     * Navigate to OTP verification
+     */
+    private void navigateToOtpVerification() {
+        android.util.Log.d("SavingConfirm", "Navigating to OTP verification");
+        Intent intent = new Intent(this, OtpVerificationActivity.class);
+        intent.putExtra("verificationType", "SAVING");
+        intent.putExtra("amount", amount);
+        intent.putExtra("termType", termType);
+        intent.putExtra("termMonths", termMonths);
+        
+        // Get phone number from DataManager
+        String phone = dataManager.getUserPhone();
+        intent.putExtra("phone", phone);
+        
+        android.util.Log.d("SavingConfirm", "OTP intent extras - verificationType: SAVING, phone: " + phone);
+        otpVerificationLauncher.launch(intent);
     }
 
     private void createSaving() {
@@ -182,10 +267,14 @@ public class SavingConfirmActivity extends AppCompatActivity {
     private void navigateToSuccess(CreateSavingResponse response) {
         Intent intent = new Intent(this, SavingSuccessActivity.class);
         intent.putExtra("savingBookNumber", response.getSavingBookNumber());
-        intent.putExtra("amount", response.getBalance());
-        intent.putExtra("termMonths", response.getTermMonths());
-        intent.putExtra("interestRate", response.getInterestRate());
-        intent.putExtra("savingId", response.getSavingId());
+        intent.putExtra("amount", response.getBalance() != null ? response.getBalance() : amount);
+        intent.putExtra("termMonths", response.getTermMonths() != null ? response.getTermMonths() : termMonths);
+        intent.putExtra("interestRate", response.getInterestRate() != null ? response.getInterestRate() : interestRate);
+        intent.putExtra("savingId", response.getSavingId() != null ? response.getSavingId() : 0L);
+        intent.putExtra("accountNumber", response.getAccountNumber());
+        intent.putExtra("openedDate", response.getOpenedDate());
+        intent.putExtra("maturityDate", response.getMaturityDate());
+        intent.putExtra("status", response.getStatus());
         
         // Clear back stack
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

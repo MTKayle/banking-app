@@ -195,6 +195,14 @@
         <activity
             android:name="com.example.mobilebanking.activities.SavingSuccessActivity"
             android:parentActivityName="com.example.mobilebanking.activities.SavingConfirmActivity" />
+        
+        <activity
+            android:name="com.example.mobilebanking.activities.SavingWithdrawConfirmActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.AccountActivity" />
+        
+        <activity
+            android:name="com.example.mobilebanking.activities.SavingWithdrawSuccessActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.SavingWithdrawConfirmActivity" />
 
         <!-- Transaction Activities -->
         <activity

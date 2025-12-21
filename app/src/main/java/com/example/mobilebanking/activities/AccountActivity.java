@@ -1,5 +1,6 @@
 package com.example.mobilebanking.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -31,6 +32,23 @@ public class AccountActivity extends BaseActivity {
         setupToolbar();
         setupViewPager();
         setupTabs();
+        
+        // Check if we need to navigate to a specific tab
+        handleTabNavigation();
+    }
+    
+    /**
+     * Handle navigation to specific tab from Intent
+     */
+    private void handleTabNavigation() {
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra("TAB_INDEX")) {
+            int tabIndex = intent.getIntExtra("TAB_INDEX", 0);
+            // Validate tab index
+            if (tabIndex >= 0 && tabIndex < 3) {
+                viewPager.setCurrentItem(tabIndex, false);
+            }
+        }
     }
     
     private void initViews() {

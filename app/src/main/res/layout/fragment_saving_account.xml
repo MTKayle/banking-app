@@ -6,8 +6,9 @@
     android:orientation="vertical"
     android:background="@color/bidv_bg_light">
 
-    <!-- Header card -->
+    <!-- Header card (banner) - Ẩn khi có tài khoản -->
     <androidx.cardview.widget.CardView
+        android:id="@+id/banner_create_saving"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
@@ -61,7 +62,7 @@
                     android:textSize="12sp" />
 
                 <Button
-                    android:id="@+id/btn_create_saving"
+                    android:id="@+id/btn_create_saving_banner"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
@@ -90,6 +91,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:paddingHorizontal="16dp"
+        android:paddingBottom="80dp"
         android:clipToPadding="false" />
 
     <!-- Empty state -->
@@ -129,6 +131,19 @@
             android:textSize="14sp"
             android:gravity="center" />
     </LinearLayout>
+
+    <!-- Bottom button - Hiển thị khi có tài khoản -->
+    <Button
+        android:id="@+id/btn_create_saving_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:backgroundTint="@color/bidv_primary"
+        android:text="Mở tài khoản"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        android:paddingVertical="12dp"
+        android:visibility="gone" />
 
 </LinearLayout>
 

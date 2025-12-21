@@ -82,14 +82,23 @@ public class OtpVerificationActivity extends AppCompatActivity {
         phoneNumber = getIntent().getStringExtra("phone");
         fromActivity = getIntent().getStringExtra("from");
         
-        // Lấy flow từ intent (ưu tiên "flow" hơn "from")
+        // Lấy flow từ intent (ưu tiên "flow" và "verificationType" hơn "from")
         String flow = getIntent().getStringExtra("flow");
         if (flow != null && !flow.isEmpty()) {
             fromActivity = flow;
         }
         
+        // Lấy verificationType (dùng cho SAVING, BILL_PAYMENT, etc.)
+        String verificationType = getIntent().getStringExtra("verificationType");
+        if (verificationType != null && !verificationType.isEmpty()) {
+            fromActivity = verificationType;
+        }
+        
         // Lấy password nếu là login_verification flow
         password = getIntent().getStringExtra("password");
+
+        // Debug log
+        Log.d(TAG, "OTP Verification - fromActivity: " + fromActivity + ", phone: " + phoneNumber);
 
         // Initialize SMS service
         smsService = new SmsService(this);
@@ -115,6 +124,9 @@ public class OtpVerificationActivity extends AppCompatActivity {
             sendOtpWithGoixe();
         } else if ("BILL_PAYMENT".equals(fromActivity)) {
             // Luồng thanh toán hóa đơn - gửi OTP với Goixe247
+            sendOtpWithGoixe();
+        } else if ("SAVING".equals(fromActivity)) {
+            // Luồng tạo sổ tiết kiệm - gửi OTP với Goixe247
             sendOtpWithGoixe();
         } else if ("register".equals(fromActivity)) {
             // Luồng đăng ký - dùng Goixe247
@@ -490,6 +502,8 @@ public class OtpVerificationActivity extends AppCompatActivity {
      * Handle successful OTP verification
      */
     private void handleOtpSuccess() {
+        Log.d(TAG, "handleOtpSuccess - fromActivity: " + fromActivity);
+        
         if ("forgot_password".equals(fromActivity)) {
             // Chuyển sang màn hình đặt lại mật khẩu
             Intent intent = new Intent(OtpVerificationActivity.this, ResetPasswordActivity.class);
@@ -501,6 +515,21 @@ public class OtpVerificationActivity extends AppCompatActivity {
             processMovieBooking();
         } else if ("BILL_PAYMENT".equals(fromActivity)) {
             // Xác thực thành công → Return result to BillPaymentConfirmationActivity
+            Log.d(TAG, "BILL_PAYMENT - Returning RESULT_OK");
+            Intent resultIntent = new Intent();
+            resultIntent.putExtra("OTP_VERIFIED", true);
+            setResult(RESULT_OK, resultIntent);
+            finish();
+        } else if ("SAVING".equals(fromActivity)) {
+            // Xác thực thành công → Return result to SavingConfirmActivity
+            Log.d(TAG, "SAVING - Returning RESULT_OK");
+            Intent resultIntent = new Intent();
+            resultIntent.putExtra("OTP_VERIFIED", true);
+            setResult(RESULT_OK, resultIntent);
+            finish();
+        } else if ("SAVING_WITHDRAW".equals(fromActivity)) {
+            // Xác thực thành công → Return result to SavingWithdrawConfirmActivity
+            Log.d(TAG, "SAVING_WITHDRAW - Returning RESULT_OK");
             Intent resultIntent = new Intent();
             resultIntent.putExtra("OTP_VERIFIED", true);
             setResult(RESULT_OK, resultIntent);
@@ -515,6 +544,8 @@ public class OtpVerificationActivity extends AppCompatActivity {
         } else if ("transaction".equals(fromActivity)) {
             // Xác thực thành công → Gọi API confirm transfer
             processTransferConfirm();
+        } else {
+            Log.w(TAG, "Unknown fromActivity: " + fromActivity);
         }
     }
     

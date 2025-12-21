@@ -154,8 +154,16 @@ public class HomeFragment extends Fragment {
         setupQuickAction(view, R.id.uihome_action_data, new Intent(requireContext(), MobileTopUpActivity.class));
         setupQuickAction(view, R.id.uihome_action_topup, new Intent(requireContext(), MobileTopUpActivity.class));
         setupQuickAction(view, R.id.uihome_action_bill, new Intent(requireContext(), BillPaymentActivity.class));
-        setupQuickAction(view, R.id.uihome_action_saving, new Intent(requireContext(), ServicesActivity.class));
-        setupQuickAction(view, R.id.uihome_action_loan, new Intent(requireContext(), ServicesActivity.class));
+        
+        // Tiết kiệm - Navigate to Account Activity with Savings tab
+        Intent savingIntent = new Intent(requireContext(), com.example.mobilebanking.activities.AccountActivity.class);
+        savingIntent.putExtra("TAB_INDEX", 1); // Tab 1 = Tiết kiệm
+        setupQuickAction(view, R.id.uihome_action_saving, savingIntent);
+        
+        // Vay nhanh - Navigate to Account Activity with Loan tab
+        Intent loanIntent = new Intent(requireContext(), com.example.mobilebanking.activities.AccountActivity.class);
+        loanIntent.putExtra("TAB_INDEX", 2); // Tab 2 = Tiền vay
+        setupQuickAction(view, R.id.uihome_action_loan, loanIntent);
 
         // Services shortcuts
         setupQuickAction(view, R.id.uihome_action_locations, new Intent(requireContext(), BranchLocatorActivity.class));

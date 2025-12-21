@@ -109,6 +109,8 @@
     <color name="bidv_bg_light">#F5F5F5</color>
     <color name="bidv_text_dark">#212121</color>
     <color name="bidv_text_gray">#757575</color>
+    <color name="bidv_success">#4CAF50</color>
+    <color name="bidv_divider">#E0E0E0</color>
     <color name="red_negative">#D32F2F</color>
     <color name="green_positive">#388E3C</color>
     <color name="bidv_teal_start">#00695C</color>

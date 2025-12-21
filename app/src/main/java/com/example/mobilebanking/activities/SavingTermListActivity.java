@@ -15,6 +15,7 @@ import com.example.mobilebanking.adapters.SavingTermAdapter;
 import com.example.mobilebanking.api.AccountApiService;
 import com.example.mobilebanking.api.ApiClient;
 import com.example.mobilebanking.api.dto.SavingTermDTO;
+import com.example.mobilebanking.api.dto.SavingTermsResponse;
 import com.example.mobilebanking.utils.DataManager;
 import com.google.android.material.appbar.MaterialToolbar;
 
@@ -62,21 +63,29 @@ public class SavingTermListActivity extends AppCompatActivity
     private void loadTerms() {
         AccountApiService apiService = ApiClient.getAccountApiService();
         
-        apiService.getSavingTerms().enqueue(new Callback<List<SavingTermDTO>>() {
+        apiService.getSavingTerms().enqueue(new Callback<SavingTermsResponse>() {
             @Override
-            public void onResponse(Call<List<SavingTermDTO>> call, Response<List<SavingTermDTO>> response) {
+            public void onResponse(Call<SavingTermsResponse> call, Response<SavingTermsResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    termList.clear();
-                    // Lọc bỏ NON_TERM và sắp xếp theo số tháng
-                    for (SavingTermDTO term : response.body()) {
-                        if (!"NON_TERM".equals(term.getTermType())) {
-                            termList.add(term);
+                    SavingTermsResponse termsResponse = response.body();
+                    
+                    if (termsResponse.getSuccess() && termsResponse.getData() != null) {
+                        termList.clear();
+                        // Lọc bỏ NON_TERM và sắp xếp theo số tháng
+                        for (SavingTermDTO term : termsResponse.getData()) {
+                            if (!"NON_TERM".equals(term.getTermType())) {
+                                termList.add(term);
+                            }
                         }
+                        // Sắp xếp theo số tháng tăng dần
+                        Collections.sort(termList, (t1, t2) -> 
+                                Integer.compare(t1.getTermMonths(), t2.getTermMonths()));
+                        adapter.updateData(termList);
+                    } else {
+                        Toast.makeText(SavingTermListActivity.this, 
+                                termsResponse.getMessage() != null ? termsResponse.getMessage() : "Không thể tải danh sách kỳ hạn", 
+                                Toast.LENGTH_SHORT).show();
                     }
-                    // Sắp xếp theo số tháng tăng dần
-                    Collections.sort(termList, (t1, t2) -> 
-                            Integer.compare(t1.getTermMonths(), t2.getTermMonths()));
-                    adapter.updateData(termList);
                 } else {
                     Toast.makeText(SavingTermListActivity.this, 
                             "Không thể tải danh sách kỳ hạn", Toast.LENGTH_SHORT).show();
@@ -84,7 +93,7 @@ public class SavingTermListActivity extends AppCompatActivity
             }
 
             @Override
-            public void onFailure(Call<List<SavingTermDTO>> call, Throwable t) {
+            public void onFailure(Call<SavingTermsResponse> call, Throwable t) {
                 Toast.makeText(SavingTermListActivity.this, 
                         "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }

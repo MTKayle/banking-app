@@ -5,9 +5,13 @@ import com.example.mobilebanking.api.dto.CheckingAccountInfoResponse;
 import com.example.mobilebanking.api.dto.CreateSavingRequest;
 import com.example.mobilebanking.api.dto.CreateSavingResponse;
 import com.example.mobilebanking.api.dto.MortgageAccountDTO;
+import com.example.mobilebanking.api.dto.MySavingAccountDTO;
 import com.example.mobilebanking.api.dto.QRCodeRequest;
 import com.example.mobilebanking.api.dto.SavingAccountDTO;
 import com.example.mobilebanking.api.dto.SavingTermDTO;
+import com.example.mobilebanking.api.dto.SavingTermsResponse;
+import com.example.mobilebanking.api.dto.WithdrawConfirmResponse;
+import com.example.mobilebanking.api.dto.WithdrawPreviewResponse;
 
 import java.util.List;
 
@@ -56,7 +60,7 @@ public interface AccountApiService {
      * Public endpoint - không cần token
      */
     @GET("saving/terms")
-    Call<List<SavingTermDTO>> getSavingTerms();
+    Call<SavingTermsResponse> getSavingTerms();
     
     /**
      * Tạo sổ tiết kiệm mới
@@ -70,7 +74,28 @@ public interface AccountApiService {
      * Header cần có: Authorization: Bearer {token}
      */
     @GET("saving/my-accounts")
-    Call<List<SavingAccountDTO>> getMySavingAccounts();
+    Call<List<MySavingAccountDTO>> getMySavingAccounts();
+    
+    /**
+     * Lấy chi tiết sổ tiết kiệm theo savingBookNumber
+     * Header cần có: Authorization: Bearer {token}
+     */
+    @GET("saving/{savingBookNumber}")
+    Call<MySavingAccountDTO> getSavingDetail(@Path("savingBookNumber") String savingBookNumber);
+    
+    /**
+     * Xem trước thông tin rút tiền tiết kiệm
+     * Header cần có: Authorization: Bearer {token}
+     */
+    @GET("saving/{savingBookNumber}/withdraw-preview")
+    Call<WithdrawPreviewResponse> getWithdrawPreview(@Path("savingBookNumber") String savingBookNumber);
+    
+    /**
+     * Xác nhận rút tiền tiết kiệm
+     * Header cần có: Authorization: Bearer {token}
+     */
+    @POST("saving/{savingBookNumber}/withdraw-confirm")
+    Call<WithdrawConfirmResponse> confirmWithdraw(@Path("savingBookNumber") String savingBookNumber);
     
     /**
      * Lấy QR code cho tài khoản checking

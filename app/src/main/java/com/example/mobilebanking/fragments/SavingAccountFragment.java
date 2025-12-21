@@ -11,17 +11,17 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mobilebanking.R;
 import com.example.mobilebanking.activities.SavingTermListActivity;
-import com.example.mobilebanking.adapters.SavingAccountAdapter;
+import com.example.mobilebanking.adapters.MySavingAccountAdapter;
 import com.example.mobilebanking.api.AccountApiService;
 import com.example.mobilebanking.api.ApiClient;
-import com.example.mobilebanking.api.dto.SavingAccountDTO;
-import com.example.mobilebanking.utils.DataManager;
+import com.example.mobilebanking.api.dto.MySavingAccountDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,10 +37,12 @@ import retrofit2.Response;
 public class SavingAccountFragment extends Fragment {
     
     private RecyclerView rvSavingAccounts;
-    private SavingAccountAdapter adapter;
-    private List<SavingAccountDTO> savingAccounts = new ArrayList<>();
+    private MySavingAccountAdapter adapter;
+    private List<MySavingAccountDTO> savingAccounts = new ArrayList<>();
     private LinearLayout emptyState;
-    private Button btnCreateSaving;
+    private CardView bannerCreateSaving;
+    private Button btnCreateSavingBanner;
+    private Button btnCreateSavingBottom;
     
     @Nullable
     @Override
@@ -59,61 +61,73 @@ public class SavingAccountFragment extends Fragment {
     private void initViews(View view) {
         rvSavingAccounts = view.findViewById(R.id.rv_saving_accounts);
         emptyState = view.findViewById(R.id.empty_state);
-        btnCreateSaving = view.findViewById(R.id.btn_create_saving);
+        bannerCreateSaving = view.findViewById(R.id.banner_create_saving);
+        btnCreateSavingBanner = view.findViewById(R.id.btn_create_saving_banner);
+        btnCreateSavingBottom = view.findViewById(R.id.btn_create_saving_bottom);
     }
     
     private void setupRecyclerView() {
-        adapter = new SavingAccountAdapter(requireContext(), savingAccounts);
+        adapter = new MySavingAccountAdapter(requireContext(), savingAccounts);
         rvSavingAccounts.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvSavingAccounts.setAdapter(adapter);
     }
     
     private void setupClickListeners() {
-        btnCreateSaving.setOnClickListener(v -> {
-            // Navigate to create saving account screen
-            Intent intent = new Intent(requireContext(), SavingTermListActivity.class);
-            startActivity(intent);
-        });
+        // Banner button
+        btnCreateSavingBanner.setOnClickListener(v -> navigateToCreateSaving());
+        
+        // Bottom button
+        btnCreateSavingBottom.setOnClickListener(v -> navigateToCreateSaving());
+    }
+    
+    private void navigateToCreateSaving() {
+        Intent intent = new Intent(requireContext(), SavingTermListActivity.class);
+        startActivity(intent);
     }
     
     private void fetchSavingAccounts() {
-        DataManager dm = DataManager.getInstance(requireContext());
-        Long userId = dm.getUserId();
-        
-        if (userId == null) {
-            Toast.makeText(requireContext(), "Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        
         AccountApiService service = ApiClient.getAccountApiService();
-        service.getSavingAccounts(userId).enqueue(new Callback<List<SavingAccountDTO>>() {
+        service.getMySavingAccounts().enqueue(new Callback<List<MySavingAccountDTO>>() {
             @Override
-            public void onResponse(Call<List<SavingAccountDTO>> call, Response<List<SavingAccountDTO>> response) {
+            public void onResponse(Call<List<MySavingAccountDTO>> call, Response<List<MySavingAccountDTO>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     savingAccounts.clear();
                     savingAccounts.addAll(response.body());
                     adapter.notifyDataSetChanged();
                     
-                    // Show/hide empty state
+                    // Show/hide UI elements based on account list
                     if (savingAccounts.isEmpty()) {
+                        // Không có tài khoản: Hiển thị banner và empty state
+                        bannerCreateSaving.setVisibility(View.VISIBLE);
                         emptyState.setVisibility(View.VISIBLE);
                         rvSavingAccounts.setVisibility(View.GONE);
+                        btnCreateSavingBottom.setVisibility(View.GONE);
                     } else {
+                        // Có tài khoản: Ẩn banner, hiển thị danh sách và nút dưới
+                        bannerCreateSaving.setVisibility(View.GONE);
                         emptyState.setVisibility(View.GONE);
                         rvSavingAccounts.setVisibility(View.VISIBLE);
+                        btnCreateSavingBottom.setVisibility(View.VISIBLE);
                     }
                 } else {
                     Toast.makeText(requireContext(), "Không thể tải danh sách tiết kiệm", Toast.LENGTH_SHORT).show();
+                    showEmptyState();
                 }
             }
             
             @Override
-            public void onFailure(Call<List<SavingAccountDTO>> call, Throwable t) {
+            public void onFailure(Call<List<MySavingAccountDTO>> call, Throwable t) {
                 Toast.makeText(requireContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                emptyState.setVisibility(View.VISIBLE);
-                rvSavingAccounts.setVisibility(View.GONE);
+                showEmptyState();
             }
         });
+    }
+    
+    private void showEmptyState() {
+        bannerCreateSaving.setVisibility(View.VISIBLE);
+        emptyState.setVisibility(View.VISIBLE);
+        rvSavingAccounts.setVisibility(View.GONE);
+        btnCreateSavingBottom.setVisibility(View.GONE);
     }
 }
 

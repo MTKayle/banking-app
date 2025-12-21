@@ -1,14 +1,31 @@
 package com.example.mobilebanking.api.dto;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Saving Term DTO
  * Maps với response từ GET /api/saving/terms
  */
 public class SavingTermDTO {
+    @SerializedName("termId")
     private Long termId;
+    
+    @SerializedName("termType")
     private String termType;
+    
+    @SerializedName("months")
+    private Integer months;
+    
+    @SerializedName("displayName")
+    private String displayName;
+    
+    @SerializedName("interestRate")
     private Double interestRate;
+    
+    @SerializedName("updatedAt")
     private String updatedAt;
+    
+    @SerializedName("updatedBy")
     private String updatedBy;
 
     public SavingTermDTO() {
@@ -28,6 +45,22 @@ public class SavingTermDTO {
 
     public void setTermType(String termType) {
         this.termType = termType;
+    }
+
+    public Integer getMonths() {
+        return months;
+    }
+
+    public void setMonths(Integer months) {
+        this.months = months;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     public Double getInterestRate() {
@@ -55,36 +88,10 @@ public class SavingTermDTO {
     }
 
     /**
-     * Lấy số tháng từ termType
+     * Lấy số tháng (sử dụng field months từ API)
      */
     public int getTermMonths() {
-        switch (termType) {
-            case "NON_TERM": return 0;
-            case "ONE_MONTH": return 1;
-            case "TWO_MONTHS": return 2;
-            case "THREE_MONTHS": return 3;
-            case "FOUR_MONTHS": return 4;
-            case "FIVE_MONTHS": return 5;
-            case "SIX_MONTHS": return 6;
-            case "SEVEN_MONTHS": return 7;
-            case "EIGHT_MONTHS": return 8;
-            case "NINE_MONTHS": return 9;
-            case "TWELVE_MONTHS": return 12;
-            case "FIFTEEN_MONTHS": return 15;
-            case "EIGHTEEN_MONTHS": return 18;
-            case "TWENTY_FOUR_MONTHS": return 24;
-            case "THIRTY_SIX_MONTHS": return 36;
-            default: return 0;
-        }
-    }
-
-    /**
-     * Lấy tên hiển thị
-     */
-    public String getDisplayName() {
-        int months = getTermMonths();
-        if (months == 0) return "Không kỳ hạn";
-        return String.format("%02d tháng", months);
+        return months != null ? months : 0;
     }
 }
 
