@@ -243,7 +243,8 @@
                                 android:layout_width="240dp"
                                 android:layout_height="240dp"
                                 android:padding="16dp"
-                                android:background="@android:color/white"
+                                android:background="@drawable/bg_qr_rounded"
+                                android:scaleType="fitCenter"
                                 android:contentDescription="QR Code" />
                         </FrameLayout>
 

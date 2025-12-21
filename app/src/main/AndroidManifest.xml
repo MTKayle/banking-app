@@ -68,6 +68,11 @@
             android:screenOrientation="portrait" />
 
         <activity
+            android:name="com.example.mobilebanking.activities.QrScanPaymentActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
+
+        <activity
             android:name="com.example.mobilebanking.activities.CccdAutoScannerActivity"
             android:parentActivityName="com.example.mobilebanking.activities.MainRegistrationActivity"
             android:screenOrientation="portrait" />

@@ -90,6 +90,7 @@ public class ApiClient {
     private static ExternalAccountApiService externalAccountApiService;
     private static TransferApiService transferApiService;
     private static UtilityBillApiService utilityBillApiService;
+    private static QrApiService qrApiService;
 
     private static Context applicationContext;
 
@@ -288,6 +289,16 @@ public class ApiClient {
             utilityBillApiService = getRetrofitInstance().create(UtilityBillApiService.class);
         }
         return utilityBillApiService;
+    }
+    
+    /**
+     * Lấy QrApiService instance
+     */
+    public static QrApiService getQrApiService() {
+        if (qrApiService == null) {
+            qrApiService = getRetrofitInstance().create(QrApiService.class);
+        }
+        return qrApiService;
     }
 
     /**

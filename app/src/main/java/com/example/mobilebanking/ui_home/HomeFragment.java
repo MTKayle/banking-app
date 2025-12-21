@@ -27,6 +27,7 @@ import com.example.mobilebanking.activities.HotelBookingActivity;
 import com.example.mobilebanking.activities.MobileTopUpActivity;
 import com.example.mobilebanking.activities.MovieListActivity;
 import com.example.mobilebanking.activities.QrScannerActivity;
+import com.example.mobilebanking.activities.QrScanPaymentActivity;
 import com.example.mobilebanking.activities.ServicesActivity;
 import com.example.mobilebanking.activities.TicketBookingActivity;
 import com.example.mobilebanking.activities.TransferActivity;
@@ -149,6 +150,7 @@ public class HomeFragment extends Fragment {
 
         // Quick actions
         setupQuickAction(view, R.id.uihome_action_transfer, new Intent(requireContext(), TransferActivity.class));
+        setupQuickAction(view, R.id.uihome_action_my_qr, new Intent(requireContext(), com.example.mobilebanking.activities.MyQRActivity.class));
         setupQuickAction(view, R.id.uihome_action_data, new Intent(requireContext(), MobileTopUpActivity.class));
         setupQuickAction(view, R.id.uihome_action_topup, new Intent(requireContext(), MobileTopUpActivity.class));
         setupQuickAction(view, R.id.uihome_action_bill, new Intent(requireContext(), BillPaymentActivity.class));
@@ -177,7 +179,7 @@ public class HomeFragment extends Fragment {
         }
         if (navQr != null) {
             navQr.setOnClickListener(v ->
-                    startActivity(new Intent(requireContext(), QrScannerActivity.class)));
+                    startActivity(new Intent(requireContext(), com.example.mobilebanking.activities.QrScanPaymentActivity.class)));
         }
         if (navPromo != null) {
             navPromo.setOnClickListener(v ->

@@ -24,7 +24,9 @@ import android.widget.Toast;
 import com.example.mobilebanking.R;
 import com.example.mobilebanking.api.AccountApiService;
 import com.example.mobilebanking.api.ApiClient;
+import com.example.mobilebanking.api.dto.CheckingAccountInfoResponse;
 import com.example.mobilebanking.api.dto.QRCodeRequest;
+import com.example.mobilebanking.utils.DataManager;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
@@ -75,17 +77,12 @@ public class MyQRActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_qr);
         
-        // Get data from intent
-        accountNumber = getIntent().getStringExtra("accountNumber");
-        accountHolderName = getIntent().getStringExtra("accountHolderName");
-        
         // Initialize API service
         accountApiService = ApiClient.getAccountApiService();
         
         initViews();
         setupToolbar();
-        updateUI();
-        loadQRCodeFromAPI(null, null); // Load initial QR without amount/description
+        loadAccountInfo(); // Load account info from API
         setupClickListeners();
     }
     
@@ -114,6 +111,53 @@ public class MyQRActivity extends BaseActivity {
         );
     }
     
+    /**
+     * Load account info from API
+     */
+    private void loadAccountInfo() {
+        DataManager dataManager = DataManager.getInstance(this);
+        Long userId = dataManager.getUserId();
+        
+        if (userId == null) {
+            Toast.makeText(this, "Không tìm thấy thông tin người dùng", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        // Get account holder name from DataManager (saved during login)
+        accountHolderName = dataManager.getLastFullName();
+        if (accountHolderName == null || accountHolderName.isEmpty()) {
+            accountHolderName = "Chủ tài khoản";
+        }
+        
+        Call<CheckingAccountInfoResponse> call = accountApiService.getCheckingAccountInfo(userId);
+        call.enqueue(new Callback<CheckingAccountInfoResponse>() {
+            @Override
+            public void onResponse(Call<CheckingAccountInfoResponse> call, Response<CheckingAccountInfoResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    CheckingAccountInfoResponse accountInfo = response.body();
+                    
+                    // Get account number
+                    accountNumber = accountInfo.getAccountNumber();
+                    
+                    // Update UI
+                    updateUI();
+                    
+                    // Load QR code
+                    loadQRCodeFromAPI(null, null);
+                } else {
+                    Log.e(TAG, "Failed to load account info: " + response.code());
+                    Toast.makeText(MyQRActivity.this, "Không thể tải thông tin tài khoản", Toast.LENGTH_SHORT).show();
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<CheckingAccountInfoResponse> call, Throwable t) {
+                Log.e(TAG, "Error loading account info", t);
+                Toast.makeText(MyQRActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    
     private void updateUI() {
         if (accountHolderName != null) {
             tvAccountHolderName.setText(accountHolderName.toUpperCase());
@@ -127,12 +171,14 @@ public class MyQRActivity extends BaseActivity {
     private void updateMaskedAccount() {
         if (accountNumber != null && accountNumber.length() > 3) {
             if (isMasked) {
+                // Đang ẩn -> hiển thị dấu * và icon mắt mở (để click vào sẽ hiện)
                 String last3 = accountNumber.substring(accountNumber.length() - 3);
                 tvMaskedAccount.setText("*******" + last3);
                 ivToggleMask.setImageResource(R.drawable.ic_eye_open);
             } else {
+                // Đang hiện -> hiển thị số đầy đủ và icon khóa (để click vào sẽ ẩn)
                 tvMaskedAccount.setText(accountNumber);
-                ivToggleMask.setImageResource(R.drawable.ic_lock);
+                ivToggleMask.setImageResource(R.drawable.ic_eye_closed);
             }
         }
     }
