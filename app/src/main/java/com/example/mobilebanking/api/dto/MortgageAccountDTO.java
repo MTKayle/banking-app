@@ -1,5 +1,7 @@
 package com.example.mobilebanking.api.dto;
 
+import java.util.List;
+
 /**
  * Mortgage Account Data Transfer Object
  * Maps với response từ /api/mortgage/user/{userId}
@@ -25,6 +27,7 @@ public class MortgageAccountDTO {
     private String approvalDate;
     private Double remainingBalance;
     private Double earlySettlementAmount;
+    private List<PaymentScheduleDTO> paymentSchedules;
 
     public MortgageAccountDTO() {
     }
@@ -188,6 +191,14 @@ public class MortgageAccountDTO {
 
     public void setEarlySettlementAmount(Double earlySettlementAmount) {
         this.earlySettlementAmount = earlySettlementAmount;
+    }
+
+    public List<PaymentScheduleDTO> getPaymentSchedules() {
+        return paymentSchedules;
+    }
+
+    public void setPaymentSchedules(List<PaymentScheduleDTO> paymentSchedules) {
+        this.paymentSchedules = paymentSchedules;
     }
 }
 

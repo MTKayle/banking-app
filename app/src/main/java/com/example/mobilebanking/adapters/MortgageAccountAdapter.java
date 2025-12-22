@@ -27,12 +27,21 @@ public class MortgageAccountAdapter extends RecyclerView.Adapter<MortgageAccount
     private List<MortgageAccountDTO> mortgageAccounts;
     private NumberFormat currencyFormatter;
     private SimpleDateFormat dateFormatter;
+    private OnItemClickListener onItemClickListener;
+    
+    public interface OnItemClickListener {
+        void onItemClick(MortgageAccountDTO mortgage);
+    }
     
     public MortgageAccountAdapter(Context context, List<MortgageAccountDTO> mortgageAccounts) {
         this.context = context;
         this.mortgageAccounts = mortgageAccounts;
         this.currencyFormatter = NumberFormat.getInstance(new Locale("vi", "VN"));
         this.dateFormatter = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+    }
+    
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.onItemClickListener = listener;
     }
     
     @NonNull
@@ -46,6 +55,13 @@ public class MortgageAccountAdapter extends RecyclerView.Adapter<MortgageAccount
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         MortgageAccountDTO account = mortgageAccounts.get(position);
         
+        // Set click listener
+        holder.itemView.setOnClickListener(v -> {
+            if (onItemClickListener != null) {
+                onItemClickListener.onItemClick(account);
+            }
+        });
+        
         // Account Number
         holder.tvAccountNumber.setText(account.getAccountNumber());
         
@@ -57,17 +73,22 @@ public class MortgageAccountAdapter extends RecyclerView.Adapter<MortgageAccount
         holder.tvCustomerPhone.setText(account.getCustomerPhone());
         
         // Principal Amount
-        if (account.getPrincipalAmount() != null && account.getPrincipalAmount() > 0) {
+        String status = account.getStatus();
+        if ("REJECTED".equals(status)) {
+            holder.tvPrincipalAmount.setText("Từ chối");
+            holder.tvPrincipalAmount.setTextColor(context.getResources().getColor(android.R.color.holo_red_dark));
+        } else if (account.getPrincipalAmount() != null && account.getPrincipalAmount() > 0) {
             holder.tvPrincipalAmount.setText(formatCurrency(account.getPrincipalAmount()));
+            holder.tvPrincipalAmount.setTextColor(context.getResources().getColor(R.color.bidv_primary));
         } else {
             holder.tvPrincipalAmount.setText("Chờ thỏa thuận");
+            holder.tvPrincipalAmount.setTextColor(context.getResources().getColor(R.color.bidv_primary));
         }
         
         // Collateral Type
         holder.tvCollateralType.setText(formatCollateralType(account.getCollateralType()));
         
         // Status Badge
-        String status = account.getStatus();
         holder.tvStatusBadge.setText(formatStatus(status));
         holder.tvStatusBadge.setBackgroundResource(getStatusBackground(status));
         

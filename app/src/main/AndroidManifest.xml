@@ -205,6 +205,11 @@
             android:name="com.example.mobilebanking.activities.SavingWithdrawSuccessActivity"
             android:parentActivityName="com.example.mobilebanking.activities.SavingWithdrawConfirmActivity" />
 
+        <!-- Mortgage Loan Activities -->
+        <activity
+            android:name="com.example.mobilebanking.activities.MortgageDetailActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.AccountActivity" />
+
         <!-- VNPay Payment -->
         <activity
             android:name="com.example.mobilebanking.activities.VNPayWebViewActivity"

@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mobilebanking.R;
+import com.example.mobilebanking.activities.MortgageDetailActivity;
 import com.example.mobilebanking.activities.ServicesActivity;
 import com.example.mobilebanking.adapters.MortgageAccountAdapter;
 import com.example.mobilebanking.api.AccountApiService;
@@ -113,6 +114,12 @@ public class MortgageAccountFragment extends Fragment {
     
     private void setupRecyclerView() {
         adapter = new MortgageAccountAdapter(requireContext(), filteredMortgageAccounts);
+        adapter.setOnItemClickListener(mortgage -> {
+            // Navigate to detail screen
+            Intent intent = new Intent(requireContext(), MortgageDetailActivity.class);
+            intent.putExtra("MORTGAGE_ID", mortgage.getMortgageId());
+            startActivity(intent);
+        });
         rvMortgageAccounts.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvMortgageAccounts.setAdapter(adapter);
     }
