@@ -248,8 +248,7 @@ public class OfficerMortgageDetailActivity extends BaseActivity {
         
         cardPaymentSchedule.setVisibility(View.VISIBLE);
         
-        // Mark current period first
-        markCurrentPeriod();
+        // Backend đã trả về currentPeriod và overdue, không cần xử lý thêm
         
         // Calculate counts
         int totalCount = paymentSchedules.size();
@@ -257,9 +256,9 @@ public class OfficerMortgageDetailActivity extends BaseActivity {
         int overdueCount = 0;
         
         for (PaymentScheduleResponse schedule : paymentSchedules) {
-            if (Boolean.TRUE.equals(schedule.getIsPaid())) {
+            if (schedule.getIsPaid()) {
                 paidCount++;
-            } else if (Boolean.TRUE.equals(schedule.getIsOverdue())) {
+            } else if (schedule.getIsOverdue()) {
                 overdueCount++;
             }
         }
@@ -418,40 +417,6 @@ public class OfficerMortgageDetailActivity extends BaseActivity {
         intent.putExtra("account_number", currentMortgage != null ? currentMortgage.getAccountNumber() : "");
         intent.putExtra("payment_account_number", currentMortgage != null ? currentMortgage.getAccountNumber() : "");
         startActivity(intent);
-    }
-    
-    /**
-     * Mark current period in payment schedules
-     */
-    private void markCurrentPeriod() {
-        if (paymentSchedules == null) return;
-        
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        Date today = new Date();
-        
-        boolean foundCurrent = false;
-        for (PaymentScheduleResponse schedule : paymentSchedules) {
-            // Reset current period flag
-            schedule.setIsCurrentPeriod(false);
-            
-            // Find first unpaid period as current
-            if (!foundCurrent && !Boolean.TRUE.equals(schedule.getIsPaid())) {
-                schedule.setIsCurrentPeriod(true);
-                foundCurrent = true;
-            }
-            
-            // Check if overdue (due date < today and not paid)
-            if (schedule.getDueDate() != null && !Boolean.TRUE.equals(schedule.getIsPaid())) {
-                try {
-                    Date dueDate = sdf.parse(schedule.getDueDate());
-                    if (dueDate != null && dueDate.before(today)) {
-                        schedule.setIsOverdue(true);
-                    }
-                } catch (ParseException e) {
-                    // Ignore parse errors
-                }
-            }
-        }
     }
     
     /**

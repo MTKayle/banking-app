@@ -7,31 +7,35 @@ import com.google.gson.annotations.SerializedName;
  * Maps với PaymentScheduleResponse từ backend
  */
 public class PaymentScheduleResponse {
+    private Long scheduleId;
     private Integer periodNumber;
     private String dueDate;
-    
-    // Backend trả về principalAmount, interestAmount
-    @SerializedName("principalAmount")
     private Double principalAmount;
-    
-    @SerializedName("interestAmount")
     private Double interestAmount;
-    
+    private Double totalAmount;
     private Double penaltyAmount;
     private Double remainingBalance;
-    
-    @SerializedName("paid")
-    private Boolean isPaid;
-    
+    private String status;
     private String paidDate;
-    private Boolean isOverdue;
-    private Integer daysOverdue;
-    private Boolean isCurrentPeriod;
+    private Double paidAmount;
+    private Integer overdueDays;
+    
+    // Backend trả về currentPeriod và overdue (không có prefix "is")
+    private Boolean currentPeriod;
+    private Boolean overdue;
 
     public PaymentScheduleResponse() {
     }
 
     // Getters and Setters
+    public Long getScheduleId() {
+        return scheduleId;
+    }
+
+    public void setScheduleId(Long scheduleId) {
+        this.scheduleId = scheduleId;
+    }
+
     public Integer getPeriodNumber() {
         return periodNumber;
     }
@@ -64,46 +68,12 @@ public class PaymentScheduleResponse {
         this.interestAmount = interestAmount;
     }
 
-    /**
-     * Tính tổng thanh toán = gốc + lãi + phạt (nếu có)
-     */
-    public Double getTotalPayment() {
-        double principal = principalAmount != null ? principalAmount : 0;
-        double interest = interestAmount != null ? interestAmount : 0;
-        double penalty = penaltyAmount != null ? penaltyAmount : 0;
-        return principal + interest + penalty;
+    public Double getTotalAmount() {
+        return totalAmount;
     }
 
-    public Double getRemainingBalance() {
-        return remainingBalance;
-    }
-
-    public void setRemainingBalance(Double remainingBalance) {
-        this.remainingBalance = remainingBalance;
-    }
-
-    public Boolean getIsPaid() {
-        return isPaid;
-    }
-
-    public void setIsPaid(Boolean isPaid) {
-        this.isPaid = isPaid;
-    }
-
-    public String getPaidDate() {
-        return paidDate;
-    }
-
-    public void setPaidDate(String paidDate) {
-        this.paidDate = paidDate;
-    }
-
-    public Boolean getIsOverdue() {
-        return isOverdue;
-    }
-
-    public void setIsOverdue(Boolean isOverdue) {
-        this.isOverdue = isOverdue;
+    public void setTotalAmount(Double totalAmount) {
+        this.totalAmount = totalAmount;
     }
 
     public Double getPenaltyAmount() {
@@ -114,19 +84,72 @@ public class PaymentScheduleResponse {
         this.penaltyAmount = penaltyAmount;
     }
 
-    public Integer getDaysOverdue() {
-        return daysOverdue;
+    public Double getRemainingBalance() {
+        return remainingBalance;
     }
 
-    public void setDaysOverdue(Integer daysOverdue) {
-        this.daysOverdue = daysOverdue;
+    public void setRemainingBalance(Double remainingBalance) {
+        this.remainingBalance = remainingBalance;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getPaidDate() {
+        return paidDate;
+    }
+
+    public void setPaidDate(String paidDate) {
+        this.paidDate = paidDate;
+    }
+
+    public Double getPaidAmount() {
+        return paidAmount;
+    }
+
+    public void setPaidAmount(Double paidAmount) {
+        this.paidAmount = paidAmount;
+    }
+
+    public Integer getOverdueDays() {
+        return overdueDays;
+    }
+
+    public void setOverdueDays(Integer overdueDays) {
+        this.overdueDays = overdueDays;
+    }
+
+    public Boolean getCurrentPeriod() {
+        return currentPeriod;
+    }
+
+    public void setCurrentPeriod(Boolean currentPeriod) {
+        this.currentPeriod = currentPeriod;
+    }
+
+    public Boolean getOverdue() {
+        return overdue;
+    }
+
+    public void setOverdue(Boolean overdue) {
+        this.overdue = overdue;
+    }
+
+    // Helper methods
+    public Boolean getIsPaid() {
+        return "PAID".equals(status);
     }
 
     public Boolean getIsCurrentPeriod() {
-        return isCurrentPeriod;
+        return Boolean.TRUE.equals(currentPeriod);
     }
 
-    public void setIsCurrentPeriod(Boolean isCurrentPeriod) {
-        this.isCurrentPeriod = isCurrentPeriod;
+    public Boolean getIsOverdue() {
+        return Boolean.TRUE.equals(overdue);
     }
 }

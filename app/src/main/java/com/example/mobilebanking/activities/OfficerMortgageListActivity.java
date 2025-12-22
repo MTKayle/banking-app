@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -35,12 +36,14 @@ import retrofit2.Response;
  * OfficerMortgageListActivity - Danh sách khoản vay cho Officer
  * Features:
  * - RecyclerView hiển thị mortgages (card view)
- * - 4 Tabs: Tất cả, Chờ duyệt, Đang vay, Hoàn thành
+ * - 4 Tabs: Chờ duyệt, Đang vay, Từ chối, Hoàn thành
  * - Search bar
  * - Click vào mortgage → OfficerMortgageDetailActivity
  * - FAB: "Tạo khoản vay mới" → OfficerMortgageCreateActivity
  */
 public class OfficerMortgageListActivity extends BaseActivity {
+    
+    private static final String TAG = "OfficerMortgageList";
     
     private MaterialToolbar toolbar;
     private TabLayout tabLayout;
@@ -51,10 +54,9 @@ public class OfficerMortgageListActivity extends BaseActivity {
     private ProgressBar progressBar;
     
     private OfficerMortgageAdapter adapter;
-    private List<MortgageModel> allMortgages = new ArrayList<>();
-    private List<MortgageModel> filteredMortgages = new ArrayList<>();
+    private List<MortgageModel> mortgageList = new ArrayList<>();
     
-    private String currentFilter = "ALL"; // ALL, PENDING, ACTIVE, COMPLETED
+    private String currentStatus = "PENDING_APPRAISAL"; // Default tab
     private String searchQuery = "";
     
     private MortgageApiService mortgageApiService;
@@ -76,7 +78,9 @@ public class OfficerMortgageListActivity extends BaseActivity {
         setupRecyclerView();
         setupSearch();
         setupFAB();
-        loadMortgages();
+        
+        // Load data for first tab
+        loadMortgagesByStatus(currentStatus);
     }
     
     private void initViews() {
@@ -100,9 +104,9 @@ public class OfficerMortgageListActivity extends BaseActivity {
     }
     
     private void setupTabs() {
-        tabLayout.addTab(tabLayout.newTab().setText("Tất cả"));
         tabLayout.addTab(tabLayout.newTab().setText("Chờ duyệt"));
         tabLayout.addTab(tabLayout.newTab().setText("Đang vay"));
+        tabLayout.addTab(tabLayout.newTab().setText("Từ chối"));
         tabLayout.addTab(tabLayout.newTab().setText("Hoàn thành"));
         
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -110,26 +114,32 @@ public class OfficerMortgageListActivity extends BaseActivity {
             public void onTabSelected(TabLayout.Tab tab) {
                 switch (tab.getPosition()) {
                     case 0:
-                        currentFilter = "ALL";
+                        currentStatus = "PENDING_APPRAISAL";
                         break;
                     case 1:
-                        currentFilter = "PENDING";
+                        currentStatus = "ACTIVE";
                         break;
                     case 2:
-                        currentFilter = "ACTIVE";
+                        currentStatus = "REJECTED";
                         break;
                     case 3:
-                        currentFilter = "COMPLETED";
+                        currentStatus = "COMPLETED";
                         break;
                 }
-                filterMortgages();
+                Log.d(TAG, "Tab selected: " + tab.getPosition() + ", status: " + currentStatus);
+                // Luôn gọi API khi chuyển tab
+                loadMortgagesByStatus(currentStatus);
             }
             
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {}
             
             @Override
-            public void onTabReselected(TabLayout.Tab tab) {}
+            public void onTabReselected(TabLayout.Tab tab) {
+                // Khi bấm lại tab đang chọn, cũng refresh data
+                Log.d(TAG, "Tab reselected: " + tab.getPosition() + ", status: " + currentStatus);
+                loadMortgagesByStatus(currentStatus);
+            }
         });
     }
     
@@ -165,7 +175,7 @@ public class OfficerMortgageListActivity extends BaseActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 searchQuery = s.toString().toLowerCase(Locale.getDefault());
-                filterMortgages();
+                filterBySearch();
             }
             
             @Override
@@ -180,48 +190,26 @@ public class OfficerMortgageListActivity extends BaseActivity {
         });
     }
     
-    private void loadMortgages() {
+    /**
+     * Load mortgages by status from API
+     */
+    private void loadMortgagesByStatus(String status) {
         // Tránh gọi API nhiều lần khi đang loading
         if (isLoading) {
+            Log.d(TAG, "Already loading, skip...");
             return;
         }
+        
         isLoading = true;
         showLoading(true);
         
         // Clear list trước khi load mới
-        allMortgages.clear();
+        mortgageList.clear();
+        adapter.setMortgageList(mortgageList);
         
-        // Determine which API to call based on current filter
-        Call<List<MortgageAccountResponse>> call;
+        Log.d(TAG, "Loading mortgages with status: " + status);
         
-        if (!searchQuery.isEmpty()) {
-            // Search by phone
-            String status = getApiStatus();
-            if (status != null) {
-                call = mortgageApiService.searchMortgages(status, searchQuery);
-            } else {
-                // Search in all - call pending first, then we'll handle locally
-                call = mortgageApiService.getPendingMortgages();
-            }
-        } else {
-            switch (currentFilter) {
-                case "PENDING":
-                    call = mortgageApiService.getMortgagesByStatus("PENDING_APPRAISAL");
-                    break;
-                case "ACTIVE":
-                    call = mortgageApiService.getMortgagesByStatus("ACTIVE");
-                    break;
-                case "COMPLETED":
-                    // Get both COMPLETED and REJECTED
-                    loadCompletedMortgages();
-                    return;
-                case "ALL":
-                default:
-                    // Load all by getting pending first
-                    loadAllMortgages();
-                    return;
-            }
-        }
+        Call<List<MortgageAccountResponse>> call = mortgageApiService.getMortgagesByStatus(status);
         
         call.enqueue(new Callback<List<MortgageAccountResponse>>() {
             @Override
@@ -229,12 +217,15 @@ public class OfficerMortgageListActivity extends BaseActivity {
                                    Response<List<MortgageAccountResponse>> response) {
                 isLoading = false;
                 showLoading(false);
+                
                 if (response.isSuccessful() && response.body() != null) {
+                    Log.d(TAG, "Loaded " + response.body().size() + " mortgages");
                     for (MortgageAccountResponse resp : response.body()) {
-                        allMortgages.add(convertToModel(resp));
+                        mortgageList.add(convertToModel(resp));
                     }
-                    filterMortgages();
+                    filterBySearch();
                 } else {
+                    Log.e(TAG, "API Error: " + response.code());
                     Toast.makeText(OfficerMortgageListActivity.this, 
                             "Lỗi tải dữ liệu", Toast.LENGTH_SHORT).show();
                     updateEmptyState();
@@ -245,157 +236,12 @@ public class OfficerMortgageListActivity extends BaseActivity {
             public void onFailure(Call<List<MortgageAccountResponse>> call, Throwable t) {
                 isLoading = false;
                 showLoading(false);
+                Log.e(TAG, "API Failed: " + t.getMessage(), t);
                 Toast.makeText(OfficerMortgageListActivity.this, 
                         "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 updateEmptyState();
             }
         });
-    }
-    
-    private void loadAllMortgages() {
-        // Load PENDING_APPRAISAL
-        mortgageApiService.getMortgagesByStatus("PENDING_APPRAISAL").enqueue(new Callback<List<MortgageAccountResponse>>() {
-            @Override
-            public void onResponse(Call<List<MortgageAccountResponse>> call, 
-                                   Response<List<MortgageAccountResponse>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    for (MortgageAccountResponse resp : response.body()) {
-                        allMortgages.add(convertToModel(resp));
-                    }
-                }
-                // Load ACTIVE
-                loadActiveMortgages();
-            }
-            
-            @Override
-            public void onFailure(Call<List<MortgageAccountResponse>> call, Throwable t) {
-                loadActiveMortgages();
-            }
-        });
-    }
-    
-    private void loadActiveMortgages() {
-        mortgageApiService.getMortgagesByStatus("ACTIVE").enqueue(new Callback<List<MortgageAccountResponse>>() {
-            @Override
-            public void onResponse(Call<List<MortgageAccountResponse>> call, 
-                                   Response<List<MortgageAccountResponse>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    for (MortgageAccountResponse resp : response.body()) {
-                        allMortgages.add(convertToModel(resp));
-                    }
-                }
-                // Load COMPLETED
-                loadCompletedAndRejectedMortgages();
-            }
-            
-            @Override
-            public void onFailure(Call<List<MortgageAccountResponse>> call, Throwable t) {
-                loadCompletedAndRejectedMortgages();
-            }
-        });
-    }
-    
-    private void loadCompletedAndRejectedMortgages() {
-        mortgageApiService.getMortgagesByStatus("COMPLETED").enqueue(new Callback<List<MortgageAccountResponse>>() {
-            @Override
-            public void onResponse(Call<List<MortgageAccountResponse>> call, 
-                                   Response<List<MortgageAccountResponse>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    for (MortgageAccountResponse resp : response.body()) {
-                        allMortgages.add(convertToModel(resp));
-                    }
-                }
-                // Load REJECTED
-                loadRejectedMortgages();
-            }
-            
-            @Override
-            public void onFailure(Call<List<MortgageAccountResponse>> call, Throwable t) {
-                loadRejectedMortgages();
-            }
-        });
-    }
-    
-    private void loadRejectedMortgages() {
-        mortgageApiService.getMortgagesByStatus("REJECTED").enqueue(new Callback<List<MortgageAccountResponse>>() {
-            @Override
-            public void onResponse(Call<List<MortgageAccountResponse>> call, 
-                                   Response<List<MortgageAccountResponse>> response) {
-                isLoading = false;
-                showLoading(false);
-                if (response.isSuccessful() && response.body() != null) {
-                    for (MortgageAccountResponse resp : response.body()) {
-                        allMortgages.add(convertToModel(resp));
-                    }
-                }
-                filterMortgages();
-            }
-            
-            @Override
-            public void onFailure(Call<List<MortgageAccountResponse>> call, Throwable t) {
-                isLoading = false;
-                showLoading(false);
-                filterMortgages();
-            }
-        });
-    }
-    
-    private void loadCompletedMortgages() {
-        mortgageApiService.getMortgagesByStatus("COMPLETED").enqueue(new Callback<List<MortgageAccountResponse>>() {
-            @Override
-            public void onResponse(Call<List<MortgageAccountResponse>> call, 
-                                   Response<List<MortgageAccountResponse>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    for (MortgageAccountResponse resp : response.body()) {
-                        allMortgages.add(convertToModel(resp));
-                    }
-                }
-                // Also load REJECTED
-                mortgageApiService.getMortgagesByStatus("REJECTED").enqueue(new Callback<List<MortgageAccountResponse>>() {
-                    @Override
-                    public void onResponse(Call<List<MortgageAccountResponse>> call, 
-                                           Response<List<MortgageAccountResponse>> response) {
-                        isLoading = false;
-                        showLoading(false);
-                        if (response.isSuccessful() && response.body() != null) {
-                            for (MortgageAccountResponse resp : response.body()) {
-                                allMortgages.add(convertToModel(resp));
-                            }
-                        }
-                        filterMortgages();
-                    }
-                    
-                    @Override
-                    public void onFailure(Call<List<MortgageAccountResponse>> call, Throwable t) {
-                        isLoading = false;
-                        showLoading(false);
-                        filterMortgages();
-                    }
-                });
-            }
-            
-            @Override
-            public void onFailure(Call<List<MortgageAccountResponse>> call, Throwable t) {
-                isLoading = false;
-                showLoading(false);
-                Toast.makeText(OfficerMortgageListActivity.this, 
-                        "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                updateEmptyState();
-            }
-        });
-    }
-    
-    private String getApiStatus() {
-        switch (currentFilter) {
-            case "PENDING":
-                return "PENDING_APPRAISAL";
-            case "ACTIVE":
-                return "ACTIVE";
-            case "COMPLETED":
-                return "COMPLETED";
-            default:
-                return null;
-        }
     }
     
     private MortgageModel convertToModel(MortgageAccountResponse resp) {
@@ -424,7 +270,7 @@ public class OfficerMortgageListActivity extends BaseActivity {
     }
     
     private void updateEmptyState() {
-        if (allMortgages.isEmpty()) {
+        if (mortgageList.isEmpty()) {
             rvMortgages.setVisibility(View.GONE);
             emptyState.setVisibility(View.VISIBLE);
         } else {
@@ -433,59 +279,38 @@ public class OfficerMortgageListActivity extends BaseActivity {
         }
     }
     
-    private void filterMortgages() {
-        filteredMortgages.clear();
-        
-        for (MortgageModel mortgage : allMortgages) {
-            // Filter by tab
-            boolean matchesTab = false;
-            if (currentFilter.equals("ALL")) {
-                matchesTab = true;
-            } else if (currentFilter.equals("PENDING") && "PENDING_APPRAISAL".equals(mortgage.getStatus())) {
-                matchesTab = true;
-            } else if (currentFilter.equals("ACTIVE") && "ACTIVE".equals(mortgage.getStatus())) {
-                matchesTab = true;
-            } else if (currentFilter.equals("COMPLETED") && 
-                      ("COMPLETED".equals(mortgage.getStatus()) || "REJECTED".equals(mortgage.getStatus()))) {
-                matchesTab = true;
-            }
-            
-            if (!matchesTab) continue;
-            
-            // Filter by search query
-            if (!searchQuery.isEmpty()) {
+    /**
+     * Filter by search query (local filter)
+     */
+    private void filterBySearch() {
+        if (searchQuery.isEmpty()) {
+            adapter.setMortgageList(mortgageList);
+        } else {
+            List<MortgageModel> filtered = new ArrayList<>();
+            for (MortgageModel mortgage : mortgageList) {
                 String customerName = mortgage.getCustomerName().toLowerCase(Locale.getDefault());
                 String accountNumber = mortgage.getAccountNumber().toLowerCase(Locale.getDefault());
                 String phone = mortgage.getCustomerPhone() != null ? 
                               mortgage.getCustomerPhone().toLowerCase(Locale.getDefault()) : "";
                 
-                if (!customerName.contains(searchQuery) && 
-                    !accountNumber.contains(searchQuery) && 
-                    !phone.contains(searchQuery)) {
-                    continue;
+                if (customerName.contains(searchQuery) || 
+                    accountNumber.contains(searchQuery) || 
+                    phone.contains(searchQuery)) {
+                    filtered.add(mortgage);
                 }
             }
-            
-            filteredMortgages.add(mortgage);
+            adapter.setMortgageList(filtered);
         }
         
-        // Update UI
-        adapter.setMortgageList(filteredMortgages);
-        
-        if (filteredMortgages.isEmpty()) {
-            rvMortgages.setVisibility(View.GONE);
-            emptyState.setVisibility(View.VISIBLE);
-        } else {
-            rvMortgages.setVisibility(View.VISIBLE);
-            emptyState.setVisibility(View.GONE);
-        }
+        updateEmptyState();
     }
     
     @Override
     protected void onResume() {
         super.onResume();
-        // Refresh data khi quay lại
-        loadMortgages();
+        // Refresh data khi quay lại từ màn hình khác
+        Log.d(TAG, "onResume - refreshing data for status: " + currentStatus);
+        isLoading = false; // Reset flag để cho phép load lại
+        loadMortgagesByStatus(currentStatus);
     }
 }
-

@@ -100,16 +100,16 @@ public class PaymentScheduleAdapter extends RecyclerView.Adapter<PaymentSchedule
             String dueDate = formatDate(schedule.getDueDate());
             tvDueDate.setText("Hạn: " + dueDate);
 
-            // Total payment (gốc + lãi, không bao gồm phạt trong hiển thị chính)
-            Double principal = schedule.getPrincipalAmount();
-            Double interest = schedule.getInterestAmount();
-            double baseTotal = (principal != null ? principal : 0) + (interest != null ? interest : 0);
-            tvTotalPayment.setText(currencyFormat.format(baseTotal) + " đ");
+            // Total payment từ response (đã bao gồm gốc + lãi)
+            Double total = schedule.getTotalAmount();
+            tvTotalPayment.setText(total != null ? currencyFormat.format(total) + " đ" : "0 đ");
 
             // Principal
+            Double principal = schedule.getPrincipalAmount();
             tvPrincipal.setText(principal != null ? currencyFormat.format(principal) + " đ" : "0 đ");
 
             // Interest
+            Double interest = schedule.getInterestAmount();
             tvInterest.setText(interest != null ? currencyFormat.format(interest) + " đ" : "0 đ");
 
             // Remaining balance

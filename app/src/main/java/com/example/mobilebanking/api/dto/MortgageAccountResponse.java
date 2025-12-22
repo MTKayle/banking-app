@@ -26,6 +26,7 @@ public class MortgageAccountResponse {
     private String createdDate;
     private String approvalDate;
     private Double remainingBalance;
+    private Double earlySettlementAmount;
     private List<PaymentScheduleResponse> paymentSchedules;
 
     public MortgageAccountResponse() {
@@ -182,6 +183,14 @@ public class MortgageAccountResponse {
 
     public void setRemainingBalance(Double remainingBalance) {
         this.remainingBalance = remainingBalance;
+    }
+
+    public Double getEarlySettlementAmount() {
+        return earlySettlementAmount;
+    }
+
+    public void setEarlySettlementAmount(Double earlySettlementAmount) {
+        this.earlySettlementAmount = earlySettlementAmount;
     }
 
     public List<PaymentScheduleResponse> getPaymentSchedules() {
