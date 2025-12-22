@@ -28,7 +28,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class SavingTermListActivity extends AppCompatActivity 
-        implements SavingTermAdapter.OnTermClickListener {
+        implements SavingTermAdapter.OnTermDTOClickListener {
 
     private RecyclerView rvTerms;
     private SavingTermAdapter adapter;

@@ -148,6 +148,9 @@
             android:name="com.example.mobilebanking.activities.OfficerMortgageCreateActivity"
             android:parentActivityName="com.example.mobilebanking.activities.OfficerMortgageListActivity" />
         <activity
+            android:name="com.example.mobilebanking.activities.OfficerMortgageInterestRateActivity"
+            android:parentActivityName="com.example.mobilebanking.ui_home.OfficerHomeActivity" />
+        <activity
             android:name="com.example.mobilebanking.activities.OfficerDepositActivity"
             android:parentActivityName="com.example.mobilebanking.ui_home.OfficerHomeActivity" />
         <activity
@@ -167,6 +170,12 @@
             android:parentActivityName="com.example.mobilebanking.activities.OfficerMortgageDetailActivity" />
         <activity
             android:name="com.example.mobilebanking.activities.OfficerOpenAccountActivity"
+            android:parentActivityName="com.example.mobilebanking.ui_home.OfficerHomeActivity" />
+        <activity
+            android:name="com.example.mobilebanking.activities.OfficerSavingListActivity"
+            android:parentActivityName="com.example.mobilebanking.ui_home.OfficerHomeActivity" />
+        <activity
+            android:name="com.example.mobilebanking.activities.OfficerSavingInterestRateActivity"
             android:parentActivityName="com.example.mobilebanking.ui_home.OfficerHomeActivity" />
 
         <activity

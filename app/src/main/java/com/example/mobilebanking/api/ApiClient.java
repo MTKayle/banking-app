@@ -92,6 +92,7 @@ public class ApiClient {
     private static UtilityBillApiService utilityBillApiService;
     private static QrApiService qrApiService;
     private static MortgageApiService mortgageApiService;
+    private static SavingApiService savingApiService;
 
     private static Context applicationContext;
 
@@ -320,6 +321,16 @@ public class ApiClient {
     }
 
     /**
+     * Lấy SavingApiService instance
+     */
+    public static SavingApiService getSavingApiService() {
+        if (savingApiService == null) {
+            savingApiService = getRetrofitInstance().create(SavingApiService.class);
+        }
+        return savingApiService;
+    }
+
+    /**
      * Reset Retrofit instance (dùng khi cần thay đổi BASE_URL)
      */
     public static void reset() {
@@ -334,5 +345,6 @@ public class ApiClient {
         externalAccountApiService = null;
         utilityBillApiService = null;
         mortgageApiService = null;
+        savingApiService = null;
     }
 }

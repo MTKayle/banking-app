@@ -17,6 +17,7 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
@@ -115,10 +116,19 @@ public interface MortgageApiService {
     /**
      * Get all mortgage interest rates
      * Endpoint: GET /mortgage/interest-rates
-     * Response: { success: true, data: [{ termMonths, interestRate, ... }] }
+     * Response: { success: true, data: [{ rateId, minMonths, maxMonths, interestRate, description }] }
      */
     @GET("mortgage/interest-rates")
     Call<Map<String, Object>> getInterestRates();
+
+    /**
+     * Update mortgage interest rate
+     * Endpoint: PUT /mortgage/interest-rates/update
+     * Input: {"rateId": 1, "interestRate": 7.5}
+     * Response: {"data": {...}, "success": true, "message": "..."}
+     */
+    @PUT("mortgage/interest-rates/update")
+    Call<Map<String, Object>> updateMortgageInterestRate(@Body Map<String, Object> request);
 
     /**
      * Make mortgage payment (full settlement)

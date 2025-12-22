@@ -5,36 +5,38 @@ package com.example.mobilebanking.api.dto;
  * Maps với MortgageInterestRate từ GET /api/mortgage/interest-rates
  */
 public class InterestRateResponse {
-    private Long id;
-    private Integer termMonths;
+    private Long rateId;
+    private Integer minMonths;
+    private Integer maxMonths;
     private Double interestRate;
     private String description;
 
     public InterestRateResponse() {
     }
 
-    public InterestRateResponse(Long id, Integer termMonths, Double interestRate, String description) {
-        this.id = id;
-        this.termMonths = termMonths;
-        this.interestRate = interestRate;
-        this.description = description;
-    }
-
     // Getters and Setters
-    public Long getId() {
-        return id;
+    public Long getRateId() {
+        return rateId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setRateId(Long rateId) {
+        this.rateId = rateId;
     }
 
-    public Integer getTermMonths() {
-        return termMonths;
+    public Integer getMinMonths() {
+        return minMonths;
     }
 
-    public void setTermMonths(Integer termMonths) {
-        this.termMonths = termMonths;
+    public void setMinMonths(Integer minMonths) {
+        this.minMonths = minMonths;
+    }
+
+    public Integer getMaxMonths() {
+        return maxMonths;
+    }
+
+    public void setMaxMonths(Integer maxMonths) {
+        this.maxMonths = maxMonths;
     }
 
     public Double getInterestRate() {
@@ -51,5 +53,18 @@ public class InterestRateResponse {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+    
+    /**
+     * Get display text for term range
+     */
+    public String getTermDisplay() {
+        if (description != null && !description.isEmpty()) {
+            return description;
+        }
+        if (maxMonths == null) {
+            return "> " + minMonths + " tháng";
+        }
+        return minMonths + " - " + maxMonths + " tháng";
     }
 }

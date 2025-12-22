@@ -20,9 +20,12 @@ import com.example.mobilebanking.activities.OfficerCustomerTransactionsActivity;
 import com.example.mobilebanking.activities.OfficerDepositActivity;
 import com.example.mobilebanking.activities.OfficerInterestRateActivity;
 import com.example.mobilebanking.activities.OfficerMortgageCreateActivity;
+import com.example.mobilebanking.activities.OfficerMortgageInterestRateActivity;
 import com.example.mobilebanking.activities.OfficerMortgageListActivity;
 import com.example.mobilebanking.activities.OfficerOpenAccountActivity;
 import com.example.mobilebanking.activities.OfficerReportsActivity;
+import com.example.mobilebanking.activities.OfficerSavingInterestRateActivity;
+import com.example.mobilebanking.activities.OfficerSavingListActivity;
 import com.example.mobilebanking.activities.OfficerUserListActivity;
 import com.example.mobilebanking.activities.OfficerSettingsActivity;
 import com.example.mobilebanking.utils.DataManager;
@@ -111,7 +114,11 @@ public class OfficerHomeFragment extends Fragment {
         // Mortgage Management - updated IDs after merging pending+approve
         setupAction(view, R.id.officer_action_mortgage_create, OfficerMortgageCreateActivity.class);
         setupAction(view, R.id.officer_action_mortgage_pending_approve, OfficerMortgageListActivity.class);
-        setupAction(view, R.id.officer_action_mortgage_search, OfficerMortgageListActivity.class);
+        setupAction(view, R.id.officer_action_mortgage_interest_rate, OfficerMortgageInterestRateActivity.class);
+        
+        // Saving Management
+        setupAction(view, R.id.officer_action_saving_list, OfficerSavingListActivity.class);
+        setupAction(view, R.id.officer_action_saving_interest_rate, OfficerSavingInterestRateActivity.class);
         
         // System Management
         setupAction(view, R.id.officer_action_deposit, OfficerDepositActivity.class);

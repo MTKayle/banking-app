@@ -74,8 +74,8 @@ public class OfficerInterestRateActivity extends BaseActivity {
     private void setupRecyclerView() {
         rvTerms.setLayoutManager(new LinearLayoutManager(this));
         
-        // Setup adapter with click listener for editing
-        adapter = new SavingTermAdapter(savingTerms, term -> {
+        // Setup adapter with click listener for editing (using DTO interface)
+        adapter = new SavingTermAdapter(savingTerms, (SavingTermAdapter.OnTermDTOClickListener) term -> {
             showUpdateRateDialog(term);
         });
         rvTerms.setAdapter(adapter);

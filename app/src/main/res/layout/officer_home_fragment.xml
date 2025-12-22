@@ -46,6 +46,18 @@
                 <include layout="@layout/officer_home_mortgage_management" />
             </androidx.cardview.widget.CardView>
 
+            <!-- Saving Management Section -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/uihome_card_bg">
+
+                <include layout="@layout/officer_home_saving_management" />
+            </androidx.cardview.widget.CardView>
+
             <!-- System Management Section -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
