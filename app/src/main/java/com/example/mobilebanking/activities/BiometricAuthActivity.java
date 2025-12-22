@@ -1323,9 +1323,16 @@ public class BiometricAuthActivity extends AppCompatActivity {
                 
             Toast.makeText(this, "Xác thực khuôn mặt thành công!", Toast.LENGTH_SHORT).show();
                 
-            // Navigate to dashboard after delay
+            // Navigate to dashboard after delay based on role
             mainHandler.postDelayed(() -> {
-                    Intent intent = new Intent(BiometricAuthActivity.this, CustomerDashboardActivity.class);
+                    User.UserRole role = dataManager.getUserRole();
+                    Intent intent;
+                    if (role == User.UserRole.OFFICER) {
+                        intent = new Intent(BiometricAuthActivity.this, OfficerDashboardActivity.class);
+                    } else {
+                        intent = new Intent(BiometricAuthActivity.this, 
+                                com.example.mobilebanking.ui_home.UiHomeActivity.class);
+                    }
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
                     finish();

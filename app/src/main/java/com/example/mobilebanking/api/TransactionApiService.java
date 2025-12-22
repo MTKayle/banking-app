@@ -4,6 +4,7 @@ import com.example.mobilebanking.api.dto.TransactionResponse;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.Path;
 
 /**
  * Transaction API Service
@@ -17,5 +18,13 @@ public interface TransactionApiService {
      */
     @GET("transactions/my-transactions")
     Call<TransactionResponse> getMyTransactions();
+    
+    /**
+     * Lấy lịch sử giao dịch của một user cụ thể - Officer only
+     * Header cần có: Authorization: Bearer {token}
+     * Endpoint: GET /transactions/user/{userId}
+     */
+    @GET("transactions/user/{userId}")
+    Call<TransactionResponse> getTransactionsByUser(@Path("userId") Long userId);
 }
 

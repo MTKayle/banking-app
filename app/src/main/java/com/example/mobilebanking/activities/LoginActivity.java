@@ -615,10 +615,13 @@ public class LoginActivity extends BaseActivity {
         Intent intent;
         
         if (role == User.UserRole.OFFICER) {
-            intent = new Intent(LoginActivity.this, OfficerDashboardActivity.class);
-        } else {
-            // Chuyển đến UiHomeActivity thay vì CustomerDashboardActivity
+            // Officer chuyển đến UiHomeActivity với flag để hiển thị giao diện officer
             intent = new Intent(LoginActivity.this, com.example.mobilebanking.ui_home.UiHomeActivity.class);
+            intent.putExtra("user_role", "OFFICER");
+        } else {
+            // Customer chuyển đến UiHomeActivity với giao diện user
+            intent = new Intent(LoginActivity.this, com.example.mobilebanking.ui_home.UiHomeActivity.class);
+            intent.putExtra("user_role", "CUSTOMER");
         }
         
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

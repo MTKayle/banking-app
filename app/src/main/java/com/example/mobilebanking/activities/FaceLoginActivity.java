@@ -404,9 +404,14 @@ public class FaceLoginActivity extends AppCompatActivity {
             
             Toast.makeText(FaceLoginActivity.this, "Xác thực thành công!", Toast.LENGTH_SHORT).show();
             
-            // Navigate to dashboard
-            Intent intent = new Intent(FaceLoginActivity.this,
-                    com.example.mobilebanking.ui_home.UiHomeActivity.class);
+            // Navigate to dashboard based on role (role đã được định nghĩa ở trên)
+            Intent intent;
+            if (role == User.UserRole.OFFICER) {
+                intent = new Intent(FaceLoginActivity.this, OfficerDashboardActivity.class);
+            } else {
+                intent = new Intent(FaceLoginActivity.this,
+                        com.example.mobilebanking.ui_home.UiHomeActivity.class);
+            }
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();

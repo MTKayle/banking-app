@@ -113,6 +113,9 @@ public class OtpVerificationActivity extends AppCompatActivity {
         } else if ("login_verification".equals(fromActivity)) {
             // Luồng xác thực đăng nhập - gửi OTP với Goixe247
             sendOtpWithGoixe();
+        } else if ("BILL_PAYMENT".equals(fromActivity)) {
+            // Luồng thanh toán hóa đơn - gửi OTP với Goixe247
+            sendOtpWithGoixe();
         } else if ("register".equals(fromActivity)) {
             // Luồng đăng ký - dùng Goixe247
             sendOtpWithGoixe();
@@ -496,6 +499,12 @@ public class OtpVerificationActivity extends AppCompatActivity {
         } else if ("movie_booking".equals(fromActivity)) {
             // Xác thực thành công → Gọi API đặt vé
             processMovieBooking();
+        } else if ("BILL_PAYMENT".equals(fromActivity)) {
+            // Xác thực thành công → Return result to BillPaymentConfirmationActivity
+            Intent resultIntent = new Intent();
+            resultIntent.putExtra("OTP_VERIFIED", true);
+            setResult(RESULT_OK, resultIntent);
+            finish();
         } else if ("login_verification".equals(fromActivity)) {
             // Xác thực thành công → Đăng nhập
             performLogin();
@@ -570,7 +579,7 @@ public class OtpVerificationActivity extends AppCompatActivity {
                     
                     Toast.makeText(OtpVerificationActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
                     
-                    // Navigate to dashboard
+                    // Navigate to UiHomeActivity - sẽ tự động hiển thị fragment phù hợp theo role
                     Intent intent = new Intent(OtpVerificationActivity.this, 
                             com.example.mobilebanking.ui_home.UiHomeActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

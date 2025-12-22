@@ -83,13 +83,34 @@ public class BillPaymentSuccessActivity extends AppCompatActivity {
     
     private void loadDataFromIntent() {
         Intent intent = getIntent();
+        NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
         
-        // Generate transaction ID and time
-        String transactionId = generateTransactionId();
-        String transactionTime = getCurrentTime();
+        // Get transaction data from API response
+        String transactionId = intent.getStringExtra("transaction_id");
+        String paymentTime = intent.getStringExtra("payment_time");
+        String balanceAfter = intent.getStringExtra("balance_after");
         
-        tvTransactionId.setText(transactionId);
-        tvTransactionTime.setText(transactionTime);
+        // Display transaction ID from API
+        if (transactionId != null && !transactionId.isEmpty()) {
+            tvTransactionId.setText(transactionId);
+        } else {
+            // Fallback to generated ID
+            tvTransactionId.setText(generateTransactionId());
+        }
+        
+        // Display payment time from API
+        if (paymentTime != null && !paymentTime.isEmpty()) {
+            // Parse ISO datetime to readable format
+            try {
+                // Format: 2025-12-21T17:36:09.8639403
+                String formattedTime = formatPaymentTime(paymentTime);
+                tvTransactionTime.setText(formattedTime);
+            } catch (Exception e) {
+                tvTransactionTime.setText(getCurrentTime());
+            }
+        } else {
+            tvTransactionTime.setText(getCurrentTime());
+        }
         
         // Account info
         String accountNumber = intent.getStringExtra("account_number");
@@ -97,8 +118,17 @@ public class BillPaymentSuccessActivity extends AppCompatActivity {
             tvAccountNumber.setText(accountNumber);
         }
         
-        // Available balance (mock - subtract amount from original)
-        tvAvailableBalance.setText("252,827 VND");
+        // Display balance after payment from API
+        if (balanceAfter != null && !balanceAfter.isEmpty()) {
+            try {
+                double balance = Double.parseDouble(balanceAfter);
+                tvAvailableBalance.setText(formatter.format(balance) + " VND");
+            } catch (NumberFormatException e) {
+                tvAvailableBalance.setText("0 VND");
+            }
+        } else {
+            tvAvailableBalance.setText("0 VND");
+        }
         
         // Bill details
         String billType = intent.getStringExtra("bill_type");
@@ -120,8 +150,37 @@ public class BillPaymentSuccessActivity extends AppCompatActivity {
         
         // Format and display amount
         if (amount != null) {
-            NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
-            tvAmount.setText(formatter.format(Double.parseDouble(amount)) + " VND");
+            try {
+                double amountValue = Double.parseDouble(amount);
+                tvAmount.setText(formatter.format(amountValue) + " VND");
+            } catch (NumberFormatException e) {
+                tvAmount.setText(amount + " VND");
+            }
+        }
+    }
+    
+    /**
+     * Format payment time from ISO format to readable format
+     * Input: 2025-12-21T17:36:09.8639403
+     * Output: 17:36, 21/12/2025
+     */
+    private String formatPaymentTime(String isoTime) {
+        try {
+            // Remove milliseconds if present
+            String cleanTime = isoTime;
+            if (isoTime.contains(".")) {
+                cleanTime = isoTime.substring(0, isoTime.indexOf("."));
+            }
+            
+            // Parse: 2025-12-21T17:36:09
+            SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+            Date date = isoFormat.parse(cleanTime);
+            
+            // Format to: 17:36, 21/12/2025
+            SimpleDateFormat displayFormat = new SimpleDateFormat("HH:mm, dd/MM/yyyy", Locale.getDefault());
+            return displayFormat.format(date);
+        } catch (Exception e) {
+            return getCurrentTime();
         }
     }
     

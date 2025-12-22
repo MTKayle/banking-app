@@ -99,6 +99,9 @@ public class TransferActivity extends BaseActivity {
         initializeViews();
         loadAccounts();
         setupListeners();
+        
+        // Check if data was passed from QR scan
+        handleQrScanData();
     }
 
     @Override
@@ -108,6 +111,73 @@ public class TransferActivity extends BaseActivity {
             unregisterReceiver(finishReceiver);
         } catch (IllegalArgumentException e) {
             // Receiver was not registered
+        }
+    }
+    
+    /**
+     * Handle data passed from QR scan
+     */
+    private void handleQrScanData() {
+        Intent intent = getIntent();
+        if (intent == null) return;
+        
+        // Check if we have QR scan data
+        String bankCode = intent.getStringExtra("BANK_CODE");
+        String bankName = intent.getStringExtra("BANK_NAME");
+        String bankBin = intent.getStringExtra("BANK_BIN");
+        String accountNumber = intent.getStringExtra("ACCOUNT_NUMBER");
+        String accountHolderName = intent.getStringExtra("ACCOUNT_HOLDER_NAME");
+        Long amount = intent.hasExtra("AMOUNT") ? intent.getLongExtra("AMOUNT", 0) : null;
+        String description = intent.getStringExtra("DESCRIPTION");
+        
+        // If we have bank data, set it
+        if (bankCode != null && !bankCode.isEmpty()) {
+            selectedBankCode = bankCode;
+            selectedBankBin = bankBin;
+            selectedBank = bankCode;
+            
+            // Update UI - need to wait for banks to load first
+            // We'll set a flag and update in loadBanks callback
+            if (tvBankName != null) {
+                tvBankName.setText(bankCode);
+                clearBankError();
+            }
+        }
+        
+        // If we have account number, set it
+        if (accountNumber != null && !accountNumber.isEmpty()) {
+            if (etRecipientAccount != null) {
+                etRecipientAccount.setText(accountNumber);
+            }
+            
+            // If we have account holder name, display it
+            if (accountHolderName != null && !accountHolderName.isEmpty()) {
+                if (tvRecipientName != null) {
+                    tvRecipientName.setText(accountHolderName.toUpperCase());
+                    tvRecipientName.setVisibility(View.VISIBLE);
+                }
+                if (vAccountNameSeparator != null) {
+                    vAccountNameSeparator.setVisibility(View.VISIBLE);
+                }
+                clearAccountError();
+            }
+        }
+        
+        // If we have amount, set it
+        if (amount != null && amount > 0) {
+            if (etAmount != null) {
+                String formattedAmount = formatWithDots(String.valueOf(amount));
+                etAmount.setText(formattedAmount);
+                // Show amount in words
+                etAmount.post(() -> showAmountInWordsIfNeeded());
+            }
+        }
+        
+        // If we have description, set it
+        if (description != null && !description.isEmpty()) {
+            if (etNote != null) {
+                etNote.setText(description);
+            }
         }
     }
 

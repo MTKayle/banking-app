@@ -453,11 +453,14 @@ public class RegisterActivity extends AppCompatActivity {
 
                     Toast.makeText(RegisterActivity.this, "Đăng ký thành công!", Toast.LENGTH_SHORT).show();
                     
-                    // Navigate to dashboard
-                    Intent intent = new Intent(RegisterActivity.this, 
-                            role == User.UserRole.OFFICER 
-                                    ? OfficerDashboardActivity.class 
-                                    : CustomerDashboardActivity.class);
+                    // Navigate to dashboard based on role
+                    Intent intent;
+                    if (role == User.UserRole.OFFICER) {
+                        intent = new Intent(RegisterActivity.this, OfficerDashboardActivity.class);
+                    } else {
+                        intent = new Intent(RegisterActivity.this, 
+                                com.example.mobilebanking.ui_home.UiHomeActivity.class);
+                    }
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
                     finish();

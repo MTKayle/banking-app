@@ -45,7 +45,7 @@ public class ApiClient {
     private static final String BASE_URL_DEVICE = "http://" + IP_MÁY_TÍNH_CỦA_BẠN + ":8089/api/";
     private static final String BASE_URL_USB = "http://localhost:8089/api/"; // Dùng khi kết nối USB + adb reverse
     // Ngrok tunnel (HTTPS) do user cung cấp
-    private static final String BASE_URL_NGROK = " https://unbuffed-unindicatively-nada.ngrok-free.dev/api/";
+    private static final String BASE_URL_NGROK = "https://unconsonant-alycia-pawkily.ngrok-free.dev/api/";
 
     // Chọn phương thức kết nối:
     // - "USB": Dùng USB + adb reverse (ổn định nhất, không cần IP) - KHUYẾN NGHỊ!
@@ -89,6 +89,9 @@ public class ApiClient {
     private static BankApiService bankApiService;
     private static ExternalAccountApiService externalAccountApiService;
     private static TransferApiService transferApiService;
+    private static UtilityBillApiService utilityBillApiService;
+    private static QrApiService qrApiService;
+    private static MortgageApiService mortgageApiService;
 
     private static Context applicationContext;
 
@@ -102,6 +105,7 @@ public class ApiClient {
 
     /**
      * Interceptor để tự động thêm JWT token vào header
+     * Và thêm header cho ngrok free tier để bypass browser warning
      */
     private static Interceptor getAuthInterceptor() {
         return new Interceptor() {
@@ -123,6 +127,12 @@ public class ApiClient {
                 }
 
                 requestBuilder.header("Content-Type", "application/json");
+                
+                // Thêm header cho ngrok free tier để bypass browser warning
+                if (CONNECTION_MODE.equals("NGROK")) {
+                    requestBuilder.header("ngrok-skip-browser-warning", "true");
+                }
+                
                 Request request = requestBuilder.build();
                 return chain.proceed(request);
             }
@@ -280,6 +290,36 @@ public class ApiClient {
     }
 
     /**
+     * Lấy UtilityBillApiService instance
+     */
+    public static UtilityBillApiService getUtilityBillApiService() {
+        if (utilityBillApiService == null) {
+            utilityBillApiService = getRetrofitInstance().create(UtilityBillApiService.class);
+        }
+        return utilityBillApiService;
+    }
+    
+    /**
+     * Lấy QrApiService instance
+     */
+    public static QrApiService getQrApiService() {
+        if (qrApiService == null) {
+            qrApiService = getRetrofitInstance().create(QrApiService.class);
+        }
+        return qrApiService;
+    }
+    
+    /**
+     * Lấy MortgageApiService instance
+     */
+    public static MortgageApiService getMortgageApiService() {
+        if (mortgageApiService == null) {
+            mortgageApiService = getRetrofitInstance().create(MortgageApiService.class);
+        }
+        return mortgageApiService;
+    }
+
+    /**
      * Reset Retrofit instance (dùng khi cần thay đổi BASE_URL)
      */
     public static void reset() {
@@ -292,5 +332,7 @@ public class ApiClient {
         transactionApiService = null;
         userApiService = null;
         externalAccountApiService = null;
+        utilityBillApiService = null;
+        mortgageApiService = null;
     }
 }

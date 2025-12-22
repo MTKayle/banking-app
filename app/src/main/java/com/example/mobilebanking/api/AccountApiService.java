@@ -1,19 +1,25 @@
 package com.example.mobilebanking.api;
 
 import com.example.mobilebanking.api.dto.AccountInfoResponse;
+import com.example.mobilebanking.api.dto.ApiResponse;
 import com.example.mobilebanking.api.dto.CheckingAccountInfoResponse;
 import com.example.mobilebanking.api.dto.CreateSavingRequest;
 import com.example.mobilebanking.api.dto.CreateSavingResponse;
 import com.example.mobilebanking.api.dto.MortgageAccountDTO;
+import com.example.mobilebanking.api.dto.QRCodeRequest;
 import com.example.mobilebanking.api.dto.SavingAccountDTO;
+import com.example.mobilebanking.api.dto.SavingRateUpdateRequest;
 import com.example.mobilebanking.api.dto.SavingTermDTO;
 
 import java.util.List;
+import java.util.Map;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 /**
@@ -69,6 +75,22 @@ public interface AccountApiService {
      */
     @GET("saving/my-accounts")
     Call<List<SavingAccountDTO>> getMySavingAccounts();
+    
+    /**
+     * Lấy QR code cho tài khoản checking
+     * Header cần có: Authorization: Bearer {token}
+     * Response: Image (PNG)
+     */
+    @POST("accounts/checking/qr-code")
+    Call<ResponseBody> getCheckingQRCode(@Body QRCodeRequest request);
+    
+    /**
+     * Cập nhật lãi suất kỳ hạn tiết kiệm - Officer only
+     * Header cần có: Authorization: Bearer {token}
+     * Endpoint: PUT /saving/terms/update-rate
+     */
+    @PUT("saving/terms/update-rate")
+    Call<Map<String, Object>> updateSavingTermRate(@Body SavingRateUpdateRequest request);
 }
 
 

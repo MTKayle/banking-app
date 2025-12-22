@@ -199,7 +199,7 @@
 
                             <ImageView
                                 android:layout_width="60dp"
-                                android:layout_height="30dp"
+                                android:layout_height="40dp"
                                 android:src="@drawable/ic_hat_logo"
                                 android:scaleType="fitCenter"
                                 android:contentDescription="HAT Logo" />
@@ -212,8 +212,8 @@
 
                             <ImageView
                                 android:layout_width="60dp"
-                                android:layout_height="30dp"
-                                android:src="@drawable/ic_vietqr_logo"
+                                android:layout_height="40dp"
+                                android:src="@drawable/vietqr"
                                 android:scaleType="fitCenter"
                                 android:contentDescription="VietQR Logo" />
 
@@ -225,8 +225,8 @@
 
                             <ImageView
                                 android:layout_width="60dp"
-                                android:layout_height="30dp"
-                                android:src="@drawable/ic_napas_logo"
+                                android:layout_height="40dp"
+                                android:src="@drawable/napas"
                                 android:scaleType="fitCenter"
                                 android:contentDescription="NAPAS Logo" />
                         </LinearLayout>
@@ -243,27 +243,58 @@
                                 android:layout_width="240dp"
                                 android:layout_height="240dp"
                                 android:padding="16dp"
-                                android:background="@android:color/white"
+                                android:background="@drawable/bg_qr_rounded"
+                                android:scaleType="fitCenter"
                                 android:contentDescription="QR Code" />
                         </FrameLayout>
 
-                        <!-- Button Thêm số tiền -->
-                        <Button
+                        <!-- Button Thêm số tiền - Text only -->
+                        <TextView
                             android:id="@+id/btn_add_amount"
                             android:layout_width="wrap_content"
-                            android:layout_height="44dp"
+                            android:layout_height="wrap_content"
                             android:layout_marginTop="20dp"
                             android:text="+ Thêm số tiền"
                             android:textColor="#1B5E20"
                             android:textSize="15sp"
                             android:textStyle="bold"
-                            android:textAllCaps="false"
-                            android:backgroundTint="@android:color/white"
-                            android:paddingHorizontal="28dp"
-                            app:strokeColor="#1B5E20"
-                            app:strokeWidth="1.5dp"
-                            app:cornerRadius="22dp"
-                            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="12dp"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:background="?attr/selectableItemBackground" />
+
+                        <!-- Display Amount and Message (Hidden by default) -->
+                        <LinearLayout
+                            android:id="@+id/layout_qr_info"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="20dp"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:visibility="gone">
+
+                            <TextView
+                                android:id="@+id/tv_qr_amount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="500,000 VND"
+                                android:textColor="#1B5E20"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:paddingBottom="2dp"
+                                android:background="@drawable/bg_underline_green" />
+
+                            <TextView
+                                android:id="@+id/tv_qr_message"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="Chuyển tiền"
+                                android:textColor="#666666"
+                                android:textSize="14sp"
+                                android:visibility="gone" />
+                        </LinearLayout>
 
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
