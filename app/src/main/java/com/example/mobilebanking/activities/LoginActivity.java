@@ -3,14 +3,11 @@ package com.example.mobilebanking.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mobilebanking.R;
 import com.example.mobilebanking.api.ApiClient;
@@ -23,7 +20,6 @@ import com.example.mobilebanking.models.User;
 import com.example.mobilebanking.utils.BiometricAuthManager;
 import com.example.mobilebanking.utils.DataManager;
 import com.example.mobilebanking.utils.SessionManager;
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -32,21 +28,17 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 /**
- * Login Activity for user authentication
+ * Login Activity for Officer authentication
+ * Màn hình đăng nhập dành riêng cho Officer - không có OTP, không có quên mật khẩu
  */
 public class LoginActivity extends BaseActivity {
     private EditText etUsername, etPassword;
     private Button btnLogin;
-    private TextView tvRegister, tvForgotPassword, tvUserName, tvOtherAccount;
-    private TextView tvBackText, tvUserNameBack;
-    private ImageView btnBack;
-    private android.view.View backButtonContainer;
-    private CheckBox cbRememberMe;
-    private ImageView ivFingerprint;
+    private ImageView ivTogglePassword;
     private DataManager dataManager;
     private BiometricAuthManager biometricManager;
     private SessionManager sessionManager;
-    private boolean isQuickLoginMode = false; // Flag to determine which layout is used
+    private boolean isPasswordVisible = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,165 +51,30 @@ public class LoginActivity extends BaseActivity {
         biometricManager = new BiometricAuthManager(this);
         sessionManager = SessionManager.getInstance(this);
 
-        // KHÔNG check isLoggedIn nữa vì session đã hết hạn khi mở app lại
-        // Session sẽ được kiểm tra bởi SessionManager
-
-        // Kiểm tra xem đã có lần đăng nhập nào trước đó chưa
-        String lastUsername = dataManager.getLastUsername();
-        String lastFullName = dataManager.getLastFullName();
-        
-        if (lastUsername != null && !lastUsername.isEmpty()) {
-            // Đã có lần đăng nhập trước đó → hiển thị quick login
-            setContentView(R.layout.activity_login_quick);
-            isQuickLoginMode = true;
-        } else {
-            // Lần đầu tải app → hiển thị full login (không có phần "Quay lại")
-            setContentView(R.layout.activity_login);
-            isQuickLoginMode = false;
-        }
+        // Luôn sử dụng layout đăng nhập đơn giản cho Officer
+        setContentView(R.layout.activity_login_quick);
 
         initializeViews();
         setupListeners();
-        loadLastUsername();
-        loadLastUserInfo();
-        setupBackButton();
-        
-        // Hide fingerprint icon if biometric is not available
-        if (ivFingerprint != null && !biometricManager.isBiometricAvailable()) {
-            ivFingerprint.setVisibility(android.view.View.GONE);
-        }
     }
 
     private void initializeViews() {
-        // Views that exist in both layouts
+        // Views chính cho đăng nhập
+        etUsername = findViewById(R.id.et_username);
         etPassword = findViewById(R.id.et_password);
         btnLogin = findViewById(R.id.btn_login);
-        tvForgotPassword = findViewById(R.id.tv_forgot_password);
-        
-        // Views that only exist in full login layout (activity_login.xml)
-        // These may be null in quick login mode
-        etUsername = findViewById(R.id.et_username);
-        tvRegister = findViewById(R.id.tv_register);
-        backButtonContainer = findViewById(R.id.back_button_container);
-        btnBack = findViewById(R.id.btn_back);
-        tvBackText = findViewById(R.id.tv_back_text);
-        tvUserNameBack = findViewById(R.id.tv_user_name_back);
-        
-        // Views that only exist in quick login layout (activity_login_quick.xml)
-        // These may be null in full login mode
-        tvUserName = findViewById(R.id.tv_user_name);
-        tvOtherAccount = findViewById(R.id.tv_other_account);
-        ivFingerprint = findViewById(R.id.iv_fingerprint);
+        ivTogglePassword = findViewById(R.id.iv_toggle_password);
     }
     
-    /**
-     * Setup back button container visibility based on whether user has logged in before
-     */
-    private void setupBackButton() {
-        if (backButtonContainer == null) {
-            return; // Not in full login layout
-        }
-        
-        // Kiểm tra xem đã có lần đăng nhập nào trước đó chưa
-        String lastUsername = dataManager.getLastUsername();
-        String lastFullName = dataManager.getLastFullName();
-        
-        if (lastUsername != null && !lastUsername.isEmpty()) {
-            // Đã có lần đăng nhập → hiển thị phần "Quay lại người dùng"
-            backButtonContainer.setVisibility(android.view.View.VISIBLE);
-            
-            // Hiển thị tên người dùng
-            if (tvUserNameBack != null) {
-                if (lastFullName != null && !lastFullName.isEmpty()) {
-                    tvUserNameBack.setText(lastFullName.toUpperCase());
-                } else {
-                    tvUserNameBack.setText(lastUsername);
-                }
-            }
-            
-            // Setup click listener cho nút back
-            if (btnBack != null) {
-                btnBack.setOnClickListener(v -> switchToQuickLogin());
-            }
-            if (tvBackText != null) {
-                tvBackText.setOnClickListener(v -> switchToQuickLogin());
-            }
-            if (tvUserNameBack != null) {
-                tvUserNameBack.setOnClickListener(v -> switchToQuickLogin());
-            }
-        } else {
-            // Lần đầu tải app → ẩn phần "Quay lại người dùng"
-            backButtonContainer.setVisibility(android.view.View.GONE);
-        }
-    }
-    
-    /**
-     * Chuyển từ full login về quick login
-     */
-    private void switchToQuickLogin() {
-        setContentView(R.layout.activity_login_quick);
-        isQuickLoginMode = true;
-        
-        // Re-initialize all components for the new layout
-        initializeViews();
-        setupListeners();
-        loadLastUserInfo();
-        
-        // Clear password field when switching
-        if (etPassword != null) {
-            etPassword.setText("");
-        }
-        
-        // Hide fingerprint icon if biometric is not available
-        if (ivFingerprint != null && !biometricManager.isBiometricAvailable()) {
-            ivFingerprint.setVisibility(android.view.View.GONE);
-        }
-    }
-
     private void setupListeners() {
         btnLogin.setOnClickListener(v -> handleLogin());
-
-        if (tvRegister != null) {
-            tvRegister.setOnClickListener(v -> {
-                // Mở màn hình giới thiệu + banner (WelcomeBannerActivity)
-                Intent intent = new Intent(LoginActivity.this, WelcomeBannerActivity.class);
-                startActivity(intent);
-            });
-        }
-
-        if (tvForgotPassword != null) {
-            tvForgotPassword.setOnClickListener(v -> {
-                Intent intent = new Intent(LoginActivity.this, ForgotPasswordActivity.class);
-                startActivity(intent);
-            });
+        
+        // Toggle password visibility
+        if (ivTogglePassword != null) {
+            ivTogglePassword.setOnClickListener(v -> togglePasswordVisibility());
         }
         
-        // Quick login mode: Other account button
-        if (tvOtherAccount != null) {
-            tvOtherAccount.setOnClickListener(v -> {
-                // Switch to full login screen
-                setContentView(R.layout.activity_login);
-                isQuickLoginMode = false;
-                
-                // Re-initialize all components for the new layout
-                initializeViews();
-                setupListeners();
-                loadLastUsername();
-                setupBackButton(); // Setup back button với tên người dùng
-                
-                // Clear password field when switching
-                if (etPassword != null) {
-                    etPassword.setText("");
-                }
-            });
-        }
-        
-        // Quick login mode: Fingerprint icon
-        if (ivFingerprint != null) {
-            ivFingerprint.setOnClickListener(v -> handleBiometricLogin());
-        }
-        
-        // Khi người dùng nhập password và nhấn Enter, tự động đăng nhập nếu username đã có
+        // Khi người dùng nhập password và nhấn Enter, tự động đăng nhập
         if (etPassword != null) {
             etPassword.setOnEditorActionListener((v, actionId, event) -> {
                 if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE) {
@@ -228,53 +85,10 @@ public class LoginActivity extends BaseActivity {
             });
         }
     }
-    
-    /**
-     * Tải username cuối cùng đã đăng nhập và điền vào ô username
-     */
-    private void loadLastUsername() {
-        if (etUsername != null) {
-            String lastUsername = dataManager.getLastUsername();
-            if (lastUsername != null && !lastUsername.isEmpty()) {
-                etUsername.setText(lastUsername);
-                // Focus vào ô password để người dùng chỉ cần nhập password
-                if (etPassword != null) {
-                    etPassword.requestFocus();
-                }
-            }
-        }
-    }
-    
-    /**
-     * Tải thông tin người dùng lần đăng nhập cuối (tên đầy đủ) để hiển thị
-     * Chỉ hiển thị họ và tên, không hiển thị số điện thoại
-     */
-    private void loadLastUserInfo() {
-        if (tvUserName != null) {
-            String lastFullName = dataManager.getLastFullName();
-            if (lastFullName != null && !lastFullName.isEmpty()) {
-                tvUserName.setText(lastFullName);
-            } else {
-                // Nếu không có fullName, để trống hoặc hiển thị "Người dùng"
-                tvUserName.setText("Người dùng");
-            }
-        }
-    }
 
     private void handleLogin() {
-        String phone = null;
-        if (etUsername != null) {
-            phone = etUsername.getText().toString().trim();
-        }
+        String phone = etUsername.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
-        
-        // Nếu phone trống, thử lấy từ last username
-        if (phone == null || phone.isEmpty()) {
-            phone = dataManager.getLastUsername();
-            if (phone != null && !phone.isEmpty() && etUsername != null) {
-                etUsername.setText(phone);
-            }
-        }
 
         if (phone.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Vui lòng nhập số điện thoại và mật khẩu", Toast.LENGTH_SHORT).show();
@@ -286,32 +100,9 @@ public class LoginActivity extends BaseActivity {
             Toast.makeText(this, "Số điện thoại không hợp lệ (10-11 chữ số)", Toast.LENGTH_SHORT).show();
             return;
         }
-        
-        // ⭐ THAY ĐỔI MỚI: Kiểm tra xem có phải tài khoản cuối cùng không
-        String lastUsername = dataManager.getLastUsername();
-        final String finalPhone = phone;
-        final String finalPassword = password;
-        
-        if (lastUsername != null && !lastUsername.isEmpty() && !finalPhone.equals(lastUsername)) {
-            // Không phải tài khoản cuối cùng → Yêu cầu xác thực OTP
-            new AlertDialog.Builder(this)
-                    .setTitle("Xác Thực OTP")
-                    .setMessage("Bạn đang đăng nhập bằng tài khoản khác. Vui lòng xác thực OTP để tiếp tục.")
-                    .setPositiveButton("Xác Thực", (dialog, which) -> {
-                        // Chuyển sang OtpVerificationActivity
-                        Intent intent = new Intent(LoginActivity.this, OtpVerificationActivity.class);
-                        intent.putExtra("flow", "login_verification");
-                        intent.putExtra("phone", finalPhone);
-                        intent.putExtra("password", finalPassword);
-                        startActivity(intent);
-                    })
-                    .setNegativeButton("Hủy", null)
-                    .show();
-            return;
-        }
 
-        // Tài khoản cuối cùng hoặc lần đầu đăng nhập → Đăng nhập bình thường
-        performPasswordLogin(finalPhone, finalPassword);
+        // Đăng nhập trực tiếp - không cần OTP
+        performPasswordLogin(phone, password);
     }
     
     private void performPasswordLogin(String phone, String password) {
@@ -333,10 +124,16 @@ public class LoginActivity extends BaseActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     AuthResponse authResponse = response.body();
                     
+                    // ⭐ KIỂM TRA ROLE - Chỉ cho phép OFFICER đăng nhập
+                    String roleStr = authResponse.getRole();
+                    if (roleStr == null || "CUSTOMER".equalsIgnoreCase(roleStr)) {
+                        // Không phải Officer → Chặn đăng nhập
+                        showAccessDeniedDialog();
+                        return;
+                    }
+                    
             // Save session
-                    User.UserRole role = "CUSTOMER".equalsIgnoreCase(authResponse.getRole()) 
-                            ? User.UserRole.CUSTOMER 
-                            : User.UserRole.OFFICER;
+                    User.UserRole role = User.UserRole.OFFICER;
                     dataManager.saveLoggedInUser(phone, role);
                     
                     // Lưu username (phone) cuối cùng để tự động điền lần sau
@@ -656,6 +453,42 @@ public class LoginActivity extends BaseActivity {
     @Override
     protected boolean shouldCheckSession() {
         return false;
+    }
+    
+    /**
+     * Toggle password visibility
+     */
+    private void togglePasswordVisibility() {
+        if (etPassword == null || ivTogglePassword == null) return;
+        
+        isPasswordVisible = !isPasswordVisible;
+        if (isPasswordVisible) {
+            etPassword.setInputType(android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+            ivTogglePassword.setImageResource(R.drawable.ic_visibility);
+        } else {
+            etPassword.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
+            ivTogglePassword.setImageResource(R.drawable.ic_visibility_off);
+        }
+        // Move cursor to end
+        etPassword.setSelection(etPassword.getText().length());
+    }
+    
+    /**
+     * Hiển thị dialog thông báo không có quyền truy cập (chỉ dành cho Officer)
+     */
+    private void showAccessDeniedDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Truy cập bị từ chối")
+                .setMessage("Tài khoản của bạn không có quyền truy cập vào hệ thống quản trị.\n\nChỉ tài khoản Officer mới được phép đăng nhập.")
+                .setIcon(R.drawable.ic_error)
+                .setPositiveButton("Đã hiểu", (dialog, which) -> {
+                    // Clear password field
+                    if (etPassword != null) {
+                        etPassword.setText("");
+                    }
+                })
+                .setCancelable(false)
+                .show();
     }
 }
 
