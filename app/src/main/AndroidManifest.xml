@@ -210,6 +210,26 @@
             android:name="com.example.mobilebanking.activities.MortgageDetailActivity"
             android:parentActivityName="com.example.mobilebanking.activities.AccountActivity" />
 
+        <activity
+            android:name="com.example.mobilebanking.activities.PaymentScheduleActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.MortgageDetailActivity" />
+
+        <activity
+            android:name="com.example.mobilebanking.activities.MortgagePaymentConfirmActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.PaymentScheduleActivity" />
+
+        <activity
+            android:name="com.example.mobilebanking.activities.MortgagePaymentSuccessActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.MortgagePaymentConfirmActivity" />
+
+        <activity
+            android:name="com.example.mobilebanking.activities.MortgageSettlementConfirmActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.MortgageDetailActivity" />
+
+        <activity
+            android:name="com.example.mobilebanking.activities.MortgageSettlementSuccessActivity"
+            android:parentActivityName="com.example.mobilebanking.activities.MortgageSettlementConfirmActivity" />
+
         <!-- VNPay Payment -->
         <activity
             android:name="com.example.mobilebanking.activities.VNPayWebViewActivity"

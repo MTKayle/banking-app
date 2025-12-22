@@ -120,6 +120,17 @@ public interface AccountApiService {
      */
     @POST("accounts/checking/qr-code")
     Call<ResponseBody> getCheckingQRCode(@Body QRCodeRequest request);
+    
+    /**
+     * Thanh toán kỳ hiện tại của khoản vay
+     */
+    @POST("mortgage/payment/current")
+    Call<MortgageAccountDTO> payCurrentPeriod(@Body com.example.mobilebanking.api.dto.MortgagePaymentRequest request);
+    
+    /**
+     * Tất toán khoản vay
+     * Endpoint: http://localhost:8089/api/mortgage/payment
+     */
+    @POST("mortgage/payment")
+    Call<MortgageAccountDTO> settleMortgage(@Body com.example.mobilebanking.api.dto.MortgagePaymentRequest request);
 }
-
-

@@ -410,21 +410,117 @@ public class FaceVerificationTransactionActivity extends AppCompatActivity {
             otpIntent.putExtra("ACCOUNT_NUMBER", currentIntent.getStringExtra("ACCOUNT_NUMBER"));
             otpIntent.putExtra("BILLING_PERIOD", currentIntent.getStringExtra("BILLING_PERIOD"));
             
+        } else if ("MORTGAGE_PAYMENT".equals(from)) {
+            // Mortgage payment flow
+            String userPhone = dataManager.getUserPhone();
+            if (userPhone == null || userPhone.isEmpty()) {
+                userPhone = dataManager.getLastUsername();
+            }
+            
+            Log.d(TAG, "MORTGAGE_PAYMENT - Phone for OTP: " + userPhone);
+            
+            otpIntent.putExtra("PHONE_NUMBER", userPhone);
+            otpIntent.putExtra("FROM_ACTIVITY", "MORTGAGE_PAYMENT");
+            
+            // Pass all mortgage payment data
+            otpIntent.putExtra("MORTGAGE_ID", currentIntent.getLongExtra("MORTGAGE_ID", 0));
+            otpIntent.putExtra("PAYMENT_AMOUNT", currentIntent.getDoubleExtra("PAYMENT_AMOUNT", 0));
+            otpIntent.putExtra("PAYMENT_ACCOUNT", currentIntent.getStringExtra("PAYMENT_ACCOUNT"));
+            otpIntent.putExtra("MORTGAGE_ACCOUNT", currentIntent.getStringExtra("MORTGAGE_ACCOUNT"));
+            otpIntent.putExtra("PERIOD_NUMBER", currentIntent.getIntExtra("PERIOD_NUMBER", 0));
+            
+        } else if ("MORTGAGE_SETTLEMENT".equals(from)) {
+            // Mortgage settlement flow
+            String userPhone = dataManager.getUserPhone();
+            if (userPhone == null || userPhone.isEmpty()) {
+                userPhone = dataManager.getLastUsername();
+            }
+            
+            Log.d(TAG, "MORTGAGE_SETTLEMENT - Phone for OTP: " + userPhone);
+            
+            otpIntent.putExtra("PHONE_NUMBER", userPhone);
+            otpIntent.putExtra("FROM_ACTIVITY", "MORTGAGE_SETTLEMENT");
+            
+            // Pass all mortgage settlement data
+            otpIntent.putExtra("MORTGAGE_ID", currentIntent.getLongExtra("MORTGAGE_ID", 0));
+            otpIntent.putExtra("SETTLEMENT_AMOUNT", currentIntent.getDoubleExtra("SETTLEMENT_AMOUNT", 0));
+            otpIntent.putExtra("PAYMENT_ACCOUNT", currentIntent.getStringExtra("PAYMENT_ACCOUNT"));
+            otpIntent.putExtra("MORTGAGE_ACCOUNT", currentIntent.getStringExtra("MORTGAGE_ACCOUNT"));
+            
+        } else if ("transaction".equals(from)) {
+            // Transfer transaction flow
+            String transactionCode = currentIntent.getStringExtra("transaction_code");
+            String toAccount = currentIntent.getStringExtra("to_account");
+            String toName = currentIntent.getStringExtra("to_name");
+            String note = currentIntent.getStringExtra("note");
+            String bank = currentIntent.getStringExtra("bank");
+            double amount = currentIntent.getDoubleExtra("amount", 0);
+            String userPhone = currentIntent.getStringExtra("userPhone");
+            
+            // Get phone from DataManager if not provided
+            if (userPhone == null || userPhone.isEmpty()) {
+                userPhone = dataManager.getUserPhone();
+                if (userPhone == null || userPhone.isEmpty()) {
+                    userPhone = dataManager.getLastUsername();
+                }
+            }
+            
+            Log.d(TAG, "Transfer - Phone for OTP: " + userPhone);
+            Log.d(TAG, "Transfer - Transaction Code: " + transactionCode);
+            Log.d(TAG, "Transfer - Bank: " + bank);
+            
+            otpIntent.putExtra("from", "transaction");
+            otpIntent.putExtra("phone", userPhone);
+            
+            // Pass all transaction data
+            otpIntent.putExtra("transaction_code", transactionCode);
+            otpIntent.putExtra("amount", amount);
+            otpIntent.putExtra("to_account", toAccount);
+            otpIntent.putExtra("to_name", toName);
+            otpIntent.putExtra("note", note);
+            otpIntent.putExtra("bank", bank);
+            
         } else {
-            // Transfer or other transaction flow (existing logic)
+            // Legacy or unknown flow - try to get data from old field names
             String recipientAccount = currentIntent.getStringExtra("recipientAccount");
             String recipientName = currentIntent.getStringExtra("recipientName");
             String recipientBank = currentIntent.getStringExtra("recipientBank");
             double amount = currentIntent.getDoubleExtra("amount", 0);
             String description = currentIntent.getStringExtra("description");
             String userPhone = currentIntent.getStringExtra("userPhone");
+            String transactionCode = currentIntent.getStringExtra("transaction_code");
+            String toAccount = currentIntent.getStringExtra("to_account");
+            String toName = currentIntent.getStringExtra("to_name");
+            String note = currentIntent.getStringExtra("note");
+            String bank = currentIntent.getStringExtra("bank");
             
-            otpIntent.putExtra("from", "transfer");
+            // Get phone from DataManager if not provided
+            if (userPhone == null || userPhone.isEmpty()) {
+                userPhone = dataManager.getUserPhone();
+                if (userPhone == null || userPhone.isEmpty()) {
+                    userPhone = dataManager.getLastUsername();
+                }
+            }
+            
+            Log.d(TAG, "Transfer - Phone for OTP: " + userPhone);
+            Log.d(TAG, "Transfer - Transaction Code: " + transactionCode);
+            Log.d(TAG, "Transfer - Bank: " + bank);
+            
+            otpIntent.putExtra("from", "transaction");
             otpIntent.putExtra("phone", userPhone);
+            
+            // Pass all transaction data
+            otpIntent.putExtra("transaction_code", transactionCode);
+            otpIntent.putExtra("amount", amount);
+            otpIntent.putExtra("to_account", toAccount != null ? toAccount : recipientAccount);
+            otpIntent.putExtra("to_name", toName != null ? toName : recipientName);
+            otpIntent.putExtra("note", note != null ? note : description);
+            otpIntent.putExtra("bank", bank != null ? bank : recipientBank);
+            
+            // Legacy fields for backward compatibility
             otpIntent.putExtra("recipientAccount", recipientAccount);
             otpIntent.putExtra("recipientName", recipientName);
             otpIntent.putExtra("recipientBank", recipientBank);
-            otpIntent.putExtra("amount", amount);
             otpIntent.putExtra("description", description);
         }
         

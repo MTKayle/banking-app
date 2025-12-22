@@ -13,6 +13,9 @@
     <color name="green_background_light">#E8F5E9</color>
     <color name="green_background_lighter">#F1F8E9</color>
     <color name="green_card_transparent">#B0E8B0</color>
+    
+    <!-- Blue Theme Colors -->
+    <color name="blue_background_light">#E3F2FD</color>
 
     <!-- Background Colors -->
     <color name="background_color">#F5F5F5</color>

@@ -200,8 +200,11 @@ public class MortgageDetailActivity extends AppCompatActivity {
             tvRemainingCount.setText(String.valueOf(remainingCount));
             
             btnViewSchedule.setOnClickListener(v -> {
-                // TODO: Navigate to payment schedule detail screen
-                Toast.makeText(this, "Chức năng đang phát triển", Toast.LENGTH_SHORT).show();
+                // Navigate to payment schedule detail screen
+                Intent intent = new Intent(MortgageDetailActivity.this, PaymentScheduleActivity.class);
+                intent.putExtra("MORTGAGE_ID", mortgageId);
+                intent.putExtra("MORTGAGE_ACCOUNT", mortgageDetail.getAccountNumber());
+                startActivity(intent);
             });
         } else {
             cardPaymentSchedule.setVisibility(View.GONE);

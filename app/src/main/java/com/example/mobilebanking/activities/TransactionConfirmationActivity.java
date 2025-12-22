@@ -401,7 +401,28 @@ public class TransactionConfirmationActivity extends AppCompatActivity {
             // Navigate to face verification first
             Intent faceIntent = new Intent(TransactionConfirmationActivity.this, 
                     FaceVerificationTransactionActivity.class);
-            startActivityForResult(faceIntent, REQUEST_FACE_VERIFICATION);
+            
+            // Pass all transaction data to face verification
+            faceIntent.putExtra("from", "transaction"); // Important: set the flow type
+            faceIntent.putExtra("transaction_code", transactionCode);
+            faceIntent.putExtra("amount", amount);
+            faceIntent.putExtra("to_account", originalIntent.getStringExtra("to_account"));
+            faceIntent.putExtra("to_name", originalIntent.getStringExtra("to_name"));
+            faceIntent.putExtra("note", originalIntent.getStringExtra("note"));
+            faceIntent.putExtra("bank", originalIntent.getStringExtra("bank"));
+            
+            // Get phone from DataManager
+            String userPhone = dataManager.getUserPhone();
+            if (userPhone == null || userPhone.isEmpty()) {
+                userPhone = dataManager.getLastUsername();
+            }
+            faceIntent.putExtra("userPhone", userPhone);
+            
+            Log.d(TAG, "Passing to face verification - Transaction Code: " + transactionCode);
+            Log.d(TAG, "Passing to face verification - Bank: " + originalIntent.getStringExtra("bank"));
+            
+            startActivity(faceIntent);
+            finish(); // Finish this activity so user can't go back
         } else {
             // Proceed directly to OTP
             proceedToOTP();
@@ -412,8 +433,17 @@ public class TransactionConfirmationActivity extends AppCompatActivity {
      * Proceed to OTP verification
      */
     private void proceedToOTP() {
+        // Get phone from DataManager
+        DataManager dataManager = DataManager.getInstance(this);
+        String userPhone = dataManager.getUserPhone();
+        if (userPhone == null || userPhone.isEmpty()) {
+            userPhone = dataManager.getLastUsername();
+        }
+        
+        Log.d(TAG, "Transfer - Phone for OTP: " + userPhone);
+        
         Intent intent = new Intent(TransactionConfirmationActivity.this, OtpVerificationActivity.class);
-        intent.putExtra("phone", "0901234567");
+        intent.putExtra("phone", userPhone);
         intent.putExtra("from", "transaction");
 
         // Pass all transaction data to OTP activity
@@ -428,21 +458,6 @@ public class TransactionConfirmationActivity extends AppCompatActivity {
         startActivity(intent);
     }
     
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @androidx.annotation.Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        
-        if (requestCode == REQUEST_FACE_VERIFICATION) {
-            if (resultCode == RESULT_OK) {
-                // Face verification successful, proceed to OTP
-                proceedToOTP();
-            } else {
-                // Face verification failed or cancelled
-                Toast.makeText(this, "Xác thực khuôn mặt thất bại", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
     // Helper: insert dots as thousand separators
     private String formatWithDots(String digits) {
         if (digits == null || digits.isEmpty()) return "0";

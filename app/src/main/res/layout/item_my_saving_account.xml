@@ -38,7 +38,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Đang hoạt động"
-                android:textColor="@color/bidv_success"
+                android:textColor="#FFFFFF"
                 android:textSize="12sp"
                 android:background="@drawable/bg_status_active"
                 android:paddingHorizontal="12dp"
@@ -144,7 +144,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:orientation="horizontal"
-            android:background="#FFF3E0"
+            android:background="@color/green_background_light"
             android:padding="12dp">
 
             <LinearLayout

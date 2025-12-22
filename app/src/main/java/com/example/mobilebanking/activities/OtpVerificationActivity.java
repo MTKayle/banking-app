@@ -82,23 +82,43 @@ public class OtpVerificationActivity extends AppCompatActivity {
         phoneNumber = getIntent().getStringExtra("phone");
         fromActivity = getIntent().getStringExtra("from");
         
+        Log.d(TAG, "Step 1 - phone: " + phoneNumber + ", from: " + fromActivity);
+        
         // Lấy flow từ intent (ưu tiên "flow" và "verificationType" hơn "from")
         String flow = getIntent().getStringExtra("flow");
         if (flow != null && !flow.isEmpty()) {
             fromActivity = flow;
+            Log.d(TAG, "Step 2 - Updated fromActivity from flow: " + fromActivity);
         }
         
         // Lấy verificationType (dùng cho SAVING, BILL_PAYMENT, etc.)
         String verificationType = getIntent().getStringExtra("verificationType");
         if (verificationType != null && !verificationType.isEmpty()) {
             fromActivity = verificationType;
+            Log.d(TAG, "Step 3 - Updated fromActivity from verificationType: " + fromActivity);
+        }
+        
+        // Lấy FROM_ACTIVITY (dùng cho MORTGAGE_PAYMENT, etc.)
+        String fromActivityKey = getIntent().getStringExtra("FROM_ACTIVITY");
+        Log.d(TAG, "Step 4 - FROM_ACTIVITY key value: " + fromActivityKey);
+        if (fromActivityKey != null && !fromActivityKey.isEmpty()) {
+            fromActivity = fromActivityKey;
+            Log.d(TAG, "Step 5 - Updated fromActivity from FROM_ACTIVITY: " + fromActivity);
+        }
+        
+        // Lấy PHONE_NUMBER nếu có
+        String phoneNumberKey = getIntent().getStringExtra("PHONE_NUMBER");
+        Log.d(TAG, "Step 6 - PHONE_NUMBER key value: " + phoneNumberKey);
+        if (phoneNumberKey != null && !phoneNumberKey.isEmpty()) {
+            phoneNumber = phoneNumberKey;
+            Log.d(TAG, "Step 7 - Updated phoneNumber from PHONE_NUMBER: " + phoneNumber);
         }
         
         // Lấy password nếu là login_verification flow
         password = getIntent().getStringExtra("password");
 
         // Debug log
-        Log.d(TAG, "OTP Verification - fromActivity: " + fromActivity + ", phone: " + phoneNumber);
+        Log.d(TAG, "FINAL - OTP Verification - fromActivity: " + fromActivity + ", phone: " + phoneNumber);
 
         // Initialize SMS service
         smsService = new SmsService(this);
@@ -127,6 +147,15 @@ public class OtpVerificationActivity extends AppCompatActivity {
             sendOtpWithGoixe();
         } else if ("SAVING".equals(fromActivity)) {
             // Luồng tạo sổ tiết kiệm - gửi OTP với Goixe247
+            sendOtpWithGoixe();
+        } else if ("SAVING_WITHDRAW".equals(fromActivity)) {
+            // Luồng rút tiền tiết kiệm - gửi OTP với Goixe247
+            sendOtpWithGoixe();
+        } else if ("MORTGAGE_PAYMENT".equals(fromActivity)) {
+            // Luồng thanh toán kỳ vay - gửi OTP với Goixe247
+            sendOtpWithGoixe();
+        } else if ("MORTGAGE_SETTLEMENT".equals(fromActivity)) {
+            // Luồng tất toán khoản vay - gửi OTP với Goixe247
             sendOtpWithGoixe();
         } else if ("register".equals(fromActivity)) {
             // Luồng đăng ký - dùng Goixe247
@@ -531,6 +560,14 @@ public class OtpVerificationActivity extends AppCompatActivity {
             resultIntent.putExtra("OTP_VERIFIED", true);
             setResult(RESULT_OK, resultIntent);
             finish();
+        } else if ("MORTGAGE_PAYMENT".equals(fromActivity)) {
+            // Xác thực thành công → Gọi API thanh toán kỳ vay
+            Log.d(TAG, "MORTGAGE_PAYMENT - Processing payment");
+            processMortgagePayment();
+        } else if ("MORTGAGE_SETTLEMENT".equals(fromActivity)) {
+            // Xác thực thành công → Gọi API tất toán khoản vay
+            Log.d(TAG, "MORTGAGE_SETTLEMENT - Processing settlement");
+            processMortgageSettlement();
         } else if ("login_verification".equals(fromActivity)) {
             // Xác thực thành công → Đăng nhập
             performLogin();
@@ -1109,5 +1146,138 @@ public class OtpVerificationActivity extends AppCompatActivity {
         if (countDownTimer != null) {
             countDownTimer.cancel();
         }
+    }
+    
+    /**
+     * Process mortgage payment after OTP verification
+     */
+    private void processMortgagePayment() {
+        Long mortgageId = getIntent().getLongExtra("MORTGAGE_ID", 0);
+        Double paymentAmount = getIntent().getDoubleExtra("PAYMENT_AMOUNT", 0);
+        String paymentAccount = getIntent().getStringExtra("PAYMENT_ACCOUNT");
+        String mortgageAccount = getIntent().getStringExtra("MORTGAGE_ACCOUNT");
+        Integer periodNumber = getIntent().getIntExtra("PERIOD_NUMBER", 0);
+        
+        if (mortgageId == 0 || paymentAmount == 0 || paymentAccount == null) {
+            Toast.makeText(this, "Lỗi: Thiếu thông tin thanh toán", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        // Show loading
+        if (progressBar != null) {
+            progressBar.setVisibility(android.view.View.VISIBLE);
+        }
+        btnVerify.setEnabled(false);
+        
+        // Create request
+        com.example.mobilebanking.api.dto.MortgagePaymentRequest request = 
+                new com.example.mobilebanking.api.dto.MortgagePaymentRequest(
+                        mortgageId, paymentAmount, paymentAccount);
+        
+        // Call API
+        com.example.mobilebanking.api.AccountApiService service = ApiClient.getAccountApiService();
+        service.payCurrentPeriod(request).enqueue(new Callback<com.example.mobilebanking.api.dto.MortgageAccountDTO>() {
+            @Override
+            public void onResponse(Call<com.example.mobilebanking.api.dto.MortgageAccountDTO> call, 
+                                   Response<com.example.mobilebanking.api.dto.MortgageAccountDTO> response) {
+                if (progressBar != null) {
+                    progressBar.setVisibility(android.view.View.GONE);
+                }
+                btnVerify.setEnabled(true);
+                
+                if (response.isSuccessful() && response.body() != null) {
+                    com.example.mobilebanking.api.dto.MortgageAccountDTO result = response.body();
+                    
+                    // Chuyển sang màn hình thành công
+                    Intent intent = new Intent(OtpVerificationActivity.this, MortgagePaymentSuccessActivity.class);
+                    intent.putExtra("MORTGAGE_ACCOUNT", mortgageAccount);
+                    intent.putExtra("PERIOD_NUMBER", periodNumber);
+                    intent.putExtra("PAYMENT_AMOUNT", paymentAmount);
+                    intent.putExtra("PAYMENT_ACCOUNT", paymentAccount);
+                    intent.putExtra("REMAINING_BALANCE", result.getRemainingBalance());
+                    startActivity(intent);
+                    finish();
+                } else {
+                    Toast.makeText(OtpVerificationActivity.this, 
+                            "Thanh toán thất bại. Vui lòng thử lại.", Toast.LENGTH_LONG).show();
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<com.example.mobilebanking.api.dto.MortgageAccountDTO> call, Throwable t) {
+                if (progressBar != null) {
+                    progressBar.setVisibility(android.view.View.GONE);
+                }
+                btnVerify.setEnabled(true);
+                
+                Toast.makeText(OtpVerificationActivity.this, 
+                        "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+    
+    /**
+     * Process mortgage settlement after OTP verification
+     */
+    private void processMortgageSettlement() {
+        Long mortgageId = getIntent().getLongExtra("MORTGAGE_ID", 0);
+        Double settlementAmount = getIntent().getDoubleExtra("SETTLEMENT_AMOUNT", 0);
+        String paymentAccount = getIntent().getStringExtra("PAYMENT_ACCOUNT");
+        String mortgageAccount = getIntent().getStringExtra("MORTGAGE_ACCOUNT");
+        
+        if (mortgageId == 0 || settlementAmount == 0 || paymentAccount == null) {
+            Toast.makeText(this, "Lỗi: Thiếu thông tin tất toán", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        // Show loading
+        if (progressBar != null) {
+            progressBar.setVisibility(android.view.View.VISIBLE);
+        }
+        btnVerify.setEnabled(false);
+        
+        // Create request
+        com.example.mobilebanking.api.dto.MortgagePaymentRequest request = 
+                new com.example.mobilebanking.api.dto.MortgagePaymentRequest(
+                        mortgageId, settlementAmount, paymentAccount);
+        
+        // Call API
+        com.example.mobilebanking.api.AccountApiService service = ApiClient.getAccountApiService();
+        service.settleMortgage(request).enqueue(new Callback<com.example.mobilebanking.api.dto.MortgageAccountDTO>() {
+            @Override
+            public void onResponse(Call<com.example.mobilebanking.api.dto.MortgageAccountDTO> call, 
+                                   Response<com.example.mobilebanking.api.dto.MortgageAccountDTO> response) {
+                if (progressBar != null) {
+                    progressBar.setVisibility(android.view.View.GONE);
+                }
+                btnVerify.setEnabled(true);
+                
+                if (response.isSuccessful() && response.body() != null) {
+                    com.example.mobilebanking.api.dto.MortgageAccountDTO result = response.body();
+                    
+                    // Chuyển sang màn hình thành công
+                    Intent intent = new Intent(OtpVerificationActivity.this, MortgageSettlementSuccessActivity.class);
+                    intent.putExtra("MORTGAGE_ACCOUNT", mortgageAccount);
+                    intent.putExtra("SETTLEMENT_AMOUNT", settlementAmount);
+                    intent.putExtra("PAYMENT_ACCOUNT", paymentAccount);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    Toast.makeText(OtpVerificationActivity.this, 
+                            "Tất toán thất bại. Vui lòng thử lại.", Toast.LENGTH_LONG).show();
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<com.example.mobilebanking.api.dto.MortgageAccountDTO> call, Throwable t) {
+                if (progressBar != null) {
+                    progressBar.setVisibility(android.view.View.GONE);
+                }
+                btnVerify.setEnabled(true);
+                
+                Toast.makeText(OtpVerificationActivity.this, 
+                        "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }
