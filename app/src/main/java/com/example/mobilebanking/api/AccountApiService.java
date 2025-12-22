@@ -49,6 +49,14 @@ public interface AccountApiService {
     Call<List<MortgageAccountDTO>> getMortgageAccounts(@Path("userId") Long userId);
     
     /**
+     * Lấy danh sách khoản vay theo userId (API mới)
+     * Header cần có: Authorization: Bearer {token}
+     * Endpoint: http://localhost:8089/api/mortgage/user/{userId}
+     */
+    @GET("mortgage/user/{userId}")
+    Call<List<MortgageAccountDTO>> getMortgagesByUserId(@Path("userId") Long userId);
+    
+    /**
      * Lấy thông tin chi tiết tài khoản theo accountNumber
      * Header cần có: Authorization: Bearer {token}
      */

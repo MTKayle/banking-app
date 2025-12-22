@@ -6,153 +6,56 @@
     android:orientation="vertical"
     android:background="@color/bidv_bg_light">
 
-    <!-- Header card Vay nhanh -->
+    <!-- Search Bar -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="4dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bidv_gradient_teal"
-            android:orientation="horizontal"
-            android:padding="16dp"
-            android:gravity="center_vertical">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Vay nhanh"
-                    android:textColor="@android:color/white"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="• Phê duyệt nhanh chóng"
-                    android:textColor="@android:color/white"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="• Lãi suất cạnh tranh"
-                    android:textColor="@android:color/white"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="• Duyệt MỞ lần đến tiền quầy"
-                    android:textColor="@android:color/white"
-                    android:textSize="12sp" />
-
-                <Button
-                    android:id="@+id/btn_create_mortgage"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:backgroundTint="@android:color/white"
-                    android:text="Mở tài khoản"
-                    android:textColor="@color/bidv_primary"
-                    android:textSize="12sp"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="8dp" />
-            </LinearLayout>
-
-            <ImageView
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_marginStart="16dp"
-                android:src="@drawable/ic_lock"
-                app:tint="@android:color/white"
-                android:contentDescription="Money Bag" />
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <!-- Header card Vay cầm cố -->
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginBottom="16dp"
-        app:cardCornerRadius="12dp"
+        app:cardCornerRadius="24dp"
         app:cardElevation="2dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="16dp"
-            android:gravity="center_vertical">
-
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_lock"
-                app:tint="@color/bidv_accent"
-                android:contentDescription="Collateral" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="12dp"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Vay cầm cố tiền gửi"
-                    android:textColor="@color/bidv_text_dark"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Đăng ký online"
-                    android:textColor="@color/bidv_text_gray"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Giải ngân liền tay"
-                    android:textColor="@color/bidv_text_gray"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Lãi suất cạnh tranh"
-                    android:textColor="@color/bidv_text_gray"
-                    android:textSize="12sp" />
-            </LinearLayout>
+            android:padding="12dp"
+            android:gravity="center_vertical"
+            android:background="@color/bidv_bg_gray">
 
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_back_arrow"
-                android:rotation="180"
+                android:src="@android:drawable/ic_menu_search"
                 app:tint="@color/bidv_text_gray"
-                android:contentDescription="Arrow" />
+                android:contentDescription="Search" />
+
+            <EditText
+                android:id="@+id/et_search"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:background="@android:color/transparent"
+                android:hint="Tìm kiếm theo tên, số tài khoản..."
+                android:textSize="14sp"
+                android:textColorHint="@color/bidv_text_gray"
+                android:inputType="text"
+                android:maxLines="1" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+
+    <!-- Tab Layout -->
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tab_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        app:tabMode="scrollable"
+        app:tabIndicatorColor="@color/bidv_primary"
+        app:tabSelectedTextColor="@color/bidv_primary"
+        app:tabTextColor="@color/bidv_text_gray"
+        app:tabIndicatorHeight="3dp"
+        app:tabTextAppearance="@style/TabTextStyle" />
 
     <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
@@ -161,6 +64,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:paddingHorizontal="16dp"
+        android:paddingTop="8dp"
         android:clipToPadding="false" />
 
     <!-- Empty state -->
@@ -202,4 +106,3 @@
     </LinearLayout>
 
 </LinearLayout>
-

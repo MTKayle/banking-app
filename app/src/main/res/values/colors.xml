@@ -118,4 +118,5 @@
     <color name="bidv_yellow_start">#FFC107</color>
     <color name="bidv_yellow_end">#FFD54F</color>
     <color name="white_transparent">#80FFFFFF</color>
+    <color name="bidv_bg_gray">#EEEEEE</color>
 </resources>

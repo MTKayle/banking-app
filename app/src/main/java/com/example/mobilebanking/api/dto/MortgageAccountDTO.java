@@ -5,65 +5,77 @@ package com.example.mobilebanking.api.dto;
  * Maps với response từ /api/mortgage/user/{userId}
  */
 public class MortgageAccountDTO {
-    private Long mortgageAccountId;
-    private String mortgageAccountNumber;
-    private Double loanAmount;
-    private Double remainingBalance;
-    private Integer termMonths;
+    private Long mortgageId;
+    private String accountNumber;
+    private String customerName;
+    private String customerPhone;
+    private Double principalAmount;
     private Double interestRate;
-    private String status; // ACTIVE, PENDING_APPRAISAL, COMPLETED
-    private String collateralType; // NHA, DAT, XE
+    private Integer termMonths;
     private String startDate;
+    private String status; // PENDING_APPRAISAL, ACTIVE, REJECTED, COMPLETED
+    private String collateralType; // HOUSE, CAR, LAND
+    private String collateralDescription;
+    private String cccdFrontUrl;
+    private String cccdBackUrl;
+    private String collateralDocumentUrls;
+    private String paymentFrequency;
+    private String rejectionReason;
+    private String createdDate;
+    private String approvalDate;
+    private Double remainingBalance;
+    private Double earlySettlementAmount;
 
     public MortgageAccountDTO() {
     }
 
-    public MortgageAccountDTO(Long mortgageAccountId, String mortgageAccountNumber, 
-                             Double loanAmount, Double remainingBalance, 
-                             Integer termMonths, Double interestRate, String status, 
-                             String collateralType, String startDate) {
-        this.mortgageAccountId = mortgageAccountId;
-        this.mortgageAccountNumber = mortgageAccountNumber;
-        this.loanAmount = loanAmount;
-        this.remainingBalance = remainingBalance;
-        this.termMonths = termMonths;
-        this.interestRate = interestRate;
-        this.status = status;
-        this.collateralType = collateralType;
-        this.startDate = startDate;
-    }
-
     // Getters and Setters
-    public Long getMortgageAccountId() {
-        return mortgageAccountId;
+    public Long getMortgageId() {
+        return mortgageId;
     }
 
-    public void setMortgageAccountId(Long mortgageAccountId) {
-        this.mortgageAccountId = mortgageAccountId;
+    public void setMortgageId(Long mortgageId) {
+        this.mortgageId = mortgageId;
     }
 
-    public String getMortgageAccountNumber() {
-        return mortgageAccountNumber;
+    public String getAccountNumber() {
+        return accountNumber;
     }
 
-    public void setMortgageAccountNumber(String mortgageAccountNumber) {
-        this.mortgageAccountNumber = mortgageAccountNumber;
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
     }
 
-    public Double getLoanAmount() {
-        return loanAmount;
+    public String getCustomerName() {
+        return customerName;
     }
 
-    public void setLoanAmount(Double loanAmount) {
-        this.loanAmount = loanAmount;
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
     }
 
-    public Double getRemainingBalance() {
-        return remainingBalance;
+    public String getCustomerPhone() {
+        return customerPhone;
     }
 
-    public void setRemainingBalance(Double remainingBalance) {
-        this.remainingBalance = remainingBalance;
+    public void setCustomerPhone(String customerPhone) {
+        this.customerPhone = customerPhone;
+    }
+
+    public Double getPrincipalAmount() {
+        return principalAmount;
+    }
+
+    public void setPrincipalAmount(Double principalAmount) {
+        this.principalAmount = principalAmount;
+    }
+
+    public Double getInterestRate() {
+        return interestRate;
+    }
+
+    public void setInterestRate(Double interestRate) {
+        this.interestRate = interestRate;
     }
 
     public Integer getTermMonths() {
@@ -74,12 +86,12 @@ public class MortgageAccountDTO {
         this.termMonths = termMonths;
     }
 
-    public Double getInterestRate() {
-        return interestRate;
+    public String getStartDate() {
+        return startDate;
     }
 
-    public void setInterestRate(Double interestRate) {
-        this.interestRate = interestRate;
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
     }
 
     public String getStatus() {
@@ -98,12 +110,84 @@ public class MortgageAccountDTO {
         this.collateralType = collateralType;
     }
 
-    public String getStartDate() {
-        return startDate;
+    public String getCollateralDescription() {
+        return collateralDescription;
     }
 
-    public void setStartDate(String startDate) {
-        this.startDate = startDate;
+    public void setCollateralDescription(String collateralDescription) {
+        this.collateralDescription = collateralDescription;
+    }
+
+    public String getCccdFrontUrl() {
+        return cccdFrontUrl;
+    }
+
+    public void setCccdFrontUrl(String cccdFrontUrl) {
+        this.cccdFrontUrl = cccdFrontUrl;
+    }
+
+    public String getCccdBackUrl() {
+        return cccdBackUrl;
+    }
+
+    public void setCccdBackUrl(String cccdBackUrl) {
+        this.cccdBackUrl = cccdBackUrl;
+    }
+
+    public String getCollateralDocumentUrls() {
+        return collateralDocumentUrls;
+    }
+
+    public void setCollateralDocumentUrls(String collateralDocumentUrls) {
+        this.collateralDocumentUrls = collateralDocumentUrls;
+    }
+
+    public String getPaymentFrequency() {
+        return paymentFrequency;
+    }
+
+    public void setPaymentFrequency(String paymentFrequency) {
+        this.paymentFrequency = paymentFrequency;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
+    }
+
+    public String getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(String createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public String getApprovalDate() {
+        return approvalDate;
+    }
+
+    public void setApprovalDate(String approvalDate) {
+        this.approvalDate = approvalDate;
+    }
+
+    public Double getRemainingBalance() {
+        return remainingBalance;
+    }
+
+    public void setRemainingBalance(Double remainingBalance) {
+        this.remainingBalance = remainingBalance;
+    }
+
+    public Double getEarlySettlementAmount() {
+        return earlySettlementAmount;
+    }
+
+    public void setEarlySettlementAmount(Double earlySettlementAmount) {
+        this.earlySettlementAmount = earlySettlementAmount;
     }
 }
 

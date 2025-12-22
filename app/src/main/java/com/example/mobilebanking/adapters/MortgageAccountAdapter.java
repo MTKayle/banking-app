@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -30,7 +31,7 @@ public class MortgageAccountAdapter extends RecyclerView.Adapter<MortgageAccount
     public MortgageAccountAdapter(Context context, List<MortgageAccountDTO> mortgageAccounts) {
         this.context = context;
         this.mortgageAccounts = mortgageAccounts;
-        this.currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+        this.currencyFormatter = NumberFormat.getInstance(new Locale("vi", "VN"));
         this.dateFormatter = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
     }
     
@@ -45,21 +46,37 @@ public class MortgageAccountAdapter extends RecyclerView.Adapter<MortgageAccount
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         MortgageAccountDTO account = mortgageAccounts.get(position);
         
-        holder.tvMortgageNumber.setText(account.getMortgageAccountNumber());
-        holder.tvStatus.setText(account.getStatus());
-        holder.tvLoanAmount.setText(currencyFormatter.format(account.getLoanAmount()));
-        holder.tvRemainingBalance.setText(currencyFormatter.format(account.getRemainingBalance()));
-        holder.tvTerm.setText(String.format("%d tháng", account.getTermMonths()));
-        holder.tvInterestRate.setText(String.format("%.2f%%/năm", account.getInterestRate()));
+        // Account Number
+        holder.tvAccountNumber.setText(account.getAccountNumber());
+        
+        // Created Date
+        holder.tvCreatedDate.setText(formatDate(account.getCreatedDate()));
+        
+        // Customer Info
+        holder.tvCustomerName.setText(account.getCustomerName());
+        holder.tvCustomerPhone.setText(account.getCustomerPhone());
+        
+        // Principal Amount
+        if (account.getPrincipalAmount() != null && account.getPrincipalAmount() > 0) {
+            holder.tvPrincipalAmount.setText(formatCurrency(account.getPrincipalAmount()));
+        } else {
+            holder.tvPrincipalAmount.setText("Chờ thỏa thuận");
+        }
+        
+        // Collateral Type
         holder.tvCollateralType.setText(formatCollateralType(account.getCollateralType()));
         
-        // Format date
-        try {
-            if (account.getStartDate() != null) {
-                holder.tvStartDate.setText(formatDate(account.getStartDate()));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        // Status Badge
+        String status = account.getStatus();
+        holder.tvStatusBadge.setText(formatStatus(status));
+        holder.tvStatusBadge.setBackgroundResource(getStatusBackground(status));
+        
+        // Rejection Reason (only for REJECTED status)
+        if ("REJECTED".equals(status) && account.getRejectionReason() != null) {
+            holder.layoutRejectionReason.setVisibility(View.VISIBLE);
+            holder.tvRejectionReason.setText(account.getRejectionReason());
+        } else {
+            holder.layoutRejectionReason.setVisibility(View.GONE);
         }
     }
     
@@ -68,22 +85,59 @@ public class MortgageAccountAdapter extends RecyclerView.Adapter<MortgageAccount
         return mortgageAccounts.size();
     }
     
+    private String formatCurrency(Double amount) {
+        return currencyFormatter.format(amount) + " đ";
+    }
+    
     private String formatCollateralType(String type) {
+        if (type == null) return "";
         switch (type) {
-            case "NHA":
-                return "Nhà";
-            case "DAT":
-                return "Đất";
-            case "XE":
+            case "HOUSE":
+                return "Nhà ở";
+            case "CAR":
                 return "Xe";
+            case "LAND":
+                return "Đất";
             default:
                 return type;
         }
     }
     
+    private String formatStatus(String status) {
+        if (status == null) return "";
+        switch (status) {
+            case "PENDING_APPRAISAL":
+                return "Chờ duyệt";
+            case "ACTIVE":
+                return "Đang vay";
+            case "REJECTED":
+                return "Từ chối";
+            case "COMPLETED":
+                return "Hoàn thành";
+            default:
+                return status;
+        }
+    }
+    
+    private int getStatusBackground(String status) {
+        if (status == null) return R.drawable.bg_status_pending;
+        switch (status) {
+            case "PENDING_APPRAISAL":
+                return R.drawable.bg_status_pending;
+            case "ACTIVE":
+                return R.drawable.bg_status_active;
+            case "REJECTED":
+                return R.drawable.bg_status_rejected;
+            case "COMPLETED":
+                return R.drawable.bg_status_completed;
+            default:
+                return R.drawable.bg_status_pending;
+        }
+    }
+    
     private String formatDate(String isoDate) {
+        if (isoDate == null) return "";
         try {
-            // Parse ISO date format (YYYY-MM-DD) and format to dd/MM/yyyy
             SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             return dateFormatter.format(isoFormat.parse(isoDate));
         } catch (Exception e) {
@@ -91,20 +145,29 @@ public class MortgageAccountAdapter extends RecyclerView.Adapter<MortgageAccount
         }
     }
     
+    public void updateList(List<MortgageAccountDTO> newList) {
+        this.mortgageAccounts = newList;
+        notifyDataSetChanged();
+    }
+    
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvMortgageNumber, tvStatus, tvLoanAmount, tvRemainingBalance;
-        TextView tvTerm, tvInterestRate, tvCollateralType, tvStartDate;
+        TextView tvAccountNumber, tvStatusBadge, tvCreatedDate;
+        TextView tvCustomerName, tvCustomerPhone;
+        TextView tvPrincipalAmount, tvCollateralType;
+        TextView tvRejectionReason;
+        LinearLayout layoutRejectionReason;
         
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvMortgageNumber = itemView.findViewById(R.id.tv_mortgage_number);
-            tvStatus = itemView.findViewById(R.id.tv_status);
-            tvLoanAmount = itemView.findViewById(R.id.tv_loan_amount);
-            tvRemainingBalance = itemView.findViewById(R.id.tv_remaining_balance);
-            tvTerm = itemView.findViewById(R.id.tv_term);
-            tvInterestRate = itemView.findViewById(R.id.tv_interest_rate);
+            tvAccountNumber = itemView.findViewById(R.id.tv_account_number);
+            tvStatusBadge = itemView.findViewById(R.id.tv_status_badge);
+            tvCreatedDate = itemView.findViewById(R.id.tv_created_date);
+            tvCustomerName = itemView.findViewById(R.id.tv_customer_name);
+            tvCustomerPhone = itemView.findViewById(R.id.tv_customer_phone);
+            tvPrincipalAmount = itemView.findViewById(R.id.tv_principal_amount);
             tvCollateralType = itemView.findViewById(R.id.tv_collateral_type);
-            tvStartDate = itemView.findViewById(R.id.tv_start_date);
+            tvRejectionReason = itemView.findViewById(R.id.tv_rejection_reason);
+            layoutRejectionReason = itemView.findViewById(R.id.layout_rejection_reason);
         }
     }
 }

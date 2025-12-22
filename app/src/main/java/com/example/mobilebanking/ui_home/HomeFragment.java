@@ -157,8 +157,20 @@ public class HomeFragment extends Fragment {
             depositButton.setOnClickListener(v -> showDepositDialog());
         }
         
-        setupQuickAction(view, R.id.uihome_action_data, new Intent(requireContext(), MobileTopUpActivity.class));
-        setupQuickAction(view, R.id.uihome_action_topup, new Intent(requireContext(), MobileTopUpActivity.class));
+        // Data 4G/5G - Tính năng đang phát triển
+        View dataButton = view.findViewById(R.id.uihome_action_data);
+        if (dataButton != null) {
+            dataButton.setOnClickListener(v -> 
+                Toast.makeText(requireContext(), "Tính năng đang phát triển", Toast.LENGTH_SHORT).show());
+        }
+        
+        // Nạp tiền điện thoại - Tính năng đang phát triển
+        View topupButton = view.findViewById(R.id.uihome_action_topup);
+        if (topupButton != null) {
+            topupButton.setOnClickListener(v -> 
+                Toast.makeText(requireContext(), "Tính năng đang phát triển", Toast.LENGTH_SHORT).show());
+        }
+        
         setupQuickAction(view, R.id.uihome_action_bill, new Intent(requireContext(), BillPaymentActivity.class));
         
         // Tiết kiệm - Navigate to Account Activity with Savings tab
@@ -176,9 +188,27 @@ public class HomeFragment extends Fragment {
         
         // Tiện ích - Mua sắm - Giải trí
         setupQuickAction(view, R.id.uihome_action_movie_tickets, new Intent(requireContext(), MovieListActivity.class));
-        setupQuickAction(view, R.id.uihome_action_flight_tickets, new Intent(requireContext(), TicketBookingActivity.class));
-        setupQuickAction(view, R.id.uihome_action_taxi, new Intent(requireContext(), ServicesActivity.class));
-        setupQuickAction(view, R.id.uihome_action_hotel, new Intent(requireContext(), HotelBookingActivity.class));
+        
+        // Vé máy bay - Tính năng đang phát triển
+        View flightButton = view.findViewById(R.id.uihome_action_flight_tickets);
+        if (flightButton != null) {
+            flightButton.setOnClickListener(v -> 
+                Toast.makeText(requireContext(), "Tính năng đang phát triển", Toast.LENGTH_SHORT).show());
+        }
+        
+        // Taxi - Tính năng đang phát triển
+        View taxiButton = view.findViewById(R.id.uihome_action_taxi);
+        if (taxiButton != null) {
+            taxiButton.setOnClickListener(v -> 
+                Toast.makeText(requireContext(), "Tính năng đang phát triển", Toast.LENGTH_SHORT).show());
+        }
+        
+        // Khách sạn - Tính năng đang phát triển
+        View hotelButton = view.findViewById(R.id.uihome_action_hotel);
+        if (hotelButton != null) {
+            hotelButton.setOnClickListener(v -> 
+                Toast.makeText(requireContext(), "Tính năng đang phát triển", Toast.LENGTH_SHORT).show());
+        }
 
         // Bottom navigation actions
         View navHome = view.findViewById(R.id.uihome_nav_home);
@@ -197,7 +227,7 @@ public class HomeFragment extends Fragment {
         }
         if (navPromo != null) {
             navPromo.setOnClickListener(v ->
-                    startActivity(new Intent(requireContext(), ServicesActivity.class)));
+                    Toast.makeText(requireContext(), "Tính năng đang phát triển", Toast.LENGTH_SHORT).show());
         }
         if (navMore != null) {
             navMore.setOnClickListener(v ->

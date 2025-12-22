@@ -13,7 +13,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Header -->
+        <!-- Header: Account Number and Status Badge -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -21,69 +21,99 @@
             android:gravity="center_vertical">
 
             <TextView
-                android:id="@+id/tv_mortgage_number"
+                android:id="@+id/tv_account_number"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="MVA-20250101001"
-                android:textColor="@color/bidv_text_dark"
-                android:textSize="14sp"
+                android:text="MTG202512221096"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/tv_status"
+                android:id="@+id/tv_status_badge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bidv_gradient_teal"
+                android:text="Đang vay"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="4dp"
-                android:text="ACTIVE"
-                android:textColor="@android:color/white"
-                android:textSize="10sp"
+                android:background="@drawable/bg_status_active"
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- Loan Amount -->
+        <!-- Created Date -->
         <TextView
-            android:id="@+id/tv_loan_amount"
+            android:id="@+id/tv_created_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="500,000,000 VND"
-            android:textColor="@color/bidv_primary"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:layout_marginTop="4dp"
+            android:text="2025-12-22"
+            android:textColor="@color/bidv_text_gray"
+            android:textSize="12sp" />
 
-        <!-- Remaining Balance -->
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="12dp"
+            android:background="@color/bidv_bg_gray" />
+
+        <!-- Customer Info -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Số dư còn lại: "
-                android:textColor="@color/bidv_text_gray"
-                android:textSize="12sp" />
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_profile"
+                android:padding="8dp"
+                android:background="@drawable/circle_background"
+                app:tint="@color/bidv_primary"
+                android:contentDescription="Customer" />
 
-            <TextView
-                android:id="@+id/tv_remaining_balance"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="450,000,000 VND"
-                android:textColor="@color/red_negative"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_customer_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nguyễn Thế An"
+                    android:textColor="@android:color/black"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_customer_phone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="0982269977"
+                    android:textColor="@color/bidv_text_gray"
+                    android:textSize="12sp" />
+            </LinearLayout>
         </LinearLayout>
 
-        <!-- Term & Interest Rate -->
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="12dp"
+            android:background="@color/bidv_bg_gray" />
+
+        <!-- Loan Details -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
             android:orientation="horizontal">
 
             <LinearLayout
@@ -95,18 +125,18 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Kỳ hạn"
+                    android:text="Số tiền vay"
                     android:textColor="@color/bidv_text_gray"
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/tv_term"
+                    android:id="@+id/tv_principal_amount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="120 tháng"
-                    android:textColor="@color/bidv_text_dark"
-                    android:textSize="14sp"
+                    android:text="500.000 đ"
+                    android:textColor="@color/bidv_primary"
+                    android:textSize="16sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -114,36 +144,13 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:gravity="end">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Lãi suất"
-                    android:textColor="@color/bidv_text_gray"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/tv_interest_rate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="9.5%/năm"
-                    android:textColor="@color/red_negative"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Tài sản"
+                    android:text="Tài sản thế chấp"
                     android:textColor="@color/bidv_text_gray"
                     android:textSize="12sp" />
 
@@ -152,42 +159,39 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="Nhà"
-                    android:textColor="@color/bidv_text_dark"
+                    android:text="Xe"
+                    android:textColor="@android:color/black"
                     android:textSize="14sp"
                     android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Date -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginVertical="12dp"
-            android:background="@color/divider_color" />
-
+        <!-- Rejection Reason (Only for REJECTED status) -->
         <LinearLayout
+            android:id="@+id/layout_rejection_reason"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_marginTop="12dp"
+            android:orientation="vertical"
+            android:visibility="gone">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Ngày giải ngân: "
+                android:text="Lý do từ chối"
                 android:textColor="@color/bidv_text_gray"
-                android:textSize="11sp" />
+                android:textSize="12sp" />
 
             <TextView
-                android:id="@+id/tv_start_date"
+                android:id="@+id/tv_rejection_reason"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="01/01/2025"
-                android:textColor="@color/bidv_text_dark"
-                android:textSize="11sp"
-                android:textStyle="bold" />
+                android:layout_marginTop="4dp"
+                android:text="Từ chối"
+                android:textColor="@android:color/holo_red_dark"
+                android:textSize="13sp" />
         </LinearLayout>
 
     </LinearLayout>
-</androidx.cardview.widget.CardView>
 
+</androidx.cardview.widget.CardView>
