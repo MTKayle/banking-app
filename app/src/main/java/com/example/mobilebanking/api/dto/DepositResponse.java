@@ -1,7 +1,6 @@
 package com.example.mobilebanking.api.dto;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 
 /**
  * Deposit Response DTO
@@ -11,7 +10,7 @@ public class DepositResponse {
     private BigDecimal newBalance;
     private BigDecimal depositAmount;
     private String description;
-    private Instant timestamp;
+    private String timestamp;  // Changed from Instant to String to avoid Gson parsing issues
     private String message;
 
     public DepositResponse() {
@@ -49,11 +48,11 @@ public class DepositResponse {
         this.description = description;
     }
 
-    public Instant getTimestamp() {
+    public String getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Instant timestamp) {
+    public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
 

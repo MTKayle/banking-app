@@ -1,5 +1,7 @@
 package com.example.mobilebanking.api.dto;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Response DTO for user information
  * Matches backend UserResponse DTO
@@ -15,12 +17,19 @@ public class UserResponse {
     private String temporaryAddress;
     private String photoUrl;
     private String role;
+    
+    @SerializedName("isLocked")
     private Boolean isLocked;
+    
+    @SerializedName("locked")
+    private Boolean locked;
+    
     private String createdAt;
     private String updatedAt;
     private Boolean smartEkycEnabled;
     private Boolean faceRecognitionEnabled;
     private Boolean fingerprintLoginEnabled;
+    private String accountNumber;
 
     public Long getUserId() {
         return userId;
@@ -103,11 +112,19 @@ public class UserResponse {
     }
 
     public Boolean getIsLocked() {
-        return isLocked;
+        return isLocked != null ? isLocked : locked;
     }
 
     public void setIsLocked(Boolean isLocked) {
         this.isLocked = isLocked;
+    }
+    
+    public Boolean getLocked() {
+        return locked;
+    }
+    
+    public void setLocked(Boolean locked) {
+        this.locked = locked;
     }
 
     public String getCreatedAt() {
@@ -148,5 +165,13 @@ public class UserResponse {
 
     public void setFingerprintLoginEnabled(Boolean fingerprintLoginEnabled) {
         this.fingerprintLoginEnabled = fingerprintLoginEnabled;
+    }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
     }
 }

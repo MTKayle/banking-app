@@ -24,6 +24,7 @@ public class MainRegistrationActivity extends AppCompatActivity {
     private RegistrationPagerAdapter adapter;
     private RegistrationData registrationData;
     private boolean isNavigating = false; // Prevent multiple navigation calls
+    private boolean isFromOfficer = false; // Flag để biết đang mở từ Officer hay User
 
     // Step indicator views (4 steps now)
     private TextView stepCircle1, stepCircle2, stepCircle3, stepCircle4;
@@ -33,6 +34,10 @@ public class MainRegistrationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_registration);
+        
+        // Kiểm tra xem có mở từ Officer không
+        isFromOfficer = getIntent().getBooleanExtra(OfficerOpenAccountActivity.EXTRA_FROM_OFFICER, false);
+        android.util.Log.d("MainRegistrationActivity", "isFromOfficer: " + isFromOfficer);
         
         // Always initialize registration data (Bitmap cannot be serialized, so we don't save/restore)
         // Fragments will get the instance from activity
@@ -169,6 +174,13 @@ public class MainRegistrationActivity extends AppCompatActivity {
      */
     public RegistrationData getRegistrationData() {
         return registrationData;
+    }
+    
+    /**
+     * Check if registration is opened from Officer
+     */
+    public boolean isFromOfficer() {
+        return isFromOfficer;
     }
     
     /**

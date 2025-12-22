@@ -21,6 +21,7 @@ import com.example.mobilebanking.activities.OfficerDepositActivity;
 import com.example.mobilebanking.activities.OfficerInterestRateActivity;
 import com.example.mobilebanking.activities.OfficerMortgageCreateActivity;
 import com.example.mobilebanking.activities.OfficerMortgageListActivity;
+import com.example.mobilebanking.activities.OfficerOpenAccountActivity;
 import com.example.mobilebanking.activities.OfficerReportsActivity;
 import com.example.mobilebanking.activities.OfficerUserListActivity;
 import com.example.mobilebanking.activities.OfficerSettingsActivity;
@@ -101,11 +102,11 @@ public class OfficerHomeFragment extends Fragment {
      * Setup all officer action buttons
      */
     private void setupOfficerActions(View view) {
-        // User Management - all go to User List
+        // User Management - all go to User List except Open Account
         setupAction(view, R.id.officer_action_user_list, OfficerUserListActivity.class);
         setupAction(view, R.id.officer_action_user_search, OfficerUserListActivity.class);
         setupAction(view, R.id.officer_action_user_lock, OfficerUserListActivity.class);
-        setupAction(view, R.id.officer_action_user_update, OfficerUserListActivity.class);
+        setupAction(view, R.id.officer_action_open_account, OfficerOpenAccountActivity.class);
         
         // Mortgage Management - updated IDs after merging pending+approve
         setupAction(view, R.id.officer_action_mortgage_create, OfficerMortgageCreateActivity.class);

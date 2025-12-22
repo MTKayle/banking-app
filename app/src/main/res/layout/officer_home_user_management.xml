@@ -166,7 +166,7 @@
                 android:lineSpacingExtra="1dp" />
         </LinearLayout>
 
-        <!-- 4) Cập nhật thông tin -->
+        <!-- 4) Mở tài khoản -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -176,7 +176,7 @@
             android:orientation="vertical">
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/officer_action_user_update"
+                android:id="@+id/officer_action_open_account"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="16dp"
@@ -194,16 +194,16 @@
                     <ImageView
                         android:layout_width="30dp"
                         android:layout_height="30dp"
-                        android:src="@drawable/ic_edit"
+                        android:src="@drawable/ic_add"
                         app:tint="#4CAF50"
-                        android:contentDescription="@string/user_update" />
+                        android:contentDescription="Mở tài khoản" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/user_update"
+                android:text="Mở tài khoản"
                 android:textColor="@color/uihome_text_primary"
                 android:textSize="10sp"
                 android:layout_marginTop="4dp"

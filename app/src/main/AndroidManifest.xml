@@ -165,6 +165,9 @@
         <activity
             android:name="com.example.mobilebanking.activities.PaymentSchedulesActivity"
             android:parentActivityName="com.example.mobilebanking.activities.OfficerMortgageDetailActivity" />
+        <activity
+            android:name="com.example.mobilebanking.activities.OfficerOpenAccountActivity"
+            android:parentActivityName="com.example.mobilebanking.ui_home.OfficerHomeActivity" />
 
         <activity
             android:name="com.example.mobilebanking.activities.OfficerDashboardActivity" />

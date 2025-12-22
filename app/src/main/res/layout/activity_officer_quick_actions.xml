@@ -15,7 +15,7 @@
         android:rowCount="1"
         android:useDefaultMargins="false">
 
-        <!-- 1) Chuyển tiền -->
+        <!-- 1) Mở tài khoản -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -25,7 +25,7 @@
             android:orientation="vertical">
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/officer_action_transfer"
+                android:id="@+id/officer_action_open_account"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="16dp"
@@ -43,16 +43,16 @@
                     <ImageView
                         android:layout_width="35dp"
                         android:layout_height="35dp"
-                        android:src="@drawable/ic_transfer"
+                        android:src="@drawable/ic_add"
                         app:tint="#4CAF50"
-                        android:contentDescription="Chuyển tiền" />
+                        android:contentDescription="Mở tài khoản" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Chuyển tiền"
+                android:text="Mở tài khoản"
                 android:textColor="@color/uihome_text_primary"
                 android:textSize="10sp"
                 android:layout_marginTop="4dp"

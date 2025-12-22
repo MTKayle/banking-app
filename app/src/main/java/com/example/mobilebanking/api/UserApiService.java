@@ -113,6 +113,16 @@ public interface UserApiService {
     Call<UserResponse> getUserByPhone(@Path("phone") String phone);
     
     /**
+     * Search user by phone number - Returns raw ResponseBody for manual parsing
+     * Use this when Gson auto-parsing fails due to date format issues
+     * Endpoint: GET /users/by-phone/{phone}
+     * @param phone Phone number to search
+     * @return ResponseBody for manual JSON parsing
+     */
+    @GET("users/by-phone/{phone}")
+    Call<okhttp3.ResponseBody> getUserByPhoneRaw(@Path("phone") String phone);
+    
+    /**
      * Search user by CCCD number - Only OFFICER can access
      * Endpoint: GET /users/by-cccd/{cccdNumber}
      * @param cccdNumber CCCD number to search

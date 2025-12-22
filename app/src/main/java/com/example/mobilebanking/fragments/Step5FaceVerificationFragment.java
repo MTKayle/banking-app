@@ -42,6 +42,7 @@ import com.example.mobilebanking.api.AuthApiService;
 import com.example.mobilebanking.api.dto.AuthResponse;
 import com.example.mobilebanking.models.RegistrationData;
 import com.example.mobilebanking.models.User;
+import com.example.mobilebanking.ui_home.OfficerHomeActivity;
 import com.example.mobilebanking.utils.DataManager;
 import com.example.mobilebanking.views.FaceDetectionOverlay;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -1040,8 +1041,15 @@ public class Step5FaceVerificationFragment extends Fragment {
                     Log.d(TAG, "Face verification successful!");
                     AuthResponse authResponse = response.body();
                     
-                    // Save session
-                    if (getActivity() != null) {
+                    // Kiểm tra xem có mở từ Officer không
+                    boolean isFromOfficer = false;
+                    if (getActivity() instanceof MainRegistrationActivity) {
+                        isFromOfficer = ((MainRegistrationActivity) getActivity()).isFromOfficer();
+                    }
+                    
+                    // Chỉ lưu session nếu KHÔNG phải Officer mở tài khoản
+                    // Vì Officer đang đăng nhập, không nên ghi đè session của Officer
+                    if (!isFromOfficer && getActivity() != null) {
                         DataManager dataManager = DataManager.getInstance(getActivity());
                         User.UserRole role = "CUSTOMER".equalsIgnoreCase(authResponse.getRole())
                                 ? User.UserRole.CUSTOMER
@@ -1053,6 +1061,8 @@ public class Step5FaceVerificationFragment extends Fragment {
                         if (authResponse.getToken() != null) {
                             dataManager.saveTokens(authResponse.getToken(), authResponse.getToken());
                         }
+                    } else {
+                        Log.d(TAG, "Skipping session save - Officer is creating account for customer");
                     }
                     
                     // Show success dialog
@@ -1169,6 +1179,14 @@ public class Step5FaceVerificationFragment extends Fragment {
         Log.d(TAG, "Showing verification success dialog");
         isDialogShowing = true;
         
+        // Kiểm tra xem có mở từ Officer không
+        boolean isFromOfficer = false;
+        if (getActivity() instanceof MainRegistrationActivity) {
+            isFromOfficer = ((MainRegistrationActivity) getActivity()).isFromOfficer();
+        }
+        final boolean finalIsFromOfficer = isFromOfficer;
+        Log.d(TAG, "isFromOfficer: " + isFromOfficer);
+        
         // Update UI and show dialog on main thread
         getActivity().runOnUiThread(() -> {
             if (getActivity() == null || getActivity().isFinishing() || !isAdded()) {
@@ -1181,16 +1199,29 @@ public class Step5FaceVerificationFragment extends Fragment {
                 progressBar.setVisibility(View.GONE);
             }
             
+            // Tạo message khác nhau cho Officer và User
+            String message;
+            if (finalIsFromOfficer) {
+                message = "Tài khoản khách hàng đã được tạo thành công!\n\n" +
+                         "Khách hàng có thể đăng nhập vào hệ thống bằng số điện thoại đã đăng ký.";
+            } else {
+                message = "Khuôn mặt của bạn đã được xác thực thành công với ảnh trên CCCD.\n\n" +
+                         "Bạn sẽ được chuyển về màn hình đăng nhập để đăng nhập vào hệ thống.";
+            }
+            
             // Show success dialog - chỉ hiển thị 1 dialog
             new AlertDialog.Builder(getActivity())
                     .setTitle("✓ XÁC THỰC THÀNH CÔNG")
-                    .setMessage("Khuôn mặt của bạn đã được xác thực thành công với ảnh trên CCCD.\n\n" +
-                               "Bạn sẽ được chuyển về màn hình đăng nhập để đăng nhập vào hệ thống.")
+                    .setMessage(message)
                     .setCancelable(false)
                     .setPositiveButton("OK", (dialog, which) -> {
                         isDialogShowing = false;
-                        // Navigate back to login screen
-                        navigateToLogin();
+                        // Navigate based on who opened the registration
+                        if (finalIsFromOfficer) {
+                            navigateToOfficerHome();
+                        } else {
+                            navigateToLogin();
+                        }
                     })
                     .setOnDismissListener(dialog -> {
                         isDialogShowing = false;
@@ -1327,6 +1358,23 @@ public class Step5FaceVerificationFragment extends Fragment {
         startActivity(intent);
 
         // Finish registration activity if still running
+        getActivity().finish();
+    }
+    
+    /**
+     * Navigate back to Officer Home after successful account creation
+     * Không lưu session của user mới đăng ký vì Officer đang đăng nhập
+     */
+    private void navigateToOfficerHome() {
+        if (getActivity() == null) return;
+        
+        Log.d(TAG, "Navigating back to Officer Home");
+
+        Intent intent = new Intent(getActivity(), OfficerHomeActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+
+        // Finish registration activity
         getActivity().finish();
     }
     

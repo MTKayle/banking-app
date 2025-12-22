@@ -32,7 +32,7 @@ import java.util.Locale;
 public class OfficerDashboardActivity extends BaseActivity {
     private TextView tvTotalBalance;
     private ImageView ivToggleBalance, ivAvatar;
-    private CardView cvTransfer, cvMyQr, cvMortgage, cvSearch;
+    private CardView cvOpenAccount, cvMyQr, cvMortgage, cvSearch;
     private ViewPager2 viewPagerCarousel;
     private LinearLayout navHome, navQr, navCard, navProfile;
     private DataManager dataManager;
@@ -70,7 +70,7 @@ public class OfficerDashboardActivity extends BaseActivity {
         ivAvatar = findViewById(R.id.iv_avatar);
         
         // Quick Actions
-        cvTransfer = findViewById(R.id.officer_action_transfer);
+        cvOpenAccount = findViewById(R.id.officer_action_open_account);
         cvMyQr = findViewById(R.id.officer_action_my_qr);
         cvMortgage = findViewById(R.id.officer_action_mortgage);
         cvSearch = findViewById(R.id.officer_action_search);
@@ -286,10 +286,10 @@ public class OfficerDashboardActivity extends BaseActivity {
     }
 
     private void setupQuickActions() {
-        // Chuyển tiền
-        if (cvTransfer != null) {
-            cvTransfer.setOnClickListener(v -> {
-                startActivity(new Intent(this, TransferActivity.class));
+        // Mở tài khoản
+        if (cvOpenAccount != null) {
+            cvOpenAccount.setOnClickListener(v -> {
+                startActivity(new Intent(this, OfficerOpenAccountActivity.class));
             });
         }
         
