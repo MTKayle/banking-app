@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -51,9 +52,11 @@ dependencies {
     // ViewPager2
     implementation("androidx.viewpager2:viewpager2:1.0.0")
 
-    // Google Maps
+    // Google Maps (dùng để hiển thị bản đồ)
     implementation("com.google.android.gms:play-services-maps:18.2.0")
     implementation("com.google.android.gms:play-services-location:21.0.1")
+    
+    // TrackAsia: Chỉ dùng API (không cần SDK), gọi qua Retrofit
 
     // Gson for JSON parsing
     implementation("com.google.code.gson:gson:2.10.1")
@@ -90,6 +93,11 @@ dependencies {
     // ZXing for QR code generation
     implementation("com.google.zxing:core:3.5.1")
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+
+    // Firebase Cloud Messaging
+    implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
+    implementation("com.google.firebase:firebase-messaging")
+    implementation("com.google.firebase:firebase-analytics")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

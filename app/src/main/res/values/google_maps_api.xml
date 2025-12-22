@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+    Google Maps Android API v2 Configuration
+    
+    TODO: Before running your application, you need to get your own API key:
+    
+    1. Go to the Google Cloud Console: https://console.cloud.google.com/
+    2. Enable the "Maps SDK for Android" API
+    3. Create credentials (API Key)
+    4. Restrict the API key to Android apps
+    5. Add your package name and SHA-1 certificate fingerprint
+    6. Replace the google_maps_key value below with your API key
+    
+    For more information, see:
+    https://developers.google.com/maps/documentation/android-sdk/get-api-key
+    -->
+    
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyAGxCGir6oJYZ7BoqdBmpYmjB0Fn4tQ8nE</string>
+</resources>

@@ -605,6 +605,9 @@ public class OtpVerificationActivity extends AppCompatActivity {
                     SessionManager sessionManager = SessionManager.getInstance(OtpVerificationActivity.this);
                     sessionManager.onLoginSuccess();
                     
+                    // Đăng ký FCM token sau khi đăng nhập thành công
+                    com.example.mobilebanking.utils.FcmTokenManager.registerFcmToken(OtpVerificationActivity.this);
+                    
                     Toast.makeText(OtpVerificationActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
                     
                     // Navigate to dashboard

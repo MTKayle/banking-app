@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "912789136898",
+    "project_id": "ibanking-mobile-app",
+    "storage_bucket": "ibanking-mobile-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:912789136898:android:d47f278d648157e226e91b",
+        "android_client_info": {
+          "package_name": "com.example.mobilebanking"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA0FV7EL3lrYSQM1jXuBbO_yB7oj6oosh4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:912789136898:android:219b6dbae1d9eee426e91b",
+        "android_client_info": {
+          "package_name": "com.ibanking.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA0FV7EL3lrYSQM1jXuBbO_yB7oj6oosh4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1053,6 +1053,9 @@ public class Step5FaceVerificationFragment extends Fragment {
                         if (authResponse.getToken() != null) {
                             dataManager.saveTokens(authResponse.getToken(), authResponse.getToken());
                         }
+                        
+                        // Đăng ký FCM token sau khi đăng ký thành công
+                        com.example.mobilebanking.utils.FcmTokenManager.registerFcmToken(getActivity());
                     }
                     
                     // Show success dialog

@@ -23,6 +23,7 @@ import com.example.mobilebanking.models.User;
 import com.example.mobilebanking.utils.BiometricAuthManager;
 import com.example.mobilebanking.utils.DataManager;
 import com.example.mobilebanking.utils.SessionManager;
+import com.example.mobilebanking.utils.FcmTokenManager;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -292,26 +293,93 @@ public class LoginActivity extends BaseActivity {
         final String finalPhone = phone;
         final String finalPassword = password;
         
-        if (lastUsername != null && !lastUsername.isEmpty() && !finalPhone.equals(lastUsername)) {
-            // Không phải tài khoản cuối cùng → Yêu cầu xác thực OTP
-            new AlertDialog.Builder(this)
-                    .setTitle("Xác Thực OTP")
-                    .setMessage("Bạn đang đăng nhập bằng tài khoản khác. Vui lòng xác thực OTP để tiếp tục.")
-                    .setPositiveButton("Xác Thực", (dialog, which) -> {
-                        // Chuyển sang OtpVerificationActivity
-                        Intent intent = new Intent(LoginActivity.this, OtpVerificationActivity.class);
-                        intent.putExtra("flow", "login_verification");
-                        intent.putExtra("phone", finalPhone);
-                        intent.putExtra("password", finalPassword);
-                        startActivity(intent);
-                    })
-                    .setNegativeButton("Hủy", null)
-                    .show();
+        // Chỉ khi đăng nhập lại ĐÚNG tài khoản cuối cùng thì mới không cần OTP
+        if (lastUsername != null && !lastUsername.isEmpty() && finalPhone.equals(lastUsername)) {
+            // Đăng nhập lại tài khoản cuối cùng → Đăng nhập bình thường (không cần OTP)
+            performPasswordLogin(finalPhone, finalPassword);
             return;
         }
 
-        // Tài khoản cuối cùng hoặc lần đầu đăng nhập → Đăng nhập bình thường
-        performPasswordLogin(finalPhone, finalPassword);
+        // Các trường hợp khác → Yêu cầu OTP:
+        // 1. Lần đầu tải app (lastUsername = null)
+        // 2. Đăng nhập bằng tài khoản khác (finalPhone != lastUsername)
+        verifyLoginAndRequestOtp(finalPhone, finalPassword);
+    }
+    
+    /**
+     * Xác thực thông tin đăng nhập trước khi yêu cầu OTP
+     * Dùng cho trường hợp đăng nhập bằng tài khoản khác
+     */
+    private void verifyLoginAndRequestOtp(String phone, String password) {
+        // Disable login button to prevent multiple clicks
+        btnLogin.setEnabled(false);
+        btnLogin.setText("Đang kiểm tra...");
+
+        // Call API để verify thông tin đăng nhập
+        LoginRequest loginRequest = new LoginRequest(phone, password);
+        AuthApiService authApiService = ApiClient.getAuthApiService();
+        
+        Call<AuthResponse> call = authApiService.login(loginRequest);
+        call.enqueue(new Callback<AuthResponse>() {
+            @Override
+            public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+                btnLogin.setEnabled(true);
+                btnLogin.setText("Đăng nhập");
+                
+                if (response.isSuccessful() && response.body() != null) {
+                    // Đăng nhập thành công → Chuyển sang OTP verification
+                    new AlertDialog.Builder(LoginActivity.this)
+                            .setTitle("Xác Thực OTP")
+                            .setMessage("Thông tin đăng nhập chính xác. Vui lòng xác thực OTP để tiếp tục.")
+                            .setPositiveButton("Xác Thực", (dialog, which) -> {
+                                // Chuyển sang OtpVerificationActivity
+                                Intent intent = new Intent(LoginActivity.this, OtpVerificationActivity.class);
+                                intent.putExtra("flow", "login_verification");
+                                intent.putExtra("phone", phone);
+                                intent.putExtra("password", password);
+                                startActivity(intent);
+                            })
+                            .setNegativeButton("Hủy", null)
+                            .show();
+                } else {
+                    // Parse error message
+                    String errorMessage = "Số điện thoại hoặc mật khẩu không chính xác";
+                    try {
+                        if (response.errorBody() != null) {
+                            String errorBody = response.errorBody().string();
+                            JsonObject jsonObject = JsonParser.parseString(errorBody).getAsJsonObject();
+                            if (jsonObject.has("message")) {
+                                errorMessage = jsonObject.get("message").getAsString();
+                            } else if (jsonObject.has("error")) {
+                                errorMessage = jsonObject.get("error").getAsString();
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    
+                    Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<AuthResponse> call, Throwable t) {
+                btnLogin.setEnabled(true);
+                btnLogin.setText("Đăng nhập");
+                
+                String errorMessage = "Không thể kết nối đến server";
+                if (t.getMessage() != null) {
+                    if (t.getMessage().contains("Failed to connect")) {
+                        errorMessage = "Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng.";
+                    } else {
+                        errorMessage = "Lỗi: " + t.getMessage();
+                    }
+                }
+                
+                Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                t.printStackTrace();
+            }
+        });
     }
     
     private void performPasswordLogin(String phone, String password) {
@@ -384,6 +452,9 @@ public class LoginActivity extends BaseActivity {
                     
                     // Reset session khi đăng nhập thành công
                     sessionManager.onLoginSuccess();
+
+                    // Đăng ký FCM token sau khi đăng nhập thành công
+                    FcmTokenManager.registerFcmToken(LoginActivity.this);
 
                     Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
                     navigateToDashboard();
@@ -567,6 +638,9 @@ public class LoginActivity extends BaseActivity {
                             
                             // Reset session khi đăng nhập thành công
                             sessionManager.onLoginSuccess();
+
+                            // Đăng ký FCM token sau khi đăng nhập thành công
+                            FcmTokenManager.registerFcmToken(LoginActivity.this);
 
                             runOnUiThread(() -> {
                                 Toast.makeText(LoginActivity.this, "Đăng nhập bằng vân tay thành công!", Toast.LENGTH_SHORT).show();

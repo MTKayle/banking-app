@@ -78,6 +78,7 @@ public class ApiClient {
 
     private static Retrofit retrofit;
     private static Retrofit esmsRetrofit;
+    private static Retrofit publicRetrofit; // Retrofit cho public APIs (không cần token)
     private static AuthApiService authApiService;
     private static AccountApiService accountApiService;
     private static PaymentApiService paymentApiService;
@@ -92,6 +93,9 @@ public class ApiClient {
     private static UtilityBillApiService utilityBillApiService;
     private static QrApiService qrApiService;
     private static VNPayApiService vnPayApiService;
+    private static BranchApiService branchApiService;
+    private static TrackAsiaApiService trackAsiaApiService;
+    private static NotificationApiService notificationApiService;
 
     private static Context applicationContext;
 
@@ -155,6 +159,34 @@ public class ApiClient {
                     .build();
         }
         return retrofit;
+    }
+    
+    /**
+     * Lấy Retrofit instance cho public APIs (không cần token)
+     * Dùng cho các endpoint như: /bank-branches, /saving/terms, etc.
+     */
+    public static Retrofit getPublicRetrofitInstance() {
+        if (publicRetrofit == null) {
+            // Create logging interceptor
+            HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+            logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+            // Create OkHttp client WITHOUT auth interceptor
+            OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder()
+                    .addInterceptor(logging)
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(30, TimeUnit.SECONDS)
+                    .writeTimeout(30, TimeUnit.SECONDS);
+
+            OkHttpClient okHttpClient = clientBuilder.build();
+
+            publicRetrofit = new Retrofit.Builder()
+                    .baseUrl(BASE_URL)
+                    .client(okHttpClient)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+        }
+        return publicRetrofit;
     }
 
     /**
@@ -313,10 +345,60 @@ public class ApiClient {
     }
     
     /**
+     * Lấy BranchApiService instance (yêu cầu authentication token)
+     */
+    public static BranchApiService getBranchApiService() {
+        if (branchApiService == null) {
+            branchApiService = getRetrofitInstance().create(BranchApiService.class);
+        }
+        return branchApiService;
+    }
+    
+    /**
+     * TrackAsia API Service cho tìm đường
+     * Base URL: https://api.trackasia.org/ (đổi từ .com sang .org)
+     * Không cần authentication token
+     */
+    public static TrackAsiaApiService getTrackAsiaApiService() {
+        if (trackAsiaApiService == null) {
+            HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+            logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+            
+            // Tạo OkHttpClient với cấu hình SSL đơn giản hơn
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .addInterceptor(logging)
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(30, TimeUnit.SECONDS)
+                    .writeTimeout(30, TimeUnit.SECONDS)
+                    .build();
+            
+            // Thử nhiều base URL khác nhau
+            Retrofit trackAsiaRetrofit = new Retrofit.Builder()
+                    .baseUrl("https://router.project-osrm.org/") // Dùng OSRM public API thay thế
+                    .client(client)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+            
+            trackAsiaApiService = trackAsiaRetrofit.create(TrackAsiaApiService.class);
+        }
+        return trackAsiaApiService;
+    }
+    
+    /**
      * Get base URL (without /api/ suffix)
      */
     public static String getBaseUrl() {
         return BASE_URL.replace("/api/", "");
+    }
+    
+    /**
+     * Lấy NotificationApiService instance
+     */
+    public static NotificationApiService getNotificationApiService() {
+        if (notificationApiService == null) {
+            notificationApiService = getRetrofitInstance().create(NotificationApiService.class);
+        }
+        return notificationApiService;
     }
 
     /**
@@ -324,6 +406,7 @@ public class ApiClient {
      */
     public static void reset() {
         retrofit = null;
+        publicRetrofit = null;
         authApiService = null;
         accountApiService = null;
         paymentApiService = null;
@@ -333,5 +416,6 @@ public class ApiClient {
         userApiService = null;
         externalAccountApiService = null;
         utilityBillApiService = null;
+        branchApiService = null;
     }
 }
